@@ -12,8 +12,9 @@
         {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
-
-        <nav class="navbar navbar-expand-lg navbar-dark main-bgr px-5 py-4 d-flex justify-content-between">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark px-5 py-4 d-flex justify-content-between">
             <div>
                 <a class="navbar-brand" href="/">Прокофьев и Чайковский</a>
             </div>
@@ -38,8 +39,6 @@
                 </div>
             </div>
         </nav>
-    </head>
-    <body class="main-bgr">
         <div class="px-5 py-5">
             {% block body %}{% endblock %}
         </div>

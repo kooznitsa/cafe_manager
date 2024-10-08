@@ -8,8 +8,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class MenuController extends AbstractController
 {
-    #[Route('/menu')]
-    public function menu(): Response
+    #[Route("/menu", name: "menu_list")]
+    public function list(): Response
     {
         return $this->render("menu.html.twig", [
 

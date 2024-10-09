@@ -5,26 +5,7 @@
 {% block body %}
     <h1>Меню</h1>
 
-    <h2>Кофе</h2>
-    <ul>
-        <li>Капучино</li>
-        <li>Американо</li>
-        <li>Эспрессо</li>
-        <li>Флэт-уайт</li>
-    </ul>
-
-    <h2>Чай</h2>
-    <ul>
-        <li>Черный</li>
-        <li>Эрл Грей</li>
-        <li>Зеленый</li>
-        <li>Чай из березовых листьев</li>
-        <li>Таежный сбор</li>
-        <li>Чай с облепихой</li>
-    </ul>
-
-    <h2>Десерты</h2>
-    <ul>
-        <li>Капкейк</li>
-    </ul>
+    {% for category in categories %}
+        <h2>{{ category.name }}</h2>
+    {% endfor %}
 {% endblock %}

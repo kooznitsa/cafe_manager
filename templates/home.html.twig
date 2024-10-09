@@ -3,5 +3,22 @@
 {% block title %}Прокофьев и Чайковский{% endblock %}
 
 {% block body %}
-<h1>Привет, {{ name }}</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Имя</th>
+            <th scope="col">Эмейл</th>
+            <th scope="col">Адрес</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.address }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

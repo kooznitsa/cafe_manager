@@ -2,6 +2,7 @@ services:
   database:
     image: postgres:${POSTGRES_VERSION:-16}-alpine
     container_name: "${APP_NAME}_database"
+    working_dir: /app
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     restart: "always"
@@ -15,6 +16,7 @@ services:
       retries: 5
       start_period: 60s
     volumes:
+      - dump:/app/dump
       - database_data:/var/lib/postgresql/data:rw
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       # - ./docker/db/data:/var/lib/postgresql/data:rw
@@ -41,4 +43,5 @@ services:
     profiles: [deploy]
 
 volumes:
+  dump:
   database_data:

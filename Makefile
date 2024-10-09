@@ -6,6 +6,7 @@ PHP_CONSOLE := php bin/console
 
 
 # -------------- DOCKER --------------
+
 # Runs database container
 .PHONY: run
 run:
@@ -28,6 +29,7 @@ fullstop:
 
 
 # -------------- SYMFONY --------------
+
 # Starts Symfony server
 .PHONY: startserver
 startserver:
@@ -38,14 +40,17 @@ startserver:
 entity:
 	$(PHP_CONSOLE) make:entity
 
-# Creates migrations and migrates
+
+# -------------- DOCTRINE --------------
+
+# Applies migration
 .PHONY: migrate
 migrate:
-	$(DOCKER_EXEC) $(PHP_CONSOLE) make:migration --formatted
 	$(DOCKER_EXEC) $(PHP_CONSOLE) doctrine:migrations:migrate
 
 
 # -------------- LINTER --------------
+
 # Runs PHP_CodeSniffer through /src directory using PSR-12
 .PHONY: linter
 linter:

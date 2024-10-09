@@ -5,7 +5,24 @@
 {% block body %}
     <h1>Меню</h1>
 
-    {% for category in categories %}
-        <h2>{{ category.name }}</h2>
+    <h2>Кофе</h2>
+    {% for dish in dishes[0] %}
+        <ul>
+            <li>{{ dish.name }} - {{ dish.price }} - {{ dish.image }}</li>
+        </ul>
+    {% endfor %}
+
+    <h2>Чай</h2>
+    {% for dish in dishes[1] %}
+        <ul>
+            <li>{{ dish.name }} - {{ dish.price }} - {{ dish.image }}</li>
+        </ul>
+    {% endfor %}
+
+    <h2>Десерты</h2>
+    {% for dish in dishes[2] %}
+        <ul>
+            <li>{{ dish.name }} - {{ dish.price }} - {{ dish.image }}</li>
+        </ul>
     {% endfor %}
 {% endblock %}

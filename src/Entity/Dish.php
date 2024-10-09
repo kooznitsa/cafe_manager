@@ -5,22 +5,23 @@ namespace App\Entity;
 use App\Repository\DishRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Table(name: 'dishes')]
 #[ORM\Entity(repositoryClass: DishRepository::class)]
 class Dish
 {
+    #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true, nullable: false)]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'dishes')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(unique: true)]
     private ?Category $category = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: false)]
     private ?float $price = null;
 
     #[ORM\Column(length: 255, nullable: true)]

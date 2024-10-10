@@ -5,26 +5,26 @@
 {% block body %}
     <h1>Меню</h1>
 
-    <h2>Кофе</h2>
-    <ul>
-        <li>Капучино</li>
-        <li>Американо</li>
-        <li>Эспрессо</li>
-        <li>Флэт-уайт</li>
-    </ul>
+    <div class="menu-list">
+        <h2 class="my-3">Кофе</h2>
+        <div class="row row-cols-2 justify-content-between">
+            {% for dish in dishes[0] %}
+                {% include 'partials/menu_item.html.twig' with {'category': 'coffee/'} %}
+            {% endfor %}
+        </div>
 
-    <h2>Чай</h2>
-    <ul>
-        <li>Черный</li>
-        <li>Эрл Грей</li>
-        <li>Зеленый</li>
-        <li>Чай из березовых листьев</li>
-        <li>Таежный сбор</li>
-        <li>Чай с облепихой</li>
-    </ul>
+        <h2 class="my-3">Чай</h2>
+        <div class="row row-cols-2 justify-content-between">
+            {% for dish in dishes[1] %}
+                {% include 'partials/menu_item.html.twig' with {'category': 'tea/'} %}
+            {% endfor %}
+        </div>
 
-    <h2>Десерты</h2>
-    <ul>
-        <li>Капкейк</li>
-    </ul>
+        <h2 class="my-3">Десерты</h2>
+        <div class="row row-cols-2 justify-content-between">
+            {% for dish in dishes[2] %}
+                {% include 'partials/menu_item.html.twig' with {'category': 'dessert/'} %}
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

@@ -6,19 +6,18 @@ use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Mapping\ClassMetadata;
 
+#[ORM\Table(name: 'categories')]
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
+#[ORM\UniqueConstraint(name: 'categories__name__unique', columns: ['name'])]
 class Category
 {
+    #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 32, nullable: false)]
     private ?string $name = null;
 
     /**
@@ -47,16 +46,6 @@ class Category
         $this->name = $name;
 
         return $this;
-    }
-
-    public static function loadValidatorMetadata(ClassMetadata $metadata): void
-    {
-//        $metadata->addConstraint(new UniqueEntity([
-//            'fields' => 'name',
-//        ]));
-
-        $metadata->addPropertyConstraint('name', new Assert\NotBlank());
-        $metadata->addPropertyConstraint('name', new Assert\Unique());
     }
 
     /**

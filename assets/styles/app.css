@@ -1,3 +1,13 @@
 body {
     background-color: #808080;
 }
+
+.accent {
+    background-color: #8B4513;
+    color: #FFF;
+}
+
+.accent:hover {
+    background-color: #A0522D;
+    color: #FFF;
+}

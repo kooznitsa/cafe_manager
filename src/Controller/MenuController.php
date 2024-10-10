@@ -3,9 +3,9 @@
 namespace App\Controller;
 
 use App\Manager\{CategoryManager, DishManager};
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class MenuController extends AbstractController
 {
@@ -26,6 +26,7 @@ class MenuController extends AbstractController
         }
 
         return $this->render('menu.html.twig', [
+            'category' => null,
             'dishes' => $dishes,
         ]);
     }

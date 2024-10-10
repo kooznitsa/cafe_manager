@@ -3,12 +3,15 @@
 namespace App\Manager;
 
 use App\Entity\Category;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CategoryManager
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly CategoryRepository $categoryRepository,
+    ) {
     }
 
     public function create(string $name): Category
@@ -25,6 +28,6 @@ class CategoryManager
 
     public function listCategories(): array
     {
-        return $this->entityManager->getRepository(Category::class)->findAll();
+        return $this->categoryRepository->listCategories();
     }
 }

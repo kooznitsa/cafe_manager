@@ -3,15 +3,18 @@
 namespace App\Manager;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UserManager
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UserRepository $userRepository,
+    ) {
     }
 
-    public function create(string $name, string $password, string $email, string $address): User
+    public function createUser(string $name, string $password, string $email, string $address): User
     {
         $user = new User();
 
@@ -33,6 +36,6 @@ class UserManager
      */
     public function findUsersByAddress(string $address): array
     {
-        return $this->entityManager->getRepository(User::class)->findBy(['address' => $address]);
+        return $this->userRepository->findUsersByAddress($address);
     }
 }

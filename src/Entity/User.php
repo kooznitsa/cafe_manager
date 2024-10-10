@@ -30,7 +30,7 @@ class User
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     private DateTime $createdAt;
 
-    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: false)]
+    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
     private DateTime $updatedAt;
 
     public function getId(): int
@@ -83,19 +83,23 @@ class User
         $this->address = $address;
     }
 
-    public function getCreatedAt(): DateTime {
+    public function getCreatedAt(): DateTime
+    {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(): void {
+    public function setCreatedAt(): void
+    {
         $this->createdAt = new DateTime();
     }
 
-    public function getUpdatedAt(): DateTime {
+    public function getUpdatedAt(): DateTime
+    {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(): void {
+    public function setUpdatedAt(): void
+    {
         $this->updatedAt = new DateTime();
     }
 

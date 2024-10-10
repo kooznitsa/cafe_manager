@@ -3,12 +3,15 @@
 namespace App\Manager;
 
 use App\Entity\{Category, Dish};
+use App\Repository\DishRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class DishManager
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly DishRepository $dishRepository,
+    ) {
     }
 
     public function create(string $name, Category $category, float $price, ?string $image): Dish
@@ -26,13 +29,11 @@ class DishManager
         return $dish;
     }
 
-    public function listDishesByCategory(Category $category): array
-    {
-        return $this->entityManager->getRepository(Dish::class)->findByCategory($category);
-    }
-
+    /**
+     * @return Dish[]
+     */
     public function listDishes(): array
     {
-        return $this->entityManager->getRepository(Dish::class)->findAll();
+        return $this->dishRepository->listDishes();
     }
 }

@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'categories')]
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
+#[ORM\UniqueConstraint(name: 'categories__name__unique', columns: ['name'])]
 class Category
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
@@ -16,7 +17,7 @@ class Category
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 32, unique: true, nullable: false)]
+    #[ORM\Column(length: 32, nullable: false)]
     private ?string $name = null;
 
     /**

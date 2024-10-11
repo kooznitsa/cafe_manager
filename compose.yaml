@@ -29,6 +29,7 @@ services:
     volumes:
       - ./:/app
     working_dir: /app
+    user: 1000:1000
     profiles: [deploy]
 
   nginx:

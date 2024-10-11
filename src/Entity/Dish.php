@@ -128,19 +128,6 @@ class Dish
         return $this;
     }
 
-    public function getImageUrl(): ?string
-    {
-        if (!$this->image) {
-            return null;
-        } else if (str_contains($this->image, '/')) {
-            return $this->image;
-        }
-
-        $category = ['coffee', 'tea', 'dessert'][$this->getCategory()->getId()];
-
-        return "/assets/images/$category/$this->image";
-    }
-
     public function __toString(): string
     {
         return $this->name;

@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Dish;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\{AssociationField, IdField, ImageField, MoneyField, TextField};
+use Symfony\Component\Validator\Constraints\Image;
 
 class DishCrudController extends AbstractCrudController
 {
@@ -24,6 +25,11 @@ class DishCrudController extends AbstractCrudController
             ->setNumDecimals(2);
         yield ImageField::new('image')
             ->setBasePath('uploads/images/')
-            ->setUploadDir('assets/images/');
+            ->setUploadDir('public/uploads/images/')
+            ->setFileConstraints(new Image(
+                maxSize: '1000k', minWidth: 1920, maxWidth: 1921,
+                maxHeight: 1281, minHeight: 1280,
+                allowSquare: false, allowPortrait: false,
+            ));
     }
 }

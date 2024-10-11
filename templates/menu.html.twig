@@ -9,21 +9,21 @@
         <h2 class="my-3">Кофе</h2>
         <div class="row row-cols-2 justify-content-between">
             {% for dish in dishes[0] %}
-                {% include 'partials/menu_item.html.twig' with {'category': 'coffee/'} %}
+                {% include 'partials/menu_item.html.twig' %}
             {% endfor %}
         </div>
 
         <h2 class="my-3">Чай</h2>
         <div class="row row-cols-2 justify-content-between">
             {% for dish in dishes[1] %}
-                {% include 'partials/menu_item.html.twig' with {'category': 'tea/'} %}
+                {% include 'partials/menu_item.html.twig' %}
             {% endfor %}
         </div>
 
         <h2 class="my-3">Десерты</h2>
         <div class="row row-cols-2 justify-content-between">
             {% for dish in dishes[2] %}
-                {% include 'partials/menu_item.html.twig' with {'category': 'dessert/'} %}
+                {% include 'partials/menu_item.html.twig' %}
             {% endfor %}
         </div>
     </div>

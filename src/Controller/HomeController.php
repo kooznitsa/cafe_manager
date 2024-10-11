@@ -16,6 +16,12 @@ class HomeController extends AbstractController
     #[Route('/', name: 'home')]
     public function home(): Response
     {
+//        $user = $this->userManager->createUser('Cat', 'try', 'cat@example.com', 'UK');
+//        sleep(1);
+//        $user = $this->userManager->updateUserName($user->getId(), 'Shark');
+//
+//        return $this->json($user->toArray());
+
         $users = $this->userManager->findUsersByAddress('Санкт-Петербург');
 
         return $this->render("home.html.twig", [

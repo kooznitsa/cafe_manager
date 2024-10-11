@@ -4,31 +4,35 @@ namespace App\Manager;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
 
 class UserManager
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository,
     ) {
     }
 
     public function createUser(string $name, string $password, string $email, string $address): User
     {
-        $user = new User();
+        return $this->userRepository->createUser($name, $password, $email, $address);
+    }
 
-        $user->setName($name);
-        $user->setPassword($password);
-        $user->setEmail($email);
-        $user->setAddress($address);
-        $user->setCreatedAt();
-        $user->setUpdatedAt();
+    public function updateUserName(int $userId, string $name): ?User
+    {
+        return $this->userRepository->updateUserName($userId, $name);
+    }
 
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+    public function findUser(int $id): ?User
+    {
+        return $this->userRepository->findUser($id);
+    }
 
-        return $user;
+    /**
+     * @return User[]
+     */
+    public function findUsersByName(string $name): array
+    {
+        return $this->userRepository->findUsersByName($name);
     }
 
     /**

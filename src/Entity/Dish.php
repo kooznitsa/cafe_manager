@@ -3,8 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\DishRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'dishes')]
@@ -127,5 +126,23 @@ class Dish
         }
 
         return $this;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        if (!$this->image) {
+            return null;
+        } else if (str_contains($this->image, '/')) {
+            return $this->image;
+        }
+
+        $category = ['coffee', 'tea', 'dessert'][$this->getCategory()->getId()];
+
+        return "/assets/images/$category/$this->image";
+    }
+
+    public function __toString(): string
+    {
+        return $this->name;
     }
 }

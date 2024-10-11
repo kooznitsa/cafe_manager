@@ -63,6 +63,11 @@ makemigration:
 migrate:
 	$(DOCKER_EXEC) $(PHP_CONSOLE) doctrine:migrations:migrate
 
+# Creates factory
+.PHONY: factory
+factory:
+	$(DOCKER_EXEC) $(PHP_CONSOLE) php bin/console make:factory
+
 
 # -------------- LINTER --------------
 

@@ -26,7 +26,6 @@ class MenuController extends AbstractController
         }
 
         return $this->render('menu.html.twig', [
-            'category' => null,
             'dishes' => $dishes,
         ]);
     }

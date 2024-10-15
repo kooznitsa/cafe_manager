@@ -4,11 +4,14 @@ namespace App\Controller\Api\v1;
 
 use App\Entity\Category;
 use App\Manager\CategoryManager;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/api/v1/category')]
+#[OA\Tag(name: 'categories')]
 class CategoryController extends AbstractController
 {
     public function __construct(
@@ -16,7 +19,23 @@ class CategoryController extends AbstractController
     ) {
     }
 
+    /**
+     * Creates category.
+     */
     #[Route(path: '', methods: ['POST'])]
+    #[OA\RequestBody(
+        content: [
+            new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(ref: new Model(type: Category::class, groups: ['create']))
+            ),
+        ]
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Category is successfully created.',
+        content: new OA\JsonContent(),
+    )]
     public function saveCategoryAction(Request $request): Response
     {
         $categoryId = $this->categoryManager->savecategory($request->request->get('name'));
@@ -27,6 +46,9 @@ class CategoryController extends AbstractController
         return new JsonResponse($data, $code);
     }
 
+    /**
+     * Lists all categories.
+     */
     #[Route(path: '', methods: ['GET'])]
     public function getCategoriesAction(Request $request): Response
     {
@@ -39,7 +61,17 @@ class CategoryController extends AbstractController
         );
     }
 
+    /**
+     * Updates category.
+     */
     #[Route(path: '', methods: ['PATCH'])]
+    #[OA\Parameter(name: 'categoryId', description: 'Category ID', in: 'query', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'name', description: 'Category name', in: 'query', schema: new OA\Schema(type: 'string'))]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns the updated category',
+        content: new OA\JsonContent(),
+    )]
     public function updateCategoryAction(Request $request): Response
     {
         $categoryId = $request->query->get('categoryId');
@@ -52,6 +84,9 @@ class CategoryController extends AbstractController
         );
     }
 
+    /**
+     * Deletes category by ID.
+     */
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function deleteCategoryByIdAction(int $id): Response
     {

@@ -8,6 +8,7 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table(name: '`users`')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -20,17 +21,21 @@ class User implements HasMetaTimestampsInterface
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
+    #[Groups(['create', 'update'])]
     private string $name;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
+    #[Groups(['create', 'update'])]
     #[Assert\PasswordStrength]
     private string $password;
 
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     #[Assert\Email(mode: 'strict')]
+    #[Groups(['create', 'update'])]
     private string $email;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['create', 'update'])]
     private string $address;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]

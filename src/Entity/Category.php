@@ -6,6 +6,7 @@ use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\ArrayShape;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table(name: 'categories')]
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
@@ -18,6 +19,7 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 32, nullable: false)]
+    #[Groups(['create', 'update'])]
     private ?string $name = null;
 
     /**

@@ -40,6 +40,11 @@ startserver:
 entity:
 	docker exec -it ${APP_NAME}_php $(PHP_CONSOLE) make:entity
 
+# Lists routes
+.PHONY: routes
+routes:
+	docker exec -it ${APP_NAME}_php $(PHP_CONSOLE) debug:router
+
 
 # -------------- DOCTRINE --------------
 

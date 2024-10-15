@@ -3,9 +3,9 @@
 namespace App\Controller;
 
 use App\Manager\UserManager;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class HomeController extends AbstractController
 {
@@ -22,7 +22,7 @@ class HomeController extends AbstractController
 //
 //        return $this->json($user->toArray());
 
-        $users = $this->userManager->findUsersByAddress('Санкт-Петербург');
+        $users = $this->userManager->getUsers(0, 3);
 
         return $this->render("home.html.twig", [
             "users" => $users,

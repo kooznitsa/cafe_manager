@@ -3,12 +3,14 @@
 namespace App\Entity;
 
 use App\Contract\HasMetaTimestampsInterface;
+use App\Repository\UserRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\ArrayShape;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: '`users`')]
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class User implements HasMetaTimestampsInterface
 {
@@ -21,9 +23,11 @@ class User implements HasMetaTimestampsInterface
     private string $name;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
+    #[Assert\PasswordStrength]
     private string $password;
 
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    #[Assert\Email(mode: 'strict')]
     private string $email;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -50,9 +54,9 @@ class User implements HasMetaTimestampsInterface
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
-        $this->name = $name;
+        $this->name = $name ?? $this->name;
     }
 
     public function getPassword(): string
@@ -60,9 +64,9 @@ class User implements HasMetaTimestampsInterface
         return $this->password;
     }
 
-    public function setPassword(string $password): void
+    public function setPassword(?string $password): void
     {
-        $this->password = $password;
+        $this->password = $password ?? $this->password;
     }
 
     public function getEmail(): string
@@ -70,9 +74,9 @@ class User implements HasMetaTimestampsInterface
         return $this->email;
     }
 
-    public function setEmail(string $email): void
+    public function setEmail(?string $email): void
     {
-        $this->email = $email;
+        $this->email = $email ?? $this->email;
     }
 
     public function getAddress(): string
@@ -80,9 +84,9 @@ class User implements HasMetaTimestampsInterface
         return $this->address;
     }
 
-    public function setAddress(string $address): void
+    public function setAddress(?string $address): void
     {
-        $this->address = $address;
+        $this->address = $address ?? $this->address;
     }
 
     public function getCreatedAt(): DateTime

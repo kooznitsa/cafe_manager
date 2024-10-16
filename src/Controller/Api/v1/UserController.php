@@ -65,13 +65,12 @@ class UserController extends AbstractController
     }
 
     /**
-     * Retrieves user by name.
+     * Retrieves user by email.
      */
-    #[Route(path: '/by-name/{user_name}', methods: ['GET'], priority: 2)]
-    public function getUserByNameAction(
-        #[MapEntity(mapping: ['user_name' => 'name'])] User $user,
-    ): Response
-    {
+    #[Route(path: '/by-email/{user_email}', methods: ['GET'], priority: 2)]
+    public function getUserByEmailAction(
+        #[MapEntity(mapping: ['user_email' => 'email'])] User $user,
+    ): Response {
         return new JsonResponse(['user' => $user->toArray()], Response::HTTP_OK);
     }
 

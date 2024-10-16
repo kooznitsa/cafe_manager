@@ -18,7 +18,7 @@ class MenuController extends AbstractController
     #[Route('/menu', name: 'menu_list')]
     public function list(): Response
     {
-        $categories = $this->categoryManager->listCategories();
+        $categories = $this->categoryManager->getCategories();
         $dishes = [];
 
         foreach ($categories as $category) {

@@ -33,10 +33,12 @@ class UserManager
     }
 
     public function updateUser(
-        int $userId, ?string $name = null, ?string $password = null,
-        ?string $email = null, ?string $address = null,
-    ): ?User
-    {
+        int $userId,
+        ?string $name = null,
+        ?string $password = null,
+        ?string $email = null,
+        ?string $address = null,
+    ): ?User {
         /** @var User $user */
         $user = $this->userRepository->find($userId);
         if (!$user) {
@@ -68,9 +70,12 @@ class UserManager
     }
 
     private function setUserParams(
-        User $user, ?string $name, ?string $password, ?string $email, ?string $address,
-    ): void
-    {
+        User $user,
+        ?string $name,
+        ?string $password,
+        ?string $email,
+        ?string $address,
+    ): void {
         $user->setName($name);
         $user->setPassword($password);
         $user->setEmail($email);

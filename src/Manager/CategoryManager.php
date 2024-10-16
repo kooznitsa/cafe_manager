@@ -16,10 +16,14 @@ class CategoryManager
 
     public function saveCategory(string $name): ?int
     {
-        $category = new Category();
-        $category->setName($name);
-        $this->entityManager->persist($category);
-        $this->entityManager->flush();
+        $category = $this->getCategoryByName($name);
+
+        if (!$category) {
+            $category = new Category();
+            $category->setName($name);
+            $this->entityManager->persist($category);
+            $this->entityManager->flush();
+        }
 
         return $category->getId();
     }
@@ -32,10 +36,20 @@ class CategoryManager
         return $this->categoryRepository->findAll();
     }
 
+    public function getCategoryById(int $id): ?Category
+    {
+        return $this->categoryRepository->find($id);
+    }
+
+    public function getCategoryByName(string $name): ?Category
+    {
+        return $this->categoryRepository->findOneBy(['name' => $name]);
+    }
+
     public function updateCategory(int $categoryId, string $name): ?Category
     {
         /** @var Category $category */
-        $category = $this->categoryRepository->find($categoryId);
+        $category = $this->getCategoryById($categoryId);
         if (!$category) {
             return null;
         }
@@ -57,7 +71,7 @@ class CategoryManager
     public function deleteCategoryById(int $categoryId): bool
     {
         /** @var Category $category */
-        $category = $this->categoryRepository->find($categoryId);
+        $category = $this->getCategoryById($categoryId);
         if (!$category) {
             return false;
         }

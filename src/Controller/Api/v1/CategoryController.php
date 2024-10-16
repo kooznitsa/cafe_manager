@@ -27,7 +27,7 @@ class CategoryController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: Category::class, groups: ['create']))
+                schema: new OA\Schema(ref: new Model(type: Category::class, groups: ['create'])),
             ),
         ]
     )]
@@ -38,7 +38,7 @@ class CategoryController extends AbstractController
     )]
     public function saveCategoryAction(Request $request): Response
     {
-        $categoryId = $this->categoryManager->savecategory($request->request->get('name'));
+        $categoryId = $this->categoryManager->saveCategory($request->request->get('name'));
         [$data, $code] = $categoryId === null ?
             [['success' => false], Response::HTTP_BAD_REQUEST] :
             [['success' => true, 'categoryId' => $categoryId], Response::HTTP_OK];

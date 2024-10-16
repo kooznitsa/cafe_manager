@@ -29,7 +29,7 @@ class User implements HasMetaTimestampsInterface
     #[Assert\PasswordStrength]
     private string $password;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: false)]
     #[Assert\Email(mode: 'strict')]
     #[Groups(['create', 'update'])]
     private string $email;

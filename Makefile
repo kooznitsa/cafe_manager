@@ -27,6 +27,11 @@ stop:
 fullstop:
 	$(DOCKER_COMPOSE) --profile deploy down
 
+# Enters PHP container
+.PHONY: entercontainer
+entercontainer:
+	docker exec -it ${APP_NAME}_php sh
+
 
 # -------------- SYMFONY --------------
 

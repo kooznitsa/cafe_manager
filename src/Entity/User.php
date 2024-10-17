@@ -18,30 +18,33 @@ class User implements HasMetaTimestampsInterface
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[Groups(['default'])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
-    #[Groups(['create', 'update'])]
+    #[Groups(['default', 'create', 'update'])]
     private string $name;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
-    #[Groups(['create', 'update'])]
+    #[Groups(['default', 'create', 'update'])]
     #[Assert\PasswordStrength]
     private string $password;
 
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: false)]
     #[Assert\Email(mode: 'strict')]
-    #[Groups(['create', 'update'])]
+    #[Groups(['default', 'create', 'update'])]
     private string $email;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['create', 'update'])]
+    #[Groups(['default', 'create', 'update'])]
     private string $address;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
+    #[Groups(['default'])]
     private DateTime $createdAt;
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
+    #[Groups(['default'])]
     private DateTime $updatedAt;
 
     public function getId(): int

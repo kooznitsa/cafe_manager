@@ -36,9 +36,9 @@ class UserController extends AbstractController
         ]
     )]
     #[OA\Response(
-        response: 200,
-        description: 'User is successfully created.',
-        content: new OA\JsonContent(),
+        response: Response::HTTP_OK,
+        description: 'User is created successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
     )]
     public function saveUserAction(Request $request): Response
     {
@@ -54,6 +54,20 @@ class UserController extends AbstractController
      * Lists all users.
      */
     #[Route(path: '', methods: ['GET'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Array of users is retrieved successfully.',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: 'users',
+                    type: 'array',
+                    items: new OA\Items(ref: new Model(type: User::class, groups: ['default']))
+                ),
+            ],
+            type: 'object'
+        )
+    )]
     public function getUsersAction(Request $request): Response
     {
         $perPage = $request->query->get('perPage') ?? self::DEFAULT_PER_PAGE;
@@ -68,6 +82,11 @@ class UserController extends AbstractController
      * Retrieves user by email.
      */
     #[Route(path: '/by-email/{user_email}', methods: ['GET'], priority: 2)]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'User is retrieved successfully.',
+        content: new OA\JsonContent(ref: new Model(type: User::class, groups: ['default'])),
+    )]
     public function getUserByEmailAction(
         #[MapEntity(mapping: ['user_email' => 'email'])] User $user,
     ): Response {
@@ -84,9 +103,9 @@ class UserController extends AbstractController
     #[OA\Parameter(name: 'email', description: 'User email', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'address', description: 'User address', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Response(
-        response: 200,
-        description: 'Returns the updated user',
-        content: new OA\JsonContent(),
+        response: Response::HTTP_OK,
+        description: 'User is updated successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
     )]
     public function updateUserAction(Request $request): Response
     {
@@ -103,6 +122,11 @@ class UserController extends AbstractController
      * Deletes user by ID.
      */
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'User is deleted successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
+    )]
     public function deleteUserByIdAction(int $id): Response
     {
         $result = $this->userManager->deleteUserById($id);

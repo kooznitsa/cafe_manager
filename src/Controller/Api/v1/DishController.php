@@ -48,9 +48,9 @@ class DishController extends AbstractController
         ]
     )]
     #[OA\Response(
-        response: 200,
-        description: 'Dish is successfully created.',
-        content: new OA\JsonContent(),
+        response: Response::HTTP_OK,
+        description: 'Dish is created successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
     )]
     public function saveDishAction(
         Request $request,
@@ -69,6 +69,20 @@ class DishController extends AbstractController
      * Lists dishes by category.
      */
     #[Route(path: '/by-category/{category_id}', requirements: ['category_id' => '\d+'], methods: ['GET'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Array of dishes is retrieved successfully.',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: 'dishes',
+                    type: 'array',
+                    items: new OA\Items(ref: new Model(type: Dish::class, groups: ['default']))
+                ),
+            ],
+            type: 'object'
+        )
+    )]
     public function getCategoryDishesAction(
         Request $request,
         #[MapEntity(mapping: ['category_id' => 'id'])] Category $category,
@@ -91,16 +105,16 @@ class DishController extends AbstractController
         description: 'Dish ID',
         in: 'query',
         required: true,
-        schema: new OA\Schema(type: 'string'),
+        schema: new OA\Schema(type: 'integer'),
     )]
     #[OA\Parameter(name: 'name', description: 'Dish name', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'category', description: 'Dish category', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'price', description: 'Dish price', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'image', description: 'Dish image', in: 'query', schema: new OA\Schema(type: 'file'))]
     #[OA\Response(
-        response: 200,
-        description: 'Returns the updated dish',
-        content: new OA\JsonContent(),
+        response: Response::HTTP_OK,
+        description: 'Dish is updated successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
     )]
     public function updateDishAction(
         Request $request,
@@ -118,6 +132,11 @@ class DishController extends AbstractController
      * Deletes dish by ID.
      */
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Dish is deleted successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
+    )]
     public function deleteDishByIdAction(int $id): Response
     {
         $result = $this->dishManager->deleteDishById($id);

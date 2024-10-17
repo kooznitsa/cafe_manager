@@ -32,9 +32,9 @@ class CategoryController extends AbstractController
         ]
     )]
     #[OA\Response(
-        response: 200,
-        description: 'Category is successfully created.',
-        content: new OA\JsonContent(),
+        response: Response::HTTP_OK,
+        description: 'Category is created successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
     )]
     public function saveCategoryAction(Request $request): Response
     {
@@ -50,6 +50,20 @@ class CategoryController extends AbstractController
      * Lists all categories.
      */
     #[Route(path: '', methods: ['GET'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Array of categories is retrieved successfully.',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: 'categories',
+                    type: 'array',
+                    items: new OA\Items(ref: new Model(type: Category::class, groups: ['default']))
+                ),
+            ],
+            type: 'object'
+        )
+    )]
     public function getCategoriesAction(Request $request): Response
     {
         $categories = $this->categoryManager->getCategories();
@@ -65,12 +79,18 @@ class CategoryController extends AbstractController
      * Updates category.
      */
     #[Route(path: '', methods: ['PATCH'])]
-    #[OA\Parameter(name: 'categoryId', description: 'Category ID', in: 'query', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(
+        name: 'categoryId',
+        description: 'Category ID',
+        in: 'query',
+        required: true,
+        schema: new OA\Schema(type: 'integer'),
+    )]
     #[OA\Parameter(name: 'name', description: 'Category name', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Response(
-        response: 200,
-        description: 'Returns the updated category',
-        content: new OA\JsonContent(),
+        response: Response::HTTP_OK,
+        description: 'Category is updated successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
     )]
     public function updateCategoryAction(Request $request): Response
     {
@@ -88,6 +108,11 @@ class CategoryController extends AbstractController
      * Deletes category by ID.
      */
     #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Category is deleted successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
+    )]
     public function deleteCategoryByIdAction(int $id): Response
     {
         $result = $this->categoryManager->deleteCategoryById($id);

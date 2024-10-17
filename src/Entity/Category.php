@@ -16,10 +16,11 @@ class Category
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[Groups(['default'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 32, nullable: false)]
-    #[Groups(['create', 'update'])]
+    #[Groups(['default', 'create', 'update'])]
     private ?string $name = null;
 
     /**

@@ -16,23 +16,24 @@ class Dish
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[Groups(['default'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: false)]
-    #[Groups(['create', 'update'])]
+    #[Groups(['default', 'create', 'update'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'dishes')]
     #[ORM\JoinColumn]
-    #[Groups(['create', 'update'])]
+    #[Groups(['default', 'create', 'update'])]
     private ?Category $category = null;
 
     #[ORM\Column(type: 'decimal', precision: 15, scale: 2, nullable: false)]
-    #[Groups(['create', 'update'])]
+    #[Groups(['default', 'create', 'update'])]
     private ?string $price = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['create', 'update'])]
+    #[Groups(['default', 'create', 'update'])]
     private ?string $image = null;
 
     /**

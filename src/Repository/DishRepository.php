@@ -11,16 +11,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class DishRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+    ) {
         parent::__construct($registry, Dish::class);
-    }
-
-    /**
-     * @return Dish[]
-     */
-    public function listDishes(): array
-    {
-        return $this->findAll();
     }
 }

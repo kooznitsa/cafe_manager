@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
+use JetBrains\PhpStorm\ArrayShape;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table(name: 'products')]
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
@@ -14,12 +16,15 @@ class Product
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[Groups(['default'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: false)]
+    #[Groups(['default', 'create', 'update'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 32, nullable: false)]
+    #[Groups(['default', 'create', 'update'])]
     private ?string $unit = null;
 
     /**
@@ -95,5 +100,19 @@ class Product
     public function __toString(): string
     {
         return $this->name;
+    }
+
+    #[ArrayShape([
+        'id' => 'int|null',
+        'name' => 'string',
+        'unit' => 'string',
+    ])]
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'unit' => $this->unit,
+        ];
     }
 }

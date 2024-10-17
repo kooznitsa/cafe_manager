@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\DishRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
+use JetBrains\PhpStorm\ArrayShape;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table(name: 'dishes')]
 #[ORM\Entity(repositoryClass: DishRepository::class)]
@@ -14,19 +16,24 @@ class Dish
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[Groups(['default'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: false)]
+    #[Groups(['default', 'create', 'update'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'dishes')]
     #[ORM\JoinColumn]
+    #[Groups(['default', 'create', 'update'])]
     private ?Category $category = null;
 
     #[ORM\Column(type: 'decimal', precision: 15, scale: 2, nullable: false)]
+    #[Groups(['default', 'create', 'update'])]
     private ?string $price = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['default', 'create', 'update'])]
     private ?string $image = null;
 
     /**
@@ -57,9 +64,9 @@ class Dish
         return $this->name;
     }
 
-    public function setName(string $name): static
+    public function setName(?string $name): static
     {
-        $this->name = $name;
+        $this->name = $name ?? $this->name;
 
         return $this;
     }
@@ -71,7 +78,7 @@ class Dish
 
     public function setCategory(?Category $category): static
     {
-        $this->category = $category;
+        $this->category = $category ?? $this->category;
 
         return $this;
     }
@@ -81,9 +88,9 @@ class Dish
         return $this->price;
     }
 
-    public function setPrice(float $price): static
+    public function setPrice(?float $price): static
     {
-        $this->price = $price;
+        $this->price = $price ?? $this->price;
 
         return $this;
     }
@@ -95,7 +102,7 @@ class Dish
 
     public function setImage(?string $image): static
     {
-        $this->image = $image;
+        $this->image = $image ?? $this->image;
 
         return $this;
     }
@@ -105,6 +112,17 @@ class Dish
         if (!$this->recipes->contains($recipe)) {
             $this->recipes->add($recipe);
             $recipe->setDish($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRecipe(Recipe $recipe): static
+    {
+        if ($this->recipes->removeElement($recipe)) {
+            if ($recipe->getDish() === $this) {
+                $recipe->setDish(null);
+            }
         }
 
         return $this;
@@ -131,5 +149,23 @@ class Dish
     public function __toString(): string
     {
         return $this->name;
+    }
+
+    #[ArrayShape([
+        'id' => 'int|null',
+        'name' => 'string',
+        'category' => 'array',
+        'price' => 'float',
+        'image' => 'string',
+    ])]
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'category' => $this->getCategory()->toArray(),
+            'price' => $this->price,
+            'image' => $this->image,
+        ];
     }
 }

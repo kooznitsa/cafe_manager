@@ -31,7 +31,7 @@ class UserController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: User::class, groups: ['create']))
+                schema: new OA\Schema(ref: new Model(type: User::class, groups: ['create'])),
             ),
         ]
     )]

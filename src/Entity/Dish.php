@@ -117,6 +117,17 @@ class Dish
         return $this;
     }
 
+    public function removeRecipe(Recipe $recipe): static
+    {
+        if ($this->recipes->removeElement($recipe)) {
+            if ($recipe->getDish() === $this) {
+                $recipe->setDish(null);
+            }
+        }
+
+        return $this;
+    }
+
     /**
      * @return Collection<int, Sale>
      */

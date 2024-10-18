@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\{Category, Dish};
+use App\Entity\Dish;
 use App\Manager\{CategoryManager, DishManager};
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;

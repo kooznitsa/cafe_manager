@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Contract\HasMetaTimestampsInterface;
 use App\Repository\UserRepository;
 use DateTime;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -12,6 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table(name: '`users`')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\UniqueConstraint(name: 'users__email__unique', columns: ['email'])]
 #[ORM\HasLifecycleCallbacks]
 class User implements HasMetaTimestampsInterface
 {
@@ -26,7 +28,7 @@ class User implements HasMetaTimestampsInterface
     private string $name;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
-    #[Groups(['default', 'create', 'update'])]
+    #[Groups(['create', 'update'])]
     #[Assert\PasswordStrength]
     private string $password;
 
@@ -46,6 +48,12 @@ class User implements HasMetaTimestampsInterface
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
     #[Groups(['default'])]
     private DateTime $updatedAt;
+
+    /**
+     * @var Collection<int, Order>
+     */
+    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'user')]
+    private Collection $orders;
 
     public function getId(): int
     {
@@ -120,10 +128,38 @@ class User implements HasMetaTimestampsInterface
         $this->updatedAt = new DateTime();
     }
 
+    /**
+     * @return Collection<int, Order>
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    public function addOrder(Order $order): static
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders->add($order);
+            $order->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Order $order): static
+    {
+        if ($this->orders->removeElement($order)) {
+            if ($order->getUser() === $this) {
+                $order->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
     #[ArrayShape([
         'id' => 'int|null',
         'name' => 'string',
-        'password' => 'string',
         'email' => 'string',
         'address' => 'string',
         'createdAt' => 'string',
@@ -134,7 +170,6 @@ class User implements HasMetaTimestampsInterface
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'password' => $this->password,
             'email' => $this->email,
             'address' => $this->address,
             'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),

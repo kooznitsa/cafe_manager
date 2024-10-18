@@ -2,7 +2,7 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\{Category, Dish, Product, Purchase, Recipe, User};
+use App\Entity\{Category, Dish, Order, Product, Purchase, Recipe, User};
 use EasyCorp\Bundle\EasyAdminBundle\Config\{Dashboard, MenuItem};
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,5 +39,6 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Продукты', 'fas fa-list', Product::class);
         yield MenuItem::linkToCrud('Рецепты', 'fas fa-list', Recipe::class);
         yield MenuItem::linkToCrud('Закупки', 'fas fa-list', Purchase::class);
+        yield MenuItem::linkToCrud('Заказы', 'fas fa-list', Order::class);
     }
 }

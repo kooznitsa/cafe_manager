@@ -43,15 +43,15 @@ class Dish
     private Collection $recipes;
 
     /**
-     * @var Collection<int, Sale>
+     * @var Collection<int, Order>
      */
-    #[ORM\OneToMany(targetEntity: Sale::class, mappedBy: 'dish')]
-    private Collection $sales;
+    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'dish')]
+    private Collection $orders;
 
     public function __construct()
     {
         $this->recipes = new ArrayCollection();
-        $this->sales = new ArrayCollection();
+        $this->orders = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -129,18 +129,29 @@ class Dish
     }
 
     /**
-     * @return Collection<int, Sale>
+     * @return Collection<int, Order>
      */
-    public function getSales(): Collection
+    public function getOrders(): Collection
     {
-        return $this->sales;
+        return $this->orders;
     }
 
-    public function addSale(Sale $sale): static
+    public function addOrder(Order $order): static
     {
-        if (!$this->sales->contains($sale)) {
-            $this->sales->add($sale);
-            $sale->setDish($this);
+        if (!$this->orders->contains($order)) {
+            $this->orders->add($order);
+            $order->setDish($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Order $order): static
+    {
+        if ($this->orders->removeElement($order)) {
+            if ($order->getDish() === $this) {
+                $order->setDish(null);
+            }
         }
 
         return $this;

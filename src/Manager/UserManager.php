@@ -32,6 +32,11 @@ class UserManager
         return $this->userRepository->getUsers($page, $perPage);
     }
 
+    public function getUserById(int $id): ?User
+    {
+        return $this->userRepository->find($id);
+    }
+
     public function updateUser(
         int $userId,
         ?string $name = null,
@@ -40,7 +45,7 @@ class UserManager
         ?string $address = null,
     ): ?User {
         /** @var User $user */
-        $user = $this->userRepository->find($userId);
+        $user = $this->getUserById($userId);
         if (!$user) {
             return null;
         }
@@ -62,7 +67,7 @@ class UserManager
     public function deleteUserById(int $userId): bool
     {
         /** @var User $user */
-        $user = $this->userRepository->find($userId);
+        $user = $this->getUserById($userId);
         if (!$user) {
             return false;
         }

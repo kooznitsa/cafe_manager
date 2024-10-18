@@ -13,3 +13,7 @@ make fullrun
 ```
 
 Проект доступен по адресу: http://localhost:7777/
+
+Админка: http://localhost:7777/admin
+
+Документация API: http://localhost:7777/api/v1/doc

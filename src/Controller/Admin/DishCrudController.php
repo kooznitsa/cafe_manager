@@ -27,9 +27,13 @@ class DishCrudController extends AbstractCrudController
             ->setBasePath('uploads/images/')
             ->setUploadDir('public/uploads/images/')
             ->setFileConstraints(new Image(
-                maxSize: '1000k', minWidth: 1920, maxWidth: 1921,
-                maxHeight: 1281, minHeight: 1280,
-                allowSquare: false, allowPortrait: false,
+                maxSize: '1000k',
+                minWidth: 1920,
+                maxWidth: 1921,
+                maxHeight: 1281,
+                minHeight: 1280,
+                allowSquare: false,
+                allowPortrait: false,
             ));
     }
 }

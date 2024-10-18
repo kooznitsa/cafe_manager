@@ -16,3 +16,4 @@
 ###< symfony/asset-mapper ###
 
 .idea/
+/public/uploads/images/tmp

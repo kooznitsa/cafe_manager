@@ -46,7 +46,8 @@ class RecipeController extends AbstractController
         description: 'Recipe is created successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function saveDishAction(Request $request): Response {
+    public function saveDishAction(Request $request): Response
+    {
         $recipeId = $this->recipeBuilderService->createRecipeWithDishAndProduct($request);
 
         [$data, $code] = $recipeId === null ?
@@ -106,7 +107,8 @@ class RecipeController extends AbstractController
         description: 'Recipe is updated successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function updateDishAction(Request $request): Response {
+    public function updateDishAction(Request $request): Response
+    {
         $recipe = $this->recipeBuilderService->updateRecipeWithDishAndProduct($request);
 
         return new JsonResponse(

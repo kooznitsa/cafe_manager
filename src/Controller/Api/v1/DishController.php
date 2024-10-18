@@ -32,14 +32,10 @@ class DishController extends AbstractController
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
-                    required: ['name', 'category', 'price'],
+                    required: ['name', 'categoryId', 'price'],
                     properties: [
                         new OA\Property(property: 'name', type: 'string'),
-                        new OA\Property(
-                            property: 'category',
-                            ref: new Model(type: Category::class, groups: ['create']),
-                            type: 'object',
-                        ),
+                        new OA\Property(property: 'categoryId', type: 'integer'),
                         new OA\Property(property: 'price', type: 'float'),
                         new OA\Property(property: 'image', type: 'file'),
                     ]
@@ -108,7 +104,7 @@ class DishController extends AbstractController
         schema: new OA\Schema(type: 'integer'),
     )]
     #[OA\Parameter(name: 'name', description: 'Dish name', in: 'query', schema: new OA\Schema(type: 'string'))]
-    #[OA\Parameter(name: 'category', description: 'Dish category', in: 'query', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'categoryId', description: 'Category ID', in: 'query', schema: new OA\Schema(type: 'integer'))]
     #[OA\Parameter(name: 'price', description: 'Dish price', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'image', description: 'Dish image', in: 'query', schema: new OA\Schema(type: 'file'))]
     #[OA\Response(

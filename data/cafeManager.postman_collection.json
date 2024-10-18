@@ -529,7 +529,7 @@
 						"method": "PATCH",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/v1/recipe?recipeId=8&dishId&productId&amount=230",
+							"raw": "{{host}}/api/v1/recipe?recipeId=6&dishId=3&amount=230",
 							"host": [
 								"{{host}}"
 							],
@@ -541,15 +541,16 @@
 							"query": [
 								{
 									"key": "recipeId",
-									"value": "8"
+									"value": "6"
 								},
 								{
 									"key": "dishId",
-									"value": null
+									"value": "3"
 								},
 								{
 									"key": "productId",
-									"value": null
+									"value": null,
+									"disabled": true
 								},
 								{
 									"key": "amount",
@@ -575,6 +576,157 @@
 								"v1",
 								"recipe",
 								"8"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Purchase",
+			"item": [
+				{
+					"name": "Create Purchase",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "productId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "200",
+									"type": "text"
+								},
+								{
+									"key": "amount",
+									"value": "1000",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/v1/purchase",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"purchase"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Purchase List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/purchase?page=0&perPage=3&dateFrom=2024-10-18 12:18:00&dateTo=2024-10-18 12:30:00&productId=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"purchase"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "perPage",
+									"value": "3"
+								},
+								{
+									"key": "dateFrom",
+									"value": "2024-10-18 12:18:00"
+								},
+								{
+									"key": "dateTo",
+									"value": "2024-10-18 12:30:00"
+								},
+								{
+									"key": "productId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Purchase",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/purchase?purchaseId=2&productId=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"purchase"
+							],
+							"query": [
+								{
+									"key": "purchaseId",
+									"value": "2"
+								},
+								{
+									"key": "productId",
+									"value": "5"
+								},
+								{
+									"key": "price",
+									"value": "250",
+									"disabled": true
+								},
+								{
+									"key": "amount",
+									"value": "250",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Purchase",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/purchase/4",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"purchase",
+								"4"
 							]
 						}
 					},

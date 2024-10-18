@@ -63,14 +63,13 @@ class DishManager
         ?string $image = null,
     ): ?Dish {
         /** @var Dish $dish */
-        $dish = $this->dishRepository->find($dishId);
+        $dish = $this->getDishById($dishId);
         if (!$dish) {
             return null;
         }
-        $dishCategory = $dish->getCategory();
-        $dishCategory->removeDish($dish);
+        $category?->removeDish($dish);
         $this->setDishParams($dish, $name, $category, $price, $image);
-        $dishCategory->addDish($dish);
+        $category?->addDish($dish);
         $this->entityManager->flush();
 
         return $dish;
@@ -88,7 +87,7 @@ class DishManager
     public function deleteDishById(int $dishId): bool
     {
         /** @var Dish $dish */
-        $dish = $this->dishRepository->find($dishId);
+        $dish = $this->getDishById($dishId);
         if (!$dish) {
             return false;
         }

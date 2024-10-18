@@ -54,6 +54,8 @@ class UserController extends AbstractController
      * Lists all users.
      */
     #[Route(path: '', methods: ['GET'])]
+    #[OA\Parameter(name: 'page', description: 'Page', in: 'query', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'perPage', description: 'Per page', in: 'query', schema: new OA\Schema(type: 'integer'))]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'Array of users is retrieved successfully.',
@@ -97,7 +99,13 @@ class UserController extends AbstractController
      * Updates user.
      */
     #[Route(path: '', methods: ['PATCH'])]
-    #[OA\Parameter(name: 'userId', description: 'User ID', in: 'query', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(
+        name: 'userId',
+        description: 'User ID',
+        in: 'query',
+        required: true,
+        schema: new OA\Schema(type: 'string'),
+    )]
     #[OA\Parameter(name: 'name', description: 'User name', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'password', description: 'User password', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'email', description: 'User email', in: 'query', schema: new OA\Schema(type: 'string'))]

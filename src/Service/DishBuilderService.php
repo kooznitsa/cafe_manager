@@ -18,9 +18,8 @@ class DishBuilderService
 
     public function createDishWithCategory(Request $request, string $fileDirectory): ?int
     {
-        [$name, $category, $price, $image] = $this->getDishParams($request, $fileDirectory);
+        [$name, $categoryId, $price, $image] = $this->getDishParams($request, $fileDirectory);
 
-        $categoryId = $this->categoryManager->saveCategory($category);
         if ($categoryId) {
             $category = $this->categoryManager->getCategoryById($categoryId);
 
@@ -33,6 +32,9 @@ class DishBuilderService
     {
         [$name, $category, $price, $image] = $this->getDishParams($request, $fileDirectory, 'PATCH');
         $dishId = $request->query->get('dishId');
+        if ($category) {
+            $category = $this->categoryManager->getCategoryById($category);
+        }
 
         return $this->dishManager->updateDish($dishId, $name, $category, $price, $image);
     }
@@ -43,18 +45,11 @@ class DishBuilderService
 
         $name = $inputBag->get('name');
         $price = $inputBag->get('price');
-
+        $categoryId = $inputBag->get('categoryId');
         $file = $request->files->get('image');
         $imageName = $file ? $this->uploadFile($file, $fileDirectory) : null;
 
-        $category = $inputBag->get('category');
-        if ($category) {
-            $categoryJson = json_decode($category, true);
-            $category = new Category();
-            $category->setName($categoryJson['name']);
-        }
-
-        return [$name, $category, $price, $imageName];
+        return [$name, $categoryId, $price, $imageName];
     }
 
     private function uploadFile(File $file, string $fileDirectory): string

@@ -67,7 +67,8 @@ class DishManager
         if (!$dish) {
             return null;
         }
-        $category?->removeDish($dish);
+        $categoryDish = $dish->getCategory();
+        $categoryDish->removeDish($dish);
         $this->setDishParams($dish, $name, $category, $price, $image);
         $category?->addDish($dish);
         $this->entityManager->flush();

@@ -2,30 +2,31 @@
 
 namespace App\Controller;
 
-use App\Manager\UserManager;
+use App\Entity\Dish;
+use App\Manager\{CategoryManager, DishManager, UserManager};
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class HomeController extends AbstractController
 {
-    public function __construct(private readonly UserManager $userManager)
-    {
+    public function __construct(
+        private readonly UserManager $userManager,
+        private readonly DishManager $dishManager,
+        private readonly CategoryManager $categoryManager,
+    ) {
     }
 
     #[Route('/', name: 'home')]
     public function home(): Response
     {
-//        $user = $this->userManager->createUser('Cat', 'try', 'cat@example.com', 'UK');
-//        sleep(1);
-//        $user = $this->userManager->updateUserName($user->getId(), 'Shark');
-//
-//        return $this->json($user->toArray());
+        $category = $this->categoryManager->getCategoryById(1);
+        $dishes = $this->dishManager->getCategoryDishes($category);
 
-        $users = $this->userManager->findUsersByAddress('Санкт-Петербург');
+        $json = $this->json(['dishes' => array_map(static fn(Dish $dish) => $dish->toArray(), $dishes)]);
 
         return $this->render("home.html.twig", [
-            "users" => $users,
+            "dishes" => $dishes,
         ]);
     }
 }

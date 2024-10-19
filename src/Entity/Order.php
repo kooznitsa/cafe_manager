@@ -3,16 +3,17 @@
 namespace App\Entity;
 
 use App\Contract\HasMetaTimestampsInterface;
-use App\Repository\PurchaseRepository;
+use App\Repository\OrderRepository;
+use App\Enum\Status;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Table(name: 'purchases')]
-#[ORM\Entity(repositoryClass: PurchaseRepository::class)]
+#[ORM\Table(name: 'orders')]
+#[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-class Purchase implements HasMetaTimestampsInterface
+class Order implements HasMetaTimestampsInterface
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
@@ -20,18 +21,23 @@ class Purchase implements HasMetaTimestampsInterface
     #[Groups(['default'])]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'purchases')]
+    #[ORM\ManyToOne(inversedBy: 'orders')]
     #[ORM\JoinColumn]
     #[Groups(['default', 'create', 'update'])]
-    private ?Product $product = null;
+    private ?Dish $dish = null;
 
-    #[ORM\Column(type: 'decimal', precision: 15, scale: 2, nullable: false)]
+    #[ORM\ManyToOne(inversedBy: 'orders')]
+    #[ORM\JoinColumn]
     #[Groups(['default', 'create', 'update'])]
-    private ?string $price = null;
+    private ?User $user = null;
 
-    #[ORM\Column(type: 'decimal', precision: 15, scale: 2, nullable: false)]
+    #[ORM\Column(type: 'string', nullable: false, enumType: Status::class)]
     #[Groups(['default', 'create', 'update'])]
-    private ?string $amount = null;
+    private Status $status = Status::Created;
+
+    #[ORM\Column(nullable: false)]
+    #[Groups(['default', 'create', 'update'])]
+    private ?bool $isDelivery = null;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     #[Groups(['default'])]
@@ -46,38 +52,50 @@ class Purchase implements HasMetaTimestampsInterface
         return $this->id;
     }
 
-    public function getProduct(): ?Product
+    public function getDish(): ?Dish
     {
-        return $this->product;
+        return $this->dish;
     }
 
-    public function setProduct(?Product $product): static
+    public function setDish(?Dish $dish): static
     {
-        $this->product = $product ?? $this->product;
+        $this->dish = $dish ?? $this->dish;
 
         return $this;
     }
 
-    public function getPrice(): ?float
+    public function getUser(): ?User
     {
-        return $this->price;
+        return $this->user;
     }
 
-    public function setPrice(?float $price): static
+    public function setUser(?User $user): static
     {
-        $this->price = $price ?? $this->price;
+        $this->user = $user ?? $this->user;
 
         return $this;
     }
 
-    public function getAmount(): ?float
+    public function getStatus(): ?Status
     {
-        return $this->amount;
+        return $this->status;
     }
 
-    public function setAmount(?float $amount): static
+    public function setStatus(?Status $status): static
     {
-        $this->amount = $amount ?? $this->amount;
+        $this->status = $status ?? $this->status;
+
+        return $this;
+    }
+
+    public function getIsDelivery(): ?bool
+    {
+        return $this->isDelivery;
+    }
+
+    public function setIsDelivery(bool $isDelivery): static
+    {
+        $this->isDelivery = $isDelivery;
 
         return $this;
     }
@@ -107,9 +125,10 @@ class Purchase implements HasMetaTimestampsInterface
 
     #[ArrayShape([
         'id' => 'int|null',
-        'product' => 'array',
-        'price' => 'float',
-        'amount' => 'float',
+        'dish' => 'array',
+        'user' => 'string',
+        'status' => 'string',
+        'isDelivery' => 'bool',
         'createdAt' => 'string',
         'updatedAt' => 'string',
     ])]
@@ -117,9 +136,10 @@ class Purchase implements HasMetaTimestampsInterface
     {
         return [
             'id' => $this->id,
-            'product' => $this->getProduct()->toArray(),
-            'price' => $this->price,
-            'amount' => $this->amount,
+            'dish' => $this->getDish()->toArray(),
+            'user' => $this->getUser()->toArray(),
+            'status' => $this->status,
+            'isDelivery' => $this->isDelivery,
             'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
             'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
         ];

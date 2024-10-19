@@ -93,9 +93,9 @@ class Order implements HasMetaTimestampsInterface
         return $this->isDelivery;
     }
 
-    public function setIsDelivery(?bool $isDelivery): static
+    public function setIsDelivery(bool $isDelivery): static
     {
-        $this->isDelivery = $isDelivery ?? $this->isDelivery;
+        $this->isDelivery = $isDelivery;
 
         return $this;
     }

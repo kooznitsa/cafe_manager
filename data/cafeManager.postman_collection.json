@@ -733,6 +733,241 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Order",
+			"item": [
+				{
+					"name": "Create Order",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "dishId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "userId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "Created",
+									"type": "text"
+								},
+								{
+									"key": "isDelivery",
+									"value": "true",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/v1/order",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Order",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/order?orderId=5&dishId=3&userId=9&status=Paid&isDelivery=false",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order"
+							],
+							"query": [
+								{
+									"key": "orderId",
+									"value": "5"
+								},
+								{
+									"key": "dishId",
+									"value": "3"
+								},
+								{
+									"key": "userId",
+									"value": "9"
+								},
+								{
+									"key": "status",
+									"value": "Paid"
+								},
+								{
+									"key": "isDelivery",
+									"value": "false"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/order/by-user/9",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"by-user",
+								"9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Dish Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/order/by-dish/1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"by-dish",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Order",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/order/5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pay Order",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/order/pay/1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"pay",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deliver order",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/order/deliver/3",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"deliver",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/order/cancel/1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"cancel",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Paid Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/order/stats",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"stats"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [

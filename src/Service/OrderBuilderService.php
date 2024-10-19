@@ -83,7 +83,7 @@ class OrderBuilderService
 
         $dishId = $inputBag->get('dishId');
         $userId = $inputBag->get('userId');
-        $status = Status::from($inputBag->get('status'));
+        $status = $inputBag->get('status');
         $isDelivery = $inputBag->get('isDelivery');
 
         return [$dishId, $userId, $status, $isDelivery];

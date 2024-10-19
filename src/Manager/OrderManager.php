@@ -88,12 +88,19 @@ class OrderManager
         return $this->updateStatus($order, Status::Deleted);
     }
 
+    public function getPaidOrders(int $page, int $perPage): array
+    {
+        return $this->orderRepository->getPaidOrders($page, $perPage);
+    }
+
     private function setOrderParams(Order $order, ?Dish $dish, ?User $user, ?Status $status, ?bool $isDelivery): void
     {
         $order->setDish($dish);
         $order->setUser($user);
         $order->setStatus($status);
-        $order->setIsDelivery($isDelivery);
+        if ($isDelivery !== null) {
+            $order->setIsDelivery($isDelivery);
+        }
         $dish?->addOrder($order);
         $user?->addOrder($order);
     }

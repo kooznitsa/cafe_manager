@@ -47,8 +47,7 @@ class OrderBuilderService
     public function payOrder(int $orderId): bool
     {
         $order = $this->orderManager->getOrderById($orderId);
-        if (!$order or !in_array($order->getStatus(), [Status::Created, Status::Delivered]))
-        {
+        if (!$order or !in_array($order->getStatus(), [Status::Created, Status::Delivered])) {
             return false;
         }
         return $this->orderManager->updateStatus($order, Status::Paid);
@@ -70,8 +69,7 @@ class OrderBuilderService
     public function cancelOrder(int $orderId): bool
     {
         $order = $this->orderManager->getOrderById($orderId);
-        if (!$order or !in_array($order->getStatus(), [Status::Created]))
-        {
+        if (!$order or !in_array($order->getStatus(), [Status::Created])) {
             return false;
         }
         return $this->orderManager->updateStatus($order, Status::Cancelled);

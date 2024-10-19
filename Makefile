@@ -82,7 +82,8 @@ factory:
 # -------------- LINTER --------------
 
 # Runs PHP_CodeSniffer through /src directory using PSR-12
+# Ignores Enum as it is not supported
 .PHONY: linter
 linter:
 	# sudo apt install php-codesniffer
-	phpcs --standard=PSR12 src
+	phpcs --standard=PSR12 src --ignore=/src/Enum/

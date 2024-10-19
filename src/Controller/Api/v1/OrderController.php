@@ -51,7 +51,8 @@ class OrderController extends AbstractController
         description: 'Order is created successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function saveDishAction(Request $request): Response {
+    public function saveDishAction(Request $request): Response
+    {
         $orderId = $this->orderBuilderService->createOrderWithUserAndDish($request);
 
         [$data, $code] = $orderId === null ?

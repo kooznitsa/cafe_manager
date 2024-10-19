@@ -157,6 +157,11 @@ class User implements HasMetaTimestampsInterface
         return $this;
     }
 
+    public function __toString(): string
+    {
+        return $this->email;
+    }
+
     #[ArrayShape([
         'id' => 'int|null',
         'name' => 'string',

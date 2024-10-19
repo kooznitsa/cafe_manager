@@ -31,9 +31,9 @@ class Order implements HasMetaTimestampsInterface
     #[Groups(['default', 'create', 'update'])]
     private ?User $user = null;
 
-    #[ORM\Column(type: 'string', length: 32, nullable: false)]
+    #[ORM\Column(type: 'string', nullable: false, enumType: Status::class)]
     #[Groups(['default', 'create', 'update'])]
-    private string $status = Status::Created->name;
+    private Status $status = Status::Created;
 
     #[ORM\Column(nullable: false)]
     #[Groups(['default', 'create', 'update'])]
@@ -76,19 +76,19 @@ class Order implements HasMetaTimestampsInterface
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): ?Status
     {
         return $this->status;
     }
 
-    public function setStatus(?string $status): static
+    public function setStatus(?Status $status): static
     {
         $this->status = $status ?? $this->status;
 
         return $this;
     }
 
-    public function getIsDelivery(): ?string
+    public function getIsDelivery(): ?bool
     {
         return $this->isDelivery;
     }

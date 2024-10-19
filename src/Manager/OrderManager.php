@@ -15,7 +15,7 @@ class OrderManager
     ) {
     }
 
-    public function saveOrder(Dish $dish, User $user, string $status, bool $isDelivery): ?int
+    public function saveOrder(Dish $dish, User $user, Status $status, bool $isDelivery): ?int
     {
         $order = new Order();
         $this->setOrderParams($order, $dish, $user, $status, $isDelivery);
@@ -52,7 +52,7 @@ class OrderManager
         int $orderId,
         ?Dish $dish = null,
         ?User $user = null,
-        ?string $status = null,
+        ?Status $status = null,
         ?bool $isDelivery = null,
     ): ?Order {
         /** @var Order $order */
@@ -60,25 +60,18 @@ class OrderManager
         if (!$order) {
             return null;
         }
-        if ($user) {
-            $orderUser = $order->getUser();
-            $orderUser->removeOrder($order);
-        }
-        if ($dish) {
-            $orderDish = $order->getDish();
-            $orderDish->removeOrder($order);
-        }
+        $this->removeOrderFromParent($order);
         $this->setOrderParams($order, $dish, $user, $status, $isDelivery);
         $this->entityManager->flush();
 
         return $order;
     }
 
-    public function deleteOrder(Order $order): bool
+    public function updateStatus(Order $order, Status $status): bool
     {
-        $order->setStatus(Status::Deleted->value);
-        $order->getDish()->removeOrder($order);
-        $order->getUser()->removeOrder($order);
+        $this->removeOrderFromParent($order);
+        $order->setStatus($status);
+        $this->addOrderToParent($order);
         $this->entityManager->flush();
 
         return true;
@@ -91,10 +84,11 @@ class OrderManager
         if (!$order) {
             return false;
         }
-        return $this->deleteOrder($order);
+
+        return $this->updateStatus($order, Status::Deleted);
     }
 
-    private function setOrderParams(Order $order, ?Dish $dish, ?User $user, ?string $status, ?bool $isDelivery): void
+    private function setOrderParams(Order $order, ?Dish $dish, ?User $user, ?Status $status, ?bool $isDelivery): void
     {
         $order->setDish($dish);
         $order->setUser($user);
@@ -102,5 +96,21 @@ class OrderManager
         $order->setIsDelivery($isDelivery);
         $dish?->addOrder($order);
         $user?->addOrder($order);
+    }
+
+    private function removeOrderFromParent(Order $order): void
+    {
+        $orderUser = $order->getUser();
+        $orderUser->removeOrder($order);
+        $orderDish = $order->getDish();
+        $orderDish->removeOrder($order);
+    }
+
+    private function addOrderToParent(Order $order): void
+    {
+        $orderUser = $order->getUser();
+        $orderUser->addOrder($order);
+        $orderDish = $order->getDish();
+        $orderDish->addOrder($order);
     }
 }

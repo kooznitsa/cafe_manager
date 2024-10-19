@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\v1;
 
+use App\Enum\Status;
 use App\Entity\{Dish, Order, User};
 use App\Manager\OrderManager;
 use App\Service\OrderBuilderService;
@@ -35,7 +36,7 @@ class OrderController extends AbstractController
                     properties: [
                         new OA\Property(property: 'dishId', type: 'integer'),
                         new OA\Property(property: 'userId', type: 'integer'),
-                        new OA\Property(property: 'status', type: 'string'),
+                        new OA\Property(property: 'status', type: 'string', enum: Status::class),
                         new OA\Property(property: 'isDelivery', type: 'boolean'),
                     ]
                 )
@@ -132,7 +133,12 @@ class OrderController extends AbstractController
     )]
     #[OA\Parameter(name: 'dishId', description: 'Dish ID', in: 'query', schema: new OA\Schema(type: 'integer'))]
     #[OA\Parameter(name: 'userId', description: 'User ID', in: 'query', schema: new OA\Schema(type: 'integer'))]
-    #[OA\Parameter(name: 'status', description: 'Order status', in: 'query', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(
+        name: 'status',
+        description: 'Order status',
+        in: 'query',
+        schema: new OA\Schema(type: 'string', enum: Status::class),
+    )]
     #[OA\Parameter(
         name: 'isDelivery',
         description: 'Order for delivery',
@@ -166,6 +172,54 @@ class OrderController extends AbstractController
     public function deleteOrderByIdAction(int $id): Response
     {
         $result = $this->orderManager->deleteOrderById($id);
+
+        return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * Performs payment.
+     */
+    #[Route(path: '/pay/{id}', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Order is paid successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
+    )]
+    public function payOrderAction(int $id): Response
+    {
+        $result = $this->orderBuilderService->payOrder($id);
+
+        return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * Delivers order.
+     */
+    #[Route(path: '/deliver/{id}', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Order is delivered successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
+    )]
+    public function deliverOrderAction(int $id): Response
+    {
+        $result = $this->orderBuilderService->deliverOrder($id);
+
+        return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * Cancels order.
+     */
+    #[Route(path: '/cancel/{id}', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Order is cancelled successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
+    )]
+    public function cancelOrderAction(int $id): Response
+    {
+        $result = $this->orderBuilderService->cancelOrder($id);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }

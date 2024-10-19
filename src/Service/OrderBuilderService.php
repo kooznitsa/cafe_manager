@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Enum\Status;
 use App\Entity\Order;
 use App\Manager\{DishManager, OrderManager, UserManager};
 use Symfony\Component\HttpFoundation\Request;
@@ -43,13 +44,46 @@ class OrderBuilderService
         return $this->orderManager->updateOrder($orderId, $dish, $user, $status, $isDelivery);
     }
 
+    public function payOrder(int $orderId): bool
+    {
+        $order = $this->orderManager->getOrderById($orderId);
+        if (!$order or !in_array($order->getStatus(), [Status::Created, Status::Delivered]))
+        {
+            return false;
+        }
+        return $this->orderManager->updateStatus($order, Status::Paid);
+    }
+
+    public function deliverOrder(int $orderId): bool
+    {
+        $order = $this->orderManager->getOrderById($orderId);
+        if (
+            !$order or
+            !in_array($order->getStatus(), [Status::Created, Status::Paid]) or
+            !$order->getIsDelivery()
+        ) {
+            return false;
+        }
+        return $this->orderManager->updateStatus($order, Status::Delivered);
+    }
+
+    public function cancelOrder(int $orderId): bool
+    {
+        $order = $this->orderManager->getOrderById($orderId);
+        if (!$order or !in_array($order->getStatus(), [Status::Created]))
+        {
+            return false;
+        }
+        return $this->orderManager->updateStatus($order, Status::Cancelled);
+    }
+
     public function getOrderParams(Request $request, string $requestMethod = 'POST'): array
     {
         $inputBag = $requestMethod === 'POST' ? $request->request : $request->query;
 
         $dishId = $inputBag->get('dishId');
         $userId = $inputBag->get('userId');
-        $status = $inputBag->get('status');
+        $status = Status::from($inputBag->get('status'));
         $isDelivery = $inputBag->get('isDelivery');
 
         return [$dishId, $userId, $status, $isDelivery];

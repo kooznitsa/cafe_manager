@@ -2,9 +2,10 @@
 
 namespace App\Controller\Admin;
 
+use App\Enum\Status;
 use App\Entity\Order;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\{AssociationField, BooleanField, DateTimeField, IdField, TextField};
+use EasyCorp\Bundle\EasyAdminBundle\Field\{AssociationField, BooleanField, ChoiceField, DateTimeField, IdField};
 
 class OrderCrudController extends AbstractCrudController
 {
@@ -18,7 +19,7 @@ class OrderCrudController extends AbstractCrudController
         yield IdField::new('id')->hideOnForm();
         yield AssociationField::new('user')->setSortProperty('name');
         yield AssociationField::new('dish')->setSortProperty('name');
-        yield TextField::new('status');
+        yield ChoiceField::new('status');
         yield BooleanField::new('isDelivery');
         yield DateTimeField::new('created_at')->renderAsText()->hideOnForm();
         yield DateTimeField::new('updated_at')->renderAsText()->hideOnForm();

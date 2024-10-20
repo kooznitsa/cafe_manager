@@ -35,9 +35,9 @@ class Order implements HasMetaTimestampsInterface
     #[Groups(['default', 'create', 'update'])]
     private Status $status = Status::Created;
 
-    #[ORM\Column(nullable: false)]
+    #[ORM\Column(type: 'boolean', nullable: false)]
     #[Groups(['default', 'create', 'update'])]
-    private ?bool $isDelivery = null;
+    private ?bool $isDelivery = false;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     #[Groups(['default'])]
@@ -125,8 +125,8 @@ class Order implements HasMetaTimestampsInterface
 
     #[ArrayShape([
         'id' => 'int|null',
-        'dish' => 'array',
-        'user' => 'string',
+        'dish' => 'int',
+        'user' => 'int',
         'status' => 'string',
         'isDelivery' => 'bool',
         'createdAt' => 'string',
@@ -136,8 +136,8 @@ class Order implements HasMetaTimestampsInterface
     {
         return [
             'id' => $this->id,
-            'dish' => $this->getDish()->toArray(),
-            'user' => $this->getUser()->toArray(),
+            'dish' => $this->getDish()->getId(),
+            'user' => $this->getUser()->getId(),
             'status' => $this->status,
             'isDelivery' => $this->isDelivery,
             'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),

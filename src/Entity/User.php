@@ -5,10 +5,9 @@ namespace App\Entity;
 use App\Contract\HasMetaTimestampsInterface;
 use App\Repository\UserRepository;
 use DateTime;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\ArrayShape;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table(name: '`users`')]
@@ -29,11 +28,9 @@ class User implements HasMetaTimestampsInterface
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
     #[Groups(['create', 'update'])]
-    #[Assert\PasswordStrength]
     private string $password;
 
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: false)]
-    #[Assert\Email(mode: 'strict')]
     #[Groups(['default', 'create', 'update'])]
     private string $email;
 
@@ -48,6 +45,11 @@ class User implements HasMetaTimestampsInterface
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
     #[Groups(['default'])]
     private DateTime $updatedAt;
+
+    public function __construct()
+    {
+        $this->orders = new ArrayCollection();
+    }
 
     /**
      * @var Collection<int, Order>
@@ -129,11 +131,11 @@ class User implements HasMetaTimestampsInterface
     }
 
     /**
-     * @return Collection<int, Order>
+     * @return Order[]
      */
-    public function getOrders(): Collection
+    public function getOrders(): array
     {
-        return $this->orders;
+        return $this->orders->toArray();
     }
 
     public function addOrder(Order $order): static
@@ -169,6 +171,7 @@ class User implements HasMetaTimestampsInterface
         'address' => 'string',
         'createdAt' => 'string',
         'updatedAt' => 'string',
+        'orders' => 'string[]',
     ])]
     public function toArray(): array
     {
@@ -179,6 +182,7 @@ class User implements HasMetaTimestampsInterface
             'address' => $this->address,
             'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
             'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
+            'orders' => array_map(static fn(Order $order) => $order->getDish()->getName(), $this->orders->toArray()),
         ];
     }
 }

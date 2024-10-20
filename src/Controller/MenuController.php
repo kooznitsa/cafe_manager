@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Manager\{CategoryManager, DishManager};
+use App\Manager\CategoryManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -11,7 +11,6 @@ class MenuController extends AbstractController
 {
     public function __construct(
         private readonly CategoryManager $categoryManager,
-        private readonly DishManager $dishManager,
     ) {
     }
 

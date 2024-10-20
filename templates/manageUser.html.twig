@@ -1,0 +1,31 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Создать или обновить пользователя{% endblock %}
+
+{% block body %}
+    <h1>Создать или обновить пользователя</h1>
+
+    <div>
+        {% form_theme form 'bootstrap_5_layout.html.twig' %}
+        <div style="width:50%;margin-left:10px;margin-top:10px">
+            {{ form_start(form) }}
+            {{ form_row(form.name) }}
+            {% if form.password is defined %}
+                {{ form_row(form.password) }}
+            {% endif %}
+            {{ form_row(form.email) }}
+            {{ form_row(form.address) }}
+
+            {% if form.orders is defined %}
+                <h3>Заказы</h3>
+                <ul class="orders">
+                    {% for order in form.orders %}
+                        <li>{{ form_row(order) }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {{ form_row(form.submit) }}
+            {{ form_end(form, {'render_rest': false}) }}
+        </div>
+    </div>
+{% endblock %}

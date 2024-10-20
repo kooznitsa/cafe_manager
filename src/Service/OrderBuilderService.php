@@ -19,6 +19,7 @@ class OrderBuilderService
     public function createOrderWithUserAndDish(Request $request): ?int
     {
         [$dishId, $userId, $status, $isDelivery] = $this->getOrderParams($request);
+        $status = $status ? Status::from($status) : $status;
 
         if ($dishId and $userId) {
             $dish = $this->dishManager->getDishById($dishId);
@@ -33,6 +34,7 @@ class OrderBuilderService
     {
         [$dish, $user, $status, $isDelivery] = $this->getOrderParams($request, 'PATCH');
         $orderId = $request->query->get('orderId');
+        $status = $status ? Status::from($status) : $status;
 
         if ($dish) {
             $dish = $this->dishManager->getDishById($dish);

@@ -2,6 +2,7 @@
 
 namespace App\Manager;
 
+use App\DTO\ManageUserDTO;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -9,8 +10,8 @@ use Doctrine\ORM\EntityManagerInterface;
 class UserManager
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private UserRepository $userRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UserRepository $userRepository,
     ) {
     }
 
@@ -18,6 +19,18 @@ class UserManager
     {
         $user = new User();
         $this->setUserParams($user, $name, $password, $email, $address);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $user->getId();
+    }
+
+    public function saveUserFromDTO(User $user, ManageUserDTO $manageUserDTO): ?int
+    {
+        $user->setName($manageUserDTO->name);
+        $user->setPassword($manageUserDTO->password);
+        $user->setEmail($manageUserDTO->email);
+        $user->setAddress($manageUserDTO->address);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 

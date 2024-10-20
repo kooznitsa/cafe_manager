@@ -5,14 +5,13 @@ namespace App\Service;
 use App\Entity\Dish;
 use App\Manager\{CategoryManager, DishManager};
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\File;
 
 class DishBuilderService
 {
     public function __construct(
         private readonly CategoryManager $categoryManager,
         private readonly DishManager $dishManager,
+        private readonly FileService $fileService,
     ) {
     }
 
@@ -47,21 +46,8 @@ class DishBuilderService
         $price = $inputBag->get('price');
         $categoryId = $inputBag->get('categoryId');
         $file = $request->files->get('image');
-        $imageName = $file ? $this->uploadFile($file, $fileDirectory) : null;
+        $imageName = $file ? $this->fileService->uploadFile($file, $fileDirectory) : null;
 
         return [$name, $categoryId, $price, $imageName];
-    }
-
-    private function uploadFile(File $file, string $fileDirectory): string
-    {
-        $imageName = $_FILES['image']['name'];
-
-        try {
-            $file->move($fileDirectory, $imageName);
-        } catch (FileException $e) {
-            var_dump("File upload failed: $e.");
-        }
-
-        return $imageName;
     }
 }

@@ -4,7 +4,7 @@ namespace App\Controller\Api\v1;
 
 use App\Entity\{Category, Dish};
 use App\Manager\DishManager;
-use App\Service\DishBuilderService;
+use App\Service\{DishBuilderService, FileService};
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -20,6 +20,7 @@ class DishController extends AbstractController
     public function __construct(
         private readonly DishManager $dishManager,
         private readonly DishBuilderService $dishBuilderService,
+        private readonly FileService $fileService,
     ) {
     }
 
@@ -133,8 +134,12 @@ class DishController extends AbstractController
         description: 'Dish is deleted successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function deleteDishByIdAction(int $id): Response
-    {
+    public function deleteDishByIdAction(
+        int $id,
+        #[Autowire('%kernel.project_dir%/public/uploads/images')] string $fileDirectory,
+    ): Response {
+        $imageName = $this->dishManager->getDishById($id)->getImage();
+        $this->fileService->removeFile($fileDirectory, $imageName);
         $result = $this->dishManager->deleteDishById($id);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);

@@ -24,6 +24,7 @@
         "symfony/dotenv": "7.1.*",
         "symfony/filesystem": "7.1.*",
         "symfony/flex": "^2",
+        "symfony/form": "7.1.*",
         "symfony/framework-bundle": "7.1.*",
         "symfony/mime": "7.1.*",
         "symfony/property-access": "7.1.*",

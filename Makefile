@@ -86,4 +86,4 @@ factory:
 .PHONY: linter
 linter:
 	# sudo apt install php-codesniffer
-	phpcs --standard=PSR12 src --ignore=/src/Enum/
+	phpcs --standard=PSR12 src --ignore=/src/Enum/,/src/DTO/

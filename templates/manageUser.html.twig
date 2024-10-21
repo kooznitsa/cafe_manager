@@ -3,7 +3,11 @@
 {% block title %}Создать или обновить пользователя{% endblock %}
 
 {% block body %}
-    <h1>Создать или обновить пользователя</h1>
+    {% if isNew %}
+        <h1>Создать пользователя</h1>
+    {% else %}
+        <h1>Редактировать пользователя</h1>
+    {% endif %}
 
     <div>
         {% form_theme form 'bootstrap_5_layout.html.twig' %}

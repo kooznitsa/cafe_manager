@@ -19,12 +19,16 @@ class AuthController extends AbstractController
     #[Route(path: '/update-user/{id}', name: 'update-user', methods: ['GET', 'PATCH'])]
     public function manageUserAction(Request $request, string $_route, ?int $id = null): Response
     {
-        [$form, $user] = $this->userBuilderService->createOrUpdateUser($request, $_route, $id);
+        [$form, $user, $userId] = $this->userBuilderService->createOrUpdateUser($request, $_route, $id);
+
+        if ($userId) {
+            return $this->redirectToRoute('update-user', array('id' => $userId));
+        }
 
         return $this->render('manageUser.html.twig', [
-            'form' => $form,
+            'form' => $form->createView(),
             'isNew' => $_route === 'create_user',
-            'user' => $user,
+            'user' => $user ?? null,
         ]);
     }
 }

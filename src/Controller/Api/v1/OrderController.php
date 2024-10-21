@@ -40,7 +40,7 @@ class OrderController extends AbstractController
                         new OA\Property(property: 'dishId', type: 'integer'),
                         new OA\Property(property: 'userId', type: 'integer'),
                         new OA\Property(property: 'status', type: 'string', enum: Status::class),
-                        new OA\Property(property: 'isDelivery', type: 'boolean'),
+                        new OA\Property(property: 'isDelivery', type: 'integer', enum: [0, 1]),
                     ]
                 )
             ),
@@ -135,8 +135,17 @@ class OrderController extends AbstractController
         required: true,
         schema: new OA\Schema(type: 'integer'),
     )]
-    #[OA\Parameter(name: 'dishId', description: 'Dish ID', in: 'query', schema: new OA\Schema(type: 'integer'))]
-    #[OA\Parameter(name: 'userId', description: 'User ID', in: 'query', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(
+        name: 'dishId',
+        description: 'Dish ID',
+        in: 'query',
+        schema: new OA\Schema(type: 'integer'),
+    )]
+    #[OA\Parameter(name: 'userId',
+        description: 'User ID',
+        in: 'query',
+        schema: new OA\Schema(type: 'integer'),
+    )]
     #[OA\Parameter(
         name: 'status',
         description: 'Order status',
@@ -147,7 +156,7 @@ class OrderController extends AbstractController
         name: 'isDelivery',
         description: 'Order for delivery',
         in: 'query',
-        schema: new OA\Schema(type: 'boolean'),
+        schema: new OA\Schema(type: 'integer', enum: [0, 1]),
     )]
     #[OA\Response(
         response: Response::HTTP_OK,

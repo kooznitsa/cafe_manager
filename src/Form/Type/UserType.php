@@ -36,7 +36,7 @@ class UserType extends AbstractType
                     'class' => 'user-address',
                 ],
             ])
-            ->add('submit', SubmitType::class);
+            ->add('submit', SubmitType::class, ['label' => 'Отправить']);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

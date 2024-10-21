@@ -35,7 +35,7 @@ class Order implements HasMetaTimestampsInterface
     #[Groups(['default', 'create', 'update'])]
     private Status $status = Status::Created;
 
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     #[Groups(['default', 'create', 'update'])]
     private ?bool $isDelivery = false;
 
@@ -121,6 +121,11 @@ class Order implements HasMetaTimestampsInterface
     public function setUpdatedAt(): void
     {
         $this->updatedAt = new DateTime();
+    }
+
+    public function __toString(): string
+    {
+        return $this->user->getEmail() . ' - ' . $this->dish->getName();
     }
 
     #[ArrayShape([

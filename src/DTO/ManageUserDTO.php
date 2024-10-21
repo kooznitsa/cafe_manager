@@ -42,7 +42,7 @@ class ManageUserDTO
                     return ['id' => $order->getId(),
                         'dish' => $order->getDish(),
                         'status' => $order->getStatus(),
-                        'isDelivery' => $order->getisDelivery(),
+                        'isDelivery' => $order->getIsDelivery(),
                     ];
                 },
                 $user->getOrders()

@@ -72,9 +72,11 @@ class User implements HasMetaTimestampsInterface
         return $this->name;
     }
 
-    public function setName(?string $name): void
+    public function setName(?string $name): static
     {
         $this->name = $name ?? $this->name;
+
+        return $this;
     }
 
     public function getPassword(): string
@@ -82,9 +84,11 @@ class User implements HasMetaTimestampsInterface
         return $this->password;
     }
 
-    public function setPassword(?string $password): void
+    public function setPassword(?string $password): static
     {
         $this->password = $password ?? $this->password;
+
+        return $this;
     }
 
     public function getEmail(): string
@@ -92,9 +96,11 @@ class User implements HasMetaTimestampsInterface
         return $this->email;
     }
 
-    public function setEmail(?string $email): void
+    public function setEmail(?string $email): static
     {
         $this->email = $email ?? $this->email;
+
+        return $this;
     }
 
     public function getAddress(): string
@@ -102,9 +108,11 @@ class User implements HasMetaTimestampsInterface
         return $this->address;
     }
 
-    public function setAddress(?string $address): void
+    public function setAddress(?string $address): static
     {
         $this->address = $address ?? $this->address;
+
+        return $this;
     }
 
     public function getCreatedAt(): DateTime

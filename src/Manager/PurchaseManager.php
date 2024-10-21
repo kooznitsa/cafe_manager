@@ -84,8 +84,6 @@ class PurchaseManager
 
     private function setPurchaseParams(Purchase $purchase, ?Product $product, ?float $price, ?float $amount): void
     {
-        $purchase->setProduct($product);
-        $purchase->setPrice($price);
-        $purchase->setAmount($amount);
+        $purchase->setProduct($product)->setPrice($price)->setAmount($amount);
     }
 }

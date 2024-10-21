@@ -817,7 +817,7 @@
 								},
 								{
 									"key": "isDelivery",
-									"value": "true",
+									"value": "0",
 									"type": "text"
 								}
 							]
@@ -842,7 +842,7 @@
 						"method": "PATCH",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/v1/order?orderId=5&dishId=3&userId=9&status=Paid&isDelivery=false",
+							"raw": "{{host}}/api/v1/order?orderId=5&isDelivery=0",
 							"host": [
 								"{{host}}"
 							],
@@ -858,19 +858,22 @@
 								},
 								{
 									"key": "dishId",
-									"value": "3"
+									"value": "3",
+									"disabled": true
 								},
 								{
 									"key": "userId",
-									"value": "9"
+									"value": "9",
+									"disabled": true
 								},
 								{
 									"key": "status",
-									"value": "Paid"
+									"value": "Paid",
+									"disabled": true
 								},
 								{
 									"key": "isDelivery",
-									"value": "false"
+									"value": "0"
 								}
 							]
 						}

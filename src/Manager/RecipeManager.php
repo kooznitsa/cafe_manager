@@ -81,9 +81,7 @@ class RecipeManager
 
     private function setRecipeParams(Recipe $recipe, ?Dish $dish, ?Product $product, ?float $amount): void
     {
-        $recipe->setDish($dish);
-        $recipe->setProduct($product);
-        $recipe->setAmount($amount);
+        $recipe->setDish($dish)->setProduct($product)->setAmount($amount);
         $dish?->addRecipe($recipe);
     }
 }

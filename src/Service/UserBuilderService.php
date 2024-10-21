@@ -4,9 +4,9 @@ namespace App\Service;
 
 use App\DTO\ManageUserDTO;
 use App\Entity\User;
-use App\Form\Type\{CreateUserType, UpdateUserType};
-use Doctrine\ORM\EntityManagerInterface;
+use App\Form\Type\{User\CreateUserType, User\UpdateUserType};
 use App\Manager\{OrderManager, UserManager};
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -32,8 +32,8 @@ class UserBuilderService
         );
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-//        if ($form->isSubmitted()) {
+//        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted()) {
             /** @var ManageUserDTO $userDto */
             $userDto = $form->getData();
             $userId = $this->saveUserFromDTO($user ?? new User(), $userDto);

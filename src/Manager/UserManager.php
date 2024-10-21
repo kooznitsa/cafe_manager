@@ -81,9 +81,6 @@ class UserManager
         ?string $email,
         ?string $address,
     ): void {
-        $user->setName($name);
-        $user->setPassword($password);
-        $user->setEmail($email);
-        $user->setAddress($address);
+        $user->setName($name)->setPassword($password)->setEmail($email)->setAddress($address);
     }
 }

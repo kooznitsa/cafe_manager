@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Type;
+namespace App\Form\Type\User;
 
 use App\Entity\Dish;
 use App\Enum\Status;
@@ -13,7 +13,8 @@ class LinkedOrderType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('dish',
+        $builder->add(
+            'dish',
             EntityType::class,
             ['class' => Dish::class, 'choice_label' => 'name', 'label' => 'Блюдо'],
         )

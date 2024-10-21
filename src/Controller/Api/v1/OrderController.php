@@ -141,7 +141,8 @@ class OrderController extends AbstractController
         in: 'query',
         schema: new OA\Schema(type: 'integer'),
     )]
-    #[OA\Parameter(name: 'userId',
+    #[OA\Parameter(
+        name: 'userId',
         description: 'User ID',
         in: 'query',
         schema: new OA\Schema(type: 'integer'),

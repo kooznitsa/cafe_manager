@@ -17,8 +17,7 @@ class ProductManager
     public function saveProduct(string $name, string $unit): ?int
     {
         $product = new Product();
-        $product->setName($name);
-        $product->setUnit($unit);
+        $product->setName($name)->setUnit($unit);
 
         $this->entityManager->persist($product);
         $this->entityManager->flush();

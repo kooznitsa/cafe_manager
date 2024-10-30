@@ -2,7 +2,7 @@
 
 namespace App\Form\Type\User;
 
-use App\DTO\ManageUserDTO;
+use App\DTO\Request\ManageUserDTO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\{EmailType, SubmitType, TextType};
 use Symfony\Component\Form\FormBuilderInterface;

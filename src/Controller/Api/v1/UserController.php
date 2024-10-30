@@ -2,6 +2,8 @@
 
 namespace App\Controller\Api\v1;
 
+use App\DTO\Request\ManageUserDTO;
+use App\DTO\Response\UserResponseDTO;
 use App\Entity\User;
 use App\Manager\UserManager;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -31,7 +33,7 @@ class UserController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: User::class, groups: ['create'])),
+                schema: new OA\Schema(ref: new Model(type: ManageUserDTO::class)),
             ),
         ]
     )]
@@ -64,7 +66,7 @@ class UserController extends AbstractController
                 new OA\Property(
                     property: 'users',
                     type: 'array',
-                    items: new OA\Items(ref: new Model(type: User::class, groups: ['default']))
+                    items: new OA\Items(ref: new Model(type: UserResponseDTO::class))
                 ),
             ],
             type: 'object'
@@ -77,7 +79,9 @@ class UserController extends AbstractController
         $users = $this->userManager->getUsers($page, $perPage);
         $code = empty($users) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
-        return new JsonResponse(['users' => array_map(static fn(User $user) => $user->toArray(), $users)], $code);
+        return new JsonResponse(
+            ['users' => array_map(fn(User $user) => UserResponseDTO::fromEntity($user), $users)], $code
+        );
     }
 
     /**
@@ -92,7 +96,7 @@ class UserController extends AbstractController
     public function getUserByEmailAction(
         #[MapEntity(mapping: ['user_email' => 'email'])] User $user,
     ): Response {
-        return new JsonResponse(['user' => $user->toArray()], Response::HTTP_OK);
+        return new JsonResponse(['user' => UserResponseDTO::fromEntity($user)], Response::HTTP_OK);
     }
 
     /**

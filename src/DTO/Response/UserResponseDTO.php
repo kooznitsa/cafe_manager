@@ -1,46 +1,58 @@
 <?php
 
-namespace App\DTO;
+namespace App\DTO\Response;
 
 use App\Entity\{Order, User};
 use Symfony\Component\Validator\Constraints as Assert;
 
-class ManageUserDTO
+class UserResponseDTO
 {
     public function __construct(
         #[Assert\NotBlank]
+        public readonly int $id,
+
+        #[Assert\NotBlank]
         #[Assert\Length(max: 32)]
-        public string $name = '',
+        public readonly string $name,
 
         #[Assert\NotBlank]
         #[Assert\Length(max: 32)]
         #[Assert\PasswordStrength]
-        public string $password = '',
+        public readonly string $password,
 
         #[Assert\NotBlank]
         #[Assert\Length(max: 32)]
         #[Assert\Email(mode: 'strict')]
-        public string $email = '',
+        public readonly string $email,
 
         #[Assert\Length(max: 255)]
-        public string $address = '',
+        public readonly string $address,
+
+        #[Assert\NotBlank]
+        public readonly string $created_at,
+
+        #[Assert\NotBlank]
+        public readonly string $updated_at,
 
         #[Assert\Type('array')]
-        public array $orders = [],
+        public readonly array $orders = [],
     ) {
     }
 
     public static function fromEntity(User $user): self
     {
         return new self(...[
+            'id' => $user->getId(),
             'name' => $user->getName(),
             'password' => $user->getPassword(),
             'email' => $user->getEmail(),
             'address' => $user->getAddress(),
+            'created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
+            'updated_at' => $user->getUpdatedAt()->format('Y-m-d H:i:s'),
             'orders' => array_map(
                 static function (Order $order) {
                     return ['id' => $order->getId(),
-                        'dish' => $order->getDish(),
+                        'dish' => $order->getDish()->getId(),
                         'status' => $order->getStatus(),
                         'isDelivery' => $order->getIsDelivery(),
                     ];

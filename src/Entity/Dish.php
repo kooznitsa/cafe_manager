@@ -5,8 +5,6 @@ namespace App\Entity;
 use App\Repository\DishRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
-use JetBrains\PhpStorm\ArrayShape;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table(name: 'dishes')]
 #[ORM\Entity(repositoryClass: DishRepository::class)]
@@ -16,24 +14,19 @@ class Dish
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[Groups(['default'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: false)]
-    #[Groups(['default', 'create', 'update'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'dishes')]
     #[ORM\JoinColumn]
-    #[Groups(['default', 'create', 'update'])]
     private ?Category $category = null;
 
     #[ORM\Column(type: 'decimal', precision: 15, scale: 2, nullable: false)]
-    #[Groups(['default', 'create', 'update'])]
     private ?string $price = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['default', 'create', 'update'])]
     private ?string $image = null;
 
     /**
@@ -107,6 +100,14 @@ class Dish
         return $this;
     }
 
+    /**
+     * @return Recipe[]
+     */
+    public function getRecipes(): array
+    {
+        return $this->recipes->toArray();
+    }
+
     public function addRecipe(Recipe $recipe): static
     {
         if (!$this->recipes->contains($recipe)) {
@@ -160,23 +161,5 @@ class Dish
     public function __toString(): string
     {
         return $this->name;
-    }
-
-    #[ArrayShape([
-        'id' => 'int|null',
-        'name' => 'string',
-        'category' => 'array',
-        'price' => 'float',
-        'image' => 'string',
-    ])]
-    public function toArray(): array
-    {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'category' => $this->getCategory()->toArray(),
-            'price' => $this->price,
-            'image' => $this->image,
-        ];
     }
 }

@@ -7,8 +7,6 @@ use App\Repository\UserRepository;
 use DateTime;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
-use JetBrains\PhpStorm\ArrayShape;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table(name: '`users`')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -19,31 +17,24 @@ class User implements HasMetaTimestampsInterface
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[Groups(['default'])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
-    #[Groups(['default', 'create', 'update'])]
     private string $name;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
-    #[Groups(['create', 'update'])]
     private string $password;
 
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: false)]
-    #[Groups(['default', 'create', 'update'])]
     private string $email;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['default', 'create', 'update'])]
     private string $address;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
-    #[Groups(['default'])]
     private DateTime $createdAt;
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
-    #[Groups(['default'])]
     private DateTime $updatedAt;
 
     public function __construct()
@@ -170,27 +161,5 @@ class User implements HasMetaTimestampsInterface
     public function __toString(): string
     {
         return $this->email;
-    }
-
-    #[ArrayShape([
-        'id' => 'int|null',
-        'name' => 'string',
-        'email' => 'string',
-        'address' => 'string',
-        'createdAt' => 'string',
-        'updatedAt' => 'string',
-        'orders' => 'string[]',
-    ])]
-    public function toArray(): array
-    {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'email' => $this->email,
-            'address' => $this->address,
-            'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
-            'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
-            'orders' => array_map(static fn(Order $order) => $order->getDish()->getName(), $this->orders->toArray()),
-        ];
     }
 }

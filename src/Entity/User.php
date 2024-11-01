@@ -3,51 +3,49 @@
 namespace App\Entity;
 
 use App\Contract\HasMetaTimestampsInterface;
+use App\Enum\Role;
 use App\Repository\UserRepository;
 use DateTime;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
-use JetBrains\PhpStorm\ArrayShape;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Security\Core\User\{PasswordAuthenticatedUserInterface, UserInterface};
 
 #[ORM\Table(name: '`users`')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'users__email__unique', columns: ['email'])]
 #[ORM\HasLifecycleCallbacks]
-class User implements HasMetaTimestampsInterface
+class User implements HasMetaTimestampsInterface, UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[Groups(['default'])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
-    #[Groups(['default', 'create', 'update'])]
-    private string $name;
+    private ?string $name = null;
 
-    #[ORM\Column(type: 'string', length: 32, nullable: false)]
-    #[Groups(['create', 'update'])]
-    #[Assert\PasswordStrength]
-    private string $password;
+    #[ORM\Column(type: 'string', length: 120, nullable: false)]
+    private ?string $password = null;
 
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: false)]
-    #[Assert\Email(mode: 'strict')]
-    #[Groups(['default', 'create', 'update'])]
-    private string $email;
+    private ?string $email = null;
+
+    #[ORM\Column(type: 'json', length: 1024, nullable: false)]
+    private array $roles = [];
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['default', 'create', 'update'])]
-    private string $address;
+    private ?string $address = null;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
-    #[Groups(['default'])]
     private DateTime $createdAt;
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
-    #[Groups(['default'])]
     private DateTime $updatedAt;
+
+    public function __construct()
+    {
+        $this->orders = new ArrayCollection();
+    }
 
     /**
      * @var Collection<int, Order>
@@ -70,9 +68,11 @@ class User implements HasMetaTimestampsInterface
         return $this->name;
     }
 
-    public function setName(?string $name): void
+    public function setName(?string $name): static
     {
         $this->name = $name ?? $this->name;
+
+        return $this;
     }
 
     public function getPassword(): string
@@ -80,9 +80,11 @@ class User implements HasMetaTimestampsInterface
         return $this->password;
     }
 
-    public function setPassword(?string $password): void
+    public function setPassword(?string $password): static
     {
         $this->password = $password ?? $this->password;
+
+        return $this;
     }
 
     public function getEmail(): string
@@ -90,9 +92,32 @@ class User implements HasMetaTimestampsInterface
         return $this->email;
     }
 
-    public function setEmail(?string $email): void
+    public function setEmail(?string $email): static
     {
         $this->email = $email ?? $this->email;
+
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    /**
+     * @param string[] $roles
+     */
+    public function setRoles(array $roles): void
+    {
+        $roleList = array_column(Role::cases(), 'value');
+        $this->roles = array_intersect($roleList, $roles);
     }
 
     public function getAddress(): string
@@ -100,9 +125,11 @@ class User implements HasMetaTimestampsInterface
         return $this->address;
     }
 
-    public function setAddress(?string $address): void
+    public function setAddress(?string $address): static
     {
         $this->address = $address ?? $this->address;
+
+        return $this;
     }
 
     public function getCreatedAt(): DateTime
@@ -129,11 +156,11 @@ class User implements HasMetaTimestampsInterface
     }
 
     /**
-     * @return Collection<int, Order>
+     * @return Order[]
      */
-    public function getOrders(): Collection
+    public function getOrders(): array
     {
-        return $this->orders;
+        return $this->orders->toArray();
     }
 
     public function addOrder(Order $order): static
@@ -157,28 +184,22 @@ class User implements HasMetaTimestampsInterface
         return $this;
     }
 
-    public function __toString(): string
+    public function getSalt(): ?string
+    {
+        return null;
+    }
+
+    public function eraseCredentials(): void
+    {
+    }
+
+    public function getUserIdentifier(): string
     {
         return $this->email;
     }
 
-    #[ArrayShape([
-        'id' => 'int|null',
-        'name' => 'string',
-        'email' => 'string',
-        'address' => 'string',
-        'createdAt' => 'string',
-        'updatedAt' => 'string',
-    ])]
-    public function toArray(): array
+    public function __toString(): string
     {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'email' => $this->email,
-            'address' => $this->address,
-            'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
-            'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
-        ];
+        return $this->email;
     }
 }

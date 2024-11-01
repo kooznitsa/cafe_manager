@@ -2,6 +2,8 @@
 
 namespace App\Controller\Api\v1;
 
+use App\DTO\Request\RecipeRequestDTO;
+use App\DTO\Response\RecipeResponseDTO;
 use App\Entity\{Dish, Recipe};
 use App\Manager\RecipeManager;
 use App\Service\RecipeBuilderService;
@@ -30,14 +32,7 @@ class RecipeController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(
-                    required: ['dishId', 'productId', 'amount'],
-                    properties: [
-                        new OA\Property(property: 'dishId', type: 'integer'),
-                        new OA\Property(property: 'productId', type: 'integer'),
-                        new OA\Property(property: 'amount', type: 'float'),
-                    ]
-                )
+                schema: new OA\Schema(ref: new Model(type: RecipeRequestDTO::class)),
             ),
         ]
     )]
@@ -69,7 +64,7 @@ class RecipeController extends AbstractController
                 new OA\Property(
                     property: 'recipe',
                     type: 'array',
-                    items: new OA\Items(ref: new Model(type: Recipe::class, groups: ['default']))
+                    items: new OA\Items(ref: new Model(type: RecipeResponseDTO::class)),
                 ),
             ],
             type: 'object'
@@ -83,7 +78,7 @@ class RecipeController extends AbstractController
         $code = empty($recipes) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
         return new JsonResponse(
-            ['recipe' => array_map(static fn(Recipe $recipe) => $recipe->toArray(), $recipes)],
+            ['recipe' => array_map(static fn(Recipe $recipe) => RecipeResponseDTO::fromEntity($recipe), $recipes)],
             $code,
         );
     }

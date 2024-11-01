@@ -50,6 +50,11 @@ entity:
 routes:
 	docker exec -it ${APP_NAME}_php $(PHP_CONSOLE) debug:router
 
+# Clears cache
+.PHONY: clearcache
+clearcache:
+	$(DOCKER_EXEC) $(PHP_CONSOLE) cache:clear
+
 
 # -------------- DOCTRINE --------------
 
@@ -86,4 +91,4 @@ factory:
 .PHONY: linter
 linter:
 	# sudo apt install php-codesniffer
-	phpcs --standard=PSR12 src --ignore=/src/Enum/
+	phpcs --standard=PSR12 src --ignore=/src/Enum/,/src/DTO/

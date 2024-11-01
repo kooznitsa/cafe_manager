@@ -2,6 +2,8 @@
 
 namespace App\Controller\Api\v1;
 
+use App\DTO\Request\ProductRequestDTO;
+use App\DTO\Response\ProductResponseDTO;
 use App\Entity\Product;
 use App\Manager\ProductManager;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -27,7 +29,7 @@ class ProductController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: Product::class, groups: ['create'])),
+                schema: new OA\Schema(ref: new Model(type: ProductRequestDTO::class)),
             ),
         ]
     )]
@@ -58,9 +60,9 @@ class ProductController extends AbstractController
         content: new OA\JsonContent(
             properties: [
                 new OA\Property(
-                    property: 'products',
+                    property: 'orders',
                     type: 'array',
-                    items: new OA\Items(ref: new Model(type: Product::class, groups: ['default']))
+                    items: new OA\Items(ref: new Model(type: ProductResponseDTO::class))
                 ),
             ],
             type: 'object'
@@ -72,7 +74,7 @@ class ProductController extends AbstractController
         $code = empty($products) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
         return new JsonResponse(
-            ['products' => array_map(static fn(Product $product) => $product->toArray(), $products)],
+            ['products' => array_map(fn(Product $product) => ProductResponseDTO::fromEntity($product), $products)],
             $code,
         );
     }

@@ -95,9 +95,7 @@ class OrderManager
 
     private function setOrderParams(Order $order, ?Dish $dish, ?User $user, ?Status $status, ?bool $isDelivery): void
     {
-        $order->setDish($dish);
-        $order->setUser($user);
-        $order->setStatus($status);
+        $order->setDish($dish)->setUser($user)->setStatus($status);
         if ($isDelivery !== null) {
             $order->setIsDelivery($isDelivery);
         }

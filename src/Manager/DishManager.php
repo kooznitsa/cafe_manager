@@ -102,9 +102,6 @@ class DishManager
         ?float $price,
         ?string $image,
     ): void {
-        $dish->setName($name);
-        $dish->setCategory($category);
-        $dish->setPrice($price);
-        $dish->setImage($image);
+        $dish->setName($name)->setCategory($category)->setPrice($price)->setImage($image);
     }
 }

@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
-use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table(name: 'categories')]
@@ -52,11 +51,11 @@ class Category
     }
 
     /**
-     * @return Collection<int, Dish>
+     * @return Dish[]
      */
-    public function getDishes(): Collection
+    public function getDishes(): array
     {
-        return $this->dishes;
+        return $this->dishes->toArray();
     }
 
     public function addDish(Dish $dish): static
@@ -72,7 +71,6 @@ class Category
     public function removeDish(Dish $dish): static
     {
         if ($this->dishes->removeElement($dish)) {
-            // set the owning side to null (unless already changed)
             if ($dish->getCategory() === $this) {
                 $dish->setCategory(null);
             }
@@ -84,17 +82,5 @@ class Category
     public function __toString(): string
     {
         return $this->name;
-    }
-
-    #[ArrayShape([
-        'id' => 'int|null',
-        'name' => 'string',
-    ])]
-    public function toArray(): array
-    {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-        ];
     }
 }

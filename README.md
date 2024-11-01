@@ -1,5 +1,7 @@
 # Менеджер кофейни
 
+![Static Badge](https://img.shields.io/badge/development-ongoing-blue)
+
 ## Требования
 
 - [Symfony 7.1](https://symfony.com/doc/current/setup.html)

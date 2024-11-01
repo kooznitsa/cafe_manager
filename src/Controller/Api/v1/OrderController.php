@@ -2,6 +2,8 @@
 
 namespace App\Controller\Api\v1;
 
+use App\DTO\Request\OrderRequestDTO;
+use App\DTO\Response\OrderResponseDTO;
 use App\Enum\Status;
 use App\Entity\{Dish, Order, User};
 use App\Manager\OrderManager;
@@ -34,15 +36,7 @@ class OrderController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(
-                    required: ['dishId', 'userId', 'status', 'isDelivery'],
-                    properties: [
-                        new OA\Property(property: 'dishId', type: 'integer'),
-                        new OA\Property(property: 'userId', type: 'integer'),
-                        new OA\Property(property: 'status', type: 'string', enum: Status::class),
-                        new OA\Property(property: 'isDelivery', type: 'boolean'),
-                    ]
-                )
+                schema: new OA\Schema(ref: new Model(type: OrderRequestDTO::class)),
             ),
         ]
     )]
@@ -51,7 +45,7 @@ class OrderController extends AbstractController
         description: 'Order is created successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function saveDishAction(Request $request): Response
+    public function saveOrderAction(Request $request): Response
     {
         $orderId = $this->orderBuilderService->createOrderWithUserAndDish($request);
 
@@ -74,7 +68,7 @@ class OrderController extends AbstractController
                 new OA\Property(
                     property: 'orders',
                     type: 'array',
-                    items: new OA\Items(ref: new Model(type: Order::class, groups: ['default']))
+                    items: new OA\Items(ref: new Model(type: OrderResponseDTO::class)),
                 ),
             ],
             type: 'object'
@@ -88,7 +82,7 @@ class OrderController extends AbstractController
         $code = empty($orders) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
         return new JsonResponse(
-            ['orders' => array_map(static fn(Order $order) => $order->toArray(), $orders)],
+            ['orders' => array_map(fn(Order $order) => OrderResponseDTO::fromEntity($order), $orders)],
             $code,
         );
     }
@@ -105,7 +99,7 @@ class OrderController extends AbstractController
                 new OA\Property(
                     property: 'orders',
                     type: 'array',
-                    items: new OA\Items(ref: new Model(type: Order::class, groups: ['default']))
+                    items: new OA\Items(ref: new Model(type: OrderResponseDTO::class))
                 ),
             ],
             type: 'object'
@@ -119,8 +113,7 @@ class OrderController extends AbstractController
         $code = empty($orders) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
         return new JsonResponse(
-            ['orders' => array_map(static fn(Order $order) => $order->toArray(), $orders)],
-            $code,
+            ['orders' => array_map(fn(Order $order) => OrderResponseDTO::fromEntity($order), $orders)], $code,
         );
     }
 
@@ -135,8 +128,18 @@ class OrderController extends AbstractController
         required: true,
         schema: new OA\Schema(type: 'integer'),
     )]
-    #[OA\Parameter(name: 'dishId', description: 'Dish ID', in: 'query', schema: new OA\Schema(type: 'integer'))]
-    #[OA\Parameter(name: 'userId', description: 'User ID', in: 'query', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(
+        name: 'dishId',
+        description: 'Dish ID',
+        in: 'query',
+        schema: new OA\Schema(type: 'integer'),
+    )]
+    #[OA\Parameter(
+        name: 'userId',
+        description: 'User ID',
+        in: 'query',
+        schema: new OA\Schema(type: 'integer'),
+    )]
     #[OA\Parameter(
         name: 'status',
         description: 'Order status',
@@ -147,7 +150,7 @@ class OrderController extends AbstractController
         name: 'isDelivery',
         description: 'Order for delivery',
         in: 'query',
-        schema: new OA\Schema(type: 'boolean'),
+        schema: new OA\Schema(type: 'integer', enum: [0, 1]),
     )]
     #[OA\Response(
         response: Response::HTTP_OK,

@@ -2,22 +2,25 @@
 
 namespace App\Manager;
 
+use App\DTO\Request\UserRequestDTO;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class UserManager
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private UserRepository $userRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UserRepository $userRepository,
+        private readonly UserPasswordHasherInterface $userPasswordHasher,
     ) {
     }
 
-    public function saveUser(string $name, string $password, string $email, string $address): ?int
+    public function saveUser(User $user, UserRequestDTO $manageUserDTO): ?int
     {
-        $user = new User();
-        $this->setUserParams($user, $name, $password, $email, $address);
+        $this->setUserParams($user, $manageUserDTO);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
@@ -37,20 +40,16 @@ class UserManager
         return $this->userRepository->find($id);
     }
 
-    public function updateUser(
-        int $userId,
-        ?string $name = null,
-        ?string $password = null,
-        ?string $email = null,
-        ?string $address = null,
-    ): ?User {
+    public function updateUser(int $userId, UserRequestDTO $manageUserDTO): ?User
+    {
         /** @var User $user */
         $user = $this->getUserById($userId);
-        if (!$user) {
-            return null;
+
+        if ($user === null) {
+            throw new UnprocessableEntityHttpException('User does not exist');
         }
 
-        $this->setUserParams($user, $name, $password, $email, $address);
+        $this->setUserParams($user, $manageUserDTO);
         $this->entityManager->flush();
 
         return $user;
@@ -74,16 +73,14 @@ class UserManager
         return $this->deleteUser($user);
     }
 
-    private function setUserParams(
-        User $user,
-        ?string $name,
-        ?string $password,
-        ?string $email,
-        ?string $address,
-    ): void {
-        $user->setName($name);
-        $user->setPassword($password);
-        $user->setEmail($email);
-        $user->setAddress($address);
+    private function setUserParams(User $user, UserRequestDTO $dto): void
+    {
+        $user->setName($dto->name);
+        if ($dto->password !== null) {
+            $user->setPassword($this->userPasswordHasher->hashPassword($user, $dto->password));
+        }
+        $user->setEmail($dto->email)
+            ->setAddress($dto->address)
+            ->setRoles($dto->roles);
     }
 }

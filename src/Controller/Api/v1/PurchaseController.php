@@ -2,6 +2,8 @@
 
 namespace App\Controller\Api\v1;
 
+use App\DTO\Request\PurchaseRequestDTO;
+use App\DTO\Response\PurchaseResponseDTO;
 use App\Entity\Purchase;
 use App\Manager\PurchaseManager;
 use App\Service\PurchaseBuilderService;
@@ -15,9 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
 #[OA\Tag(name: 'purchases')]
 class PurchaseController extends AbstractController
 {
-    private const DEFAULT_PAGE = 0;
-    private const DEFAULT_PER_PAGE = 20;
-
     public function __construct(
         private readonly PurchaseManager $purchaseManager,
         private readonly PurchaseBuilderService $purchaseBuilderService,
@@ -32,14 +31,7 @@ class PurchaseController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(
-                    required: ['productId', 'price', 'amount'],
-                    properties: [
-                        new OA\Property(property: 'productId', type: 'integer'),
-                        new OA\Property(property: 'price', type: 'float'),
-                        new OA\Property(property: 'amount', type: 'float'),
-                    ]
-                )
+                schema: new OA\Schema(ref: new Model(type: PurchaseRequestDTO::class)),
             ),
         ]
     )]
@@ -76,7 +68,7 @@ class PurchaseController extends AbstractController
                 new OA\Property(
                     property: 'purchases',
                     type: 'array',
-                    items: new OA\Items(ref: new Model(type: Purchase::class, groups: ['default']))
+                    items: new OA\Items(ref: new Model(type: PurchaseResponseDTO::class)),
                 ),
             ],
             type: 'object'
@@ -91,8 +83,11 @@ class PurchaseController extends AbstractController
         $code = empty($purchases) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
         return new JsonResponse(
-            ['purchases' => array_map(static fn(Purchase $purchase) => $purchase->toArray(), $purchases)],
-            $code,
+            [
+                'purchases' => array_map(
+                    static fn(Purchase $purchase) => PurchaseResponseDTO::fromEntity($purchase), $purchases
+                )
+            ], $code,
         );
     }
 

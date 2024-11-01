@@ -2,6 +2,8 @@
 
 namespace App\Controller\Api\v1;
 
+use App\DTO\Request\DishRequestDTO;
+use App\DTO\Response\DishResponseDTO;
 use App\Entity\{Category, Dish};
 use App\Manager\DishManager;
 use App\Service\{DishBuilderService, FileService};
@@ -32,15 +34,7 @@ class DishController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(
-                    required: ['name', 'categoryId', 'price'],
-                    properties: [
-                        new OA\Property(property: 'name', type: 'string'),
-                        new OA\Property(property: 'categoryId', type: 'integer'),
-                        new OA\Property(property: 'price', type: 'float'),
-                        new OA\Property(property: 'image', type: 'file'),
-                    ]
-                )
+                schema: new OA\Schema(ref: new Model(type: DishRequestDTO::class)),
             ),
         ]
     )]
@@ -74,7 +68,7 @@ class DishController extends AbstractController
                 new OA\Property(
                     property: 'dishes',
                     type: 'array',
-                    items: new OA\Items(ref: new Model(type: Dish::class, groups: ['default']))
+                    items: new OA\Items(ref: new Model(type: DishResponseDTO::class)),
                 ),
             ],
             type: 'object'
@@ -88,7 +82,7 @@ class DishController extends AbstractController
         $code = empty($dishes) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
         return new JsonResponse(
-            ['dishes' => array_map(static fn(Dish $dish) => $dish->toArray(), $dishes)],
+            ['dishes' => array_map(fn(Dish $dish) => DishResponseDTO::fromEntity($dish), $dishes)],
             $code,
         );
     }

@@ -7,8 +7,6 @@ use App\Repository\OrderRepository;
 use App\Enum\Status;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-use JetBrains\PhpStorm\ArrayShape;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table(name: 'orders')]
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
@@ -18,33 +16,26 @@ class Order implements HasMetaTimestampsInterface
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[Groups(['default'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
     #[ORM\JoinColumn]
-    #[Groups(['default', 'create', 'update'])]
     private ?Dish $dish = null;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
     #[ORM\JoinColumn]
-    #[Groups(['default', 'create', 'update'])]
     private ?User $user = null;
 
     #[ORM\Column(type: 'string', nullable: false, enumType: Status::class)]
-    #[Groups(['default', 'create', 'update'])]
     private Status $status = Status::Created;
 
-    #[ORM\Column(nullable: false)]
-    #[Groups(['default', 'create', 'update'])]
-    private ?bool $isDelivery = null;
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
+    private ?bool $isDelivery = false;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
-    #[Groups(['default'])]
     private DateTime $createdAt;
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
-    #[Groups(['default'])]
     private DateTime $updatedAt;
 
     public function getId(): ?int
@@ -123,25 +114,8 @@ class Order implements HasMetaTimestampsInterface
         $this->updatedAt = new DateTime();
     }
 
-    #[ArrayShape([
-        'id' => 'int|null',
-        'dish' => 'array',
-        'user' => 'string',
-        'status' => 'string',
-        'isDelivery' => 'bool',
-        'createdAt' => 'string',
-        'updatedAt' => 'string',
-    ])]
-    public function toArray(): array
+    public function __toString(): string
     {
-        return [
-            'id' => $this->id,
-            'dish' => $this->getDish()->toArray(),
-            'user' => $this->getUser()->toArray(),
-            'status' => $this->status,
-            'isDelivery' => $this->isDelivery,
-            'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
-            'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
-        ];
+        return $this->user->getEmail() . ' - ' . $this->dish->getName();
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Controller\Api\v1;
 
+use App\DTO\Request\CategoryRequestDTO;
+use App\DTO\Response\CategoryResponseDTO;
 use App\Entity\Category;
 use App\Manager\CategoryManager;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -27,7 +29,7 @@ class CategoryController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: Category::class, groups: ['create'])),
+                schema: new OA\Schema(ref: new Model(type: CategoryRequestDTO::class)),
             ),
         ]
     )]
@@ -58,7 +60,7 @@ class CategoryController extends AbstractController
                 new OA\Property(
                     property: 'categories',
                     type: 'array',
-                    items: new OA\Items(ref: new Model(type: Category::class, groups: ['default']))
+                    items: new OA\Items(ref: new Model(type: CategoryResponseDTO::class)),
                 ),
             ],
             type: 'object'
@@ -70,7 +72,7 @@ class CategoryController extends AbstractController
         $code = empty($categories) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
         return new JsonResponse(
-            ['categories' => array_map(static fn(Category $category) => $category->toArray(), $categories)],
+            ['users' => array_map(fn(Category $category) => CategoryResponseDTO::fromEntity($category), $categories)],
             $code,
         );
     }

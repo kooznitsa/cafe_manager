@@ -4,7 +4,11 @@
         <div class="card-body">
             <h5 class="card-title">{{ dish.name }}</h5>
             <p class="card-text">Цена: {{ dish.price }} руб.</p>
-            <a href="#" class="btn accent">Заказать</a>
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="/recipe/{{ dish.id }}" class="btn accent">Рецепт</a>
+            {% else %}
+                <a href="/order" class="btn accent">Заказать</a>
+            {% endif %}
         </div>
     </div>
 </div>

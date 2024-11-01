@@ -11,6 +11,8 @@
         {% endblock %}
 
         {% block javascripts %}
+            <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
     </head>
@@ -20,6 +22,10 @@
                 <a class="navbar-brand" href="/">Прокофьев и Чайковский</a>
             </div>
 
+            {% if is_granted('ROLE_USER') %}
+            <div>Добро пожаловать, {{ app.user.name }}</div>
+            {% endif %}
+
             <div>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -27,15 +33,33 @@
 
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
                     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        {% if not is_granted('ROLE_USER') %}
+                        <li class="nav-item px-3 active">
+                            <a class="nav-link" href="/login">Вход</a>
+                        </li>
+                            <li class="nav-item px-3 active">
+                                <a class="nav-link" href="/create-user">Регистрация</a>
+                            </li>
+                        {% endif %}
+                        {% if is_granted('ROLE_USER') %}
                         <li class="nav-item px-3 active">
                             <a class="nav-link" href="/menu">Меню</a>
                         </li>
+                        {% if is_granted('ROLE_ADMIN') %}
                         <li class="nav-item px-3 active">
                             <a class="nav-link" href="/admin">Админка</a>
                         </li>
+                        {% endif %}
                         <li class="nav-item px-3">
                             <a class="nav-link" href="/cart">Корзина</a>
                         </li>
+                        <li class="nav-item px-3">
+                            <a class="nav-link" href="/update-user/{{ app.user.id }}">Профиль</a>
+                        </li>
+                        <li class="nav-item px-3 active">
+                            <a class="nav-link" href="/logout">Выход</a>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

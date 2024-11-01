@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api\v1;
 
-use App\DTO\Request\CreateProductRequestDTO;
+use App\DTO\Request\ProductRequestDTO;
 use App\DTO\Response\ProductResponseDTO;
 use App\Entity\Product;
 use App\Manager\ProductManager;
@@ -29,7 +29,7 @@ class ProductController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: CreateProductRequestDTO::class)),
+                schema: new OA\Schema(ref: new Model(type: ProductRequestDTO::class)),
             ),
         ]
     )]

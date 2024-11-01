@@ -5,7 +5,7 @@ namespace App\DTO\Request;
 use App\Entity\Dish;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class CreateDishRequestDTO
+class DishRequestDTO
 {
     public function __construct(
         #[Assert\NotBlank]

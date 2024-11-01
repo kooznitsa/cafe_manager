@@ -5,7 +5,7 @@ namespace App\DTO\Request;
 use App\Entity\Order;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class CreateOrderRequestDTO
+class OrderRequestDTO
 {
     public function __construct(
         #[Assert\NotBlank]

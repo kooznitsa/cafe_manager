@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api\v1;
 
-use App\DTO\Request\ManageUserDTO;
+use App\DTO\Request\UserRequestDTO;
 use App\DTO\Response\UserResponseDTO;
 use App\Entity\User;
 use App\Manager\UserManager;
@@ -10,7 +10,7 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\{InputBag, JsonResponse, Request, Response};
+use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/api/v1/user')]
@@ -33,7 +33,7 @@ class UserController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: ManageUserDTO::class)),
+                schema: new OA\Schema(ref: new Model(type: UserRequestDTO::class)),
             ),
         ]
     )]
@@ -44,7 +44,8 @@ class UserController extends AbstractController
     )]
     public function saveUserAction(Request $request): Response
     {
-        $userId = $this->userManager->saveUser(...$this->getUserParams($request->request));
+        $dto = UserRequestDTO::fromRequest($request);
+        $userId = $this->userManager->saveUser(new User(), $dto);
         [$data, $code] = $userId === null ?
             [['success' => false], Response::HTTP_BAD_REQUEST] :
             [['success' => true, 'userId' => $userId], Response::HTTP_OK];
@@ -114,6 +115,12 @@ class UserController extends AbstractController
     #[OA\Parameter(name: 'password', description: 'User password', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'email', description: 'User email', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'address', description: 'User address', in: 'query', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(
+        name: 'roles[]',
+        description: 'User roles',
+        in: 'query',
+        schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string')),
+    )]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'User is updated successfully.',
@@ -122,7 +129,8 @@ class UserController extends AbstractController
     public function updateUserAction(Request $request): Response
     {
         $userId = $request->query->get('userId');
-        $result = $this->userManager->updateUser($userId, ...$this->getUserParams($request->query));
+        $dto = UserRequestDTO::fromRequest($request);
+        $result = $this->userManager->updateUser($userId, $dto);
 
         return new JsonResponse(
             ['success' => $result !== null],
@@ -144,15 +152,5 @@ class UserController extends AbstractController
         $result = $this->userManager->deleteUserById($id);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
-    }
-
-    private function getUserParams(InputBag $input): array
-    {
-        $name = $input->get('name');
-        $password = $input->get('password');
-        $email = $input->get('email');
-        $address = $input->get('address');
-
-        return [$name, $password, $email, $address];
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api\v1;
 
-use App\DTO\Request\CreateDishRequestDTO;
+use App\DTO\Request\DishRequestDTO;
 use App\DTO\Response\DishResponseDTO;
 use App\Entity\{Category, Dish};
 use App\Manager\DishManager;
@@ -34,7 +34,7 @@ class DishController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: CreateDishRequestDTO::class)),
+                schema: new OA\Schema(ref: new Model(type: DishRequestDTO::class)),
             ),
         ]
     )]

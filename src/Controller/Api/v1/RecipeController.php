@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api\v1;
 
-use App\DTO\Request\CreateRecipeRequestDTO;
+use App\DTO\Request\RecipeRequestDTO;
 use App\DTO\Response\RecipeResponseDTO;
 use App\Entity\{Dish, Recipe};
 use App\Manager\RecipeManager;
@@ -32,7 +32,7 @@ class RecipeController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: CreateRecipeRequestDTO::class)),
+                schema: new OA\Schema(ref: new Model(type: RecipeRequestDTO::class)),
             ),
         ]
     )]

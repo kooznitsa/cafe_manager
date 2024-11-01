@@ -50,6 +50,11 @@ entity:
 routes:
 	docker exec -it ${APP_NAME}_php $(PHP_CONSOLE) debug:router
 
+# Clears cache
+.PHONY: clearcache
+clearcache:
+	$(DOCKER_EXEC) $(PHP_CONSOLE) cache:clear
+
 
 # -------------- DOCTRINE --------------
 

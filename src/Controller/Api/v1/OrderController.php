@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api\v1;
 
-use App\DTO\Request\CreateOrderRequestDTO;
+use App\DTO\Request\OrderRequestDTO;
 use App\DTO\Response\OrderResponseDTO;
 use App\Enum\Status;
 use App\Entity\{Dish, Order, User};
@@ -36,7 +36,7 @@ class OrderController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: CreateOrderRequestDTO::class)),
+                schema: new OA\Schema(ref: new Model(type: OrderRequestDTO::class)),
             ),
         ]
     )]

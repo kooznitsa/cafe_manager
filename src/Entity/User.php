@@ -3,16 +3,18 @@
 namespace App\Entity;
 
 use App\Contract\HasMetaTimestampsInterface;
+use App\Enum\Role;
 use App\Repository\UserRepository;
 use DateTime;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\{PasswordAuthenticatedUserInterface, UserInterface};
 
 #[ORM\Table(name: '`users`')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'users__email__unique', columns: ['email'])]
 #[ORM\HasLifecycleCallbacks]
-class User implements HasMetaTimestampsInterface
+class User implements HasMetaTimestampsInterface, UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
@@ -20,16 +22,19 @@ class User implements HasMetaTimestampsInterface
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
-    private string $name;
+    private ?string $name = null;
 
-    #[ORM\Column(type: 'string', length: 32, nullable: false)]
-    private string $password;
+    #[ORM\Column(type: 'string', length: 120, nullable: false)]
+    private ?string $password = null;
 
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: false)]
-    private string $email;
+    private ?string $email = null;
+
+    #[ORM\Column(type: 'json', length: 1024, nullable: false)]
+    private array $roles = [];
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private string $address;
+    private ?string $address = null;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     private DateTime $createdAt;
@@ -94,6 +99,27 @@ class User implements HasMetaTimestampsInterface
         return $this;
     }
 
+    /**
+     * @return string[]
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    /**
+     * @param string[] $roles
+     */
+    public function setRoles(array $roles): void
+    {
+        $roleList = array_column(Role::cases(), 'value');
+        $this->roles = array_intersect($roleList, $roles);
+    }
+
     public function getAddress(): string
     {
         return $this->address;
@@ -156,6 +182,20 @@ class User implements HasMetaTimestampsInterface
         }
 
         return $this;
+    }
+
+    public function getSalt(): ?string
+    {
+        return null;
+    }
+
+    public function eraseCredentials(): void
+    {
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
     }
 
     public function __toString(): string

@@ -17,11 +17,6 @@ class UserResponseDTO
 
         #[Assert\NotBlank]
         #[Assert\Length(max: 32)]
-        #[Assert\PasswordStrength]
-        public readonly string $password,
-
-        #[Assert\NotBlank]
-        #[Assert\Length(max: 32)]
         #[Assert\Email(mode: 'strict')]
         public readonly string $email,
 
@@ -36,6 +31,9 @@ class UserResponseDTO
 
         #[Assert\Type('array')]
         public readonly array $orders = [],
+
+        #[Assert\Type('array')]
+        public readonly array $roles = [],
     ) {
     }
 
@@ -44,7 +42,6 @@ class UserResponseDTO
         return new self(...[
             'id' => $user->getId(),
             'name' => $user->getName(),
-            'password' => $user->getPassword(),
             'email' => $user->getEmail(),
             'address' => $user->getAddress(),
             'created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
@@ -59,6 +56,7 @@ class UserResponseDTO
                 },
                 $user->getOrders()
             ),
+            'roles' => $user->getRoles(),
         ]);
     }
 }

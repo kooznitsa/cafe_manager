@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\v1;
 
+use App\DTO\Request\CategoryRequestDTO;
 use App\DTO\Response\CategoryResponseDTO;
 use App\Entity\Category;
 use App\Manager\CategoryManager;
@@ -28,7 +29,7 @@ class CategoryController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: Category::class, groups: ['create'])),
+                schema: new OA\Schema(ref: new Model(type: CategoryRequestDTO::class)),
             ),
         ]
     )]

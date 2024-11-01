@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\DTO\Request\ManageUserDTO;
+use App\DTO\Request\UserRequestDTO;
 use App\Entity\User;
 use App\Form\Type\{User\CreateUserType, User\UpdateUserType};
 use App\Manager\{OrderManager, UserManager};
@@ -24,7 +24,7 @@ class UserBuilderService
     {
         if ($id) {
             $user = $this->userManager->getUserById($id);
-            $dto = ManageUserDTO::fromEntity($user);
+            $dto = UserRequestDTO::fromEntity($user);
         }
         $form = $this->formFactory->create(
             $_route === 'create_user' ? CreateUserType::class : UpdateUserType::class,
@@ -34,7 +34,7 @@ class UserBuilderService
 
 //        if ($form->isSubmitted() && $form->isValid()) {
         if ($form->isSubmitted()) {
-            /** @var ManageUserDTO $userDto */
+            /** @var UserRequestDTO $userDto */
             $userDto = $form->getData();
             $userId = $this->saveUserFromDTO($user ?? new User(), $userDto);
         }
@@ -42,7 +42,7 @@ class UserBuilderService
         return [$form, $user ?? null, $userId ?? null];
     }
 
-    public function saveUserFromDTO(User $user, ManageUserDTO $manageUserDTO): ?int
+    public function saveUserFromDTO(User $user, UserRequestDTO $manageUserDTO): ?int
     {
         $user->setName($manageUserDTO->name)
             ->setPassword($manageUserDTO->password)

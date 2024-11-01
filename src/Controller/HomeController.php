@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Dish;
 use App\Manager\{CategoryManager, DishManager, UserManager};
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,10 +22,8 @@ class HomeController extends AbstractController
         $category = $this->categoryManager->getCategoryById(1);
         $dishes = $this->dishManager->getCategoryDishes($category);
 
-        $json = $this->json(['dishes' => array_map(static fn(Dish $dish) => $dish->toArray(), $dishes)]);
-
-        return $this->render("home.html.twig", [
-            "dishes" => $dishes,
+        return $this->render('home.html.twig', [
+            'dishes' => $dishes,
         ]);
     }
 }

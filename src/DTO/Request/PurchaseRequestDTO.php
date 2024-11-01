@@ -5,7 +5,7 @@ namespace App\DTO\Request;
 use App\Entity\Purchase;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class CreatePurchaseRequestDTO
+class PurchaseRequestDTO
 {
     public function __construct(
         #[Assert\NotBlank]

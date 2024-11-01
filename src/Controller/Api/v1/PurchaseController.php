@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api\v1;
 
-use App\DTO\Request\CreatePurchaseRequestDTO;
+use App\DTO\Request\PurchaseRequestDTO;
 use App\DTO\Response\PurchaseResponseDTO;
 use App\Entity\Purchase;
 use App\Manager\PurchaseManager;
@@ -31,7 +31,7 @@ class PurchaseController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: CreatePurchaseRequestDTO::class)),
+                schema: new OA\Schema(ref: new Model(type: PurchaseRequestDTO::class)),
             ),
         ]
     )]

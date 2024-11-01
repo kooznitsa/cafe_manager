@@ -5,7 +5,7 @@ namespace App\DTO\Request;
 use App\Entity\Recipe;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class CreateRecipeRequestDTO
+class RecipeRequestDTO
 {
     public function __construct(
         #[Assert\NotBlank]

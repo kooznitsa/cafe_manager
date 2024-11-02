@@ -85,9 +85,11 @@ class PurchaseController extends AbstractController
         return new JsonResponse(
             [
                 'purchases' => array_map(
-                    static fn(Purchase $purchase) => PurchaseResponseDTO::fromEntity($purchase), $purchases
+                    static fn(Purchase $purchase) => PurchaseResponseDTO::fromEntity($purchase),
+                    $purchases,
                 )
-            ], $code,
+            ],
+            $code,
         );
     }
 

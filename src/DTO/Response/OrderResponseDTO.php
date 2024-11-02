@@ -39,7 +39,7 @@ class OrderResponseDTO
                 'id' => $order->getDish()->getId(),
                 'category' => $order->getDish()->getCategory()->getName(),
                 'name' => $order->getDish()->getName(),
-                'price' => $order->getDish()->getName(),
+                'price' => $order->getDish()->getPrice(),
             ],
             'user' => [
                 'id' => $order->getUser()->getId(),

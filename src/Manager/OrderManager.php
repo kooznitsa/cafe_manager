@@ -40,7 +40,7 @@ class OrderManager
 
     public function getUserOrders(User $user): array
     {
-        return $this->orderRepository->findBy(['user' => $user]);
+        return $this->orderRepository->getCreatedUserOrders($user->getId());
     }
 
     public function getDishOrders(Dish $dish): array

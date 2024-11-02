@@ -81,7 +81,8 @@ class UserController extends AbstractController
         $code = empty($users) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
         return new JsonResponse(
-            ['users' => array_map(fn(User $user) => UserResponseDTO::fromEntity($user), $users)], $code
+            ['users' => array_map(fn(User $user) => UserResponseDTO::fromEntity($user), $users)],
+            $code,
         );
     }
 

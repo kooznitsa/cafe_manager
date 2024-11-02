@@ -6,9 +6,8 @@
             <p class="card-text">Цена: {{ dish.price }} руб.</p>
             {% if is_granted('ROLE_ADMIN') %}
                 <a href="/recipe/{{ dish.id }}" class="btn accent">Рецепт</a>
-            {% else %}
-                <a href="/order" class="btn accent">Заказать</a>
             {% endif %}
+                <a href="/order/{{ dish.id }}" class="btn accent">В корзину</a>
         </div>
     </div>
 </div>

@@ -3,6 +3,7 @@
 namespace App\DTO\Request;
 
 use App\Entity\{Order, User};
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -24,9 +25,11 @@ class UserRequestDTO
         public ?string $address = '',
 
         #[Assert\Type('array')]
+        #[OA\Property(property: 'orders[]', type: 'array', items: new OA\Items(type: Order::class))]
         public ?array $orders = [],
 
         #[Assert\Type('array')]
+        #[OA\Property(property: 'roles[]', type: 'array', items: new OA\Items(type: 'string'))]
         public ?array $roles = [],
     ) {
     }

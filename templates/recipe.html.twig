@@ -1,0 +1,29 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Рецепт{% endblock %}
+
+{% block body %}
+    {% if recipe %}
+    <h1>Рецепт для блюда: {{ recipe[0].dish.name }}</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Продукт</th>
+            <th scope="col">Количество</th>
+            <th scope="col">Единица</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in recipe %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.amount }}</td>
+                <td>{{ item.product.unit }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>Рецепт не найден.</p>
+    {% endif %}
+{% endblock %}

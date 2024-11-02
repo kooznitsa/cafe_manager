@@ -2,19 +2,72 @@
 
 namespace App\Controller;
 
+use App\Service\{CartService, OrderBuilderService};
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\{Request, Response};
 use Symfony\Component\Routing\Attribute\Route;
 
 class CartController extends AbstractController
 {
-    public function __construct()
-    {
+    public function __construct(
+        private readonly CartService $cartService,
+        private readonly OrderBuilderService $orderBuilderService,
+    ) {
     }
 
     #[Route('/cart', name: 'cart')]
     public function cart(): Response
     {
-        return $this->render('cart.html.twig', []);
+        $cart = $this->getCart();
+
+        return $this->render('cart.html.twig', ['cart' => $cart]);
+    }
+
+    #[Route('/pay', name: 'pay_orders')]
+    public function payOrders(): Response
+    {
+        $cart = $this->getCart();
+        $orderIds = array_map(fn($order) => $order['id'], $cart['orders']);
+        foreach ($orderIds as $orderId) {
+            $this->orderBuilderService->payOrder($orderId);
+        }
+
+        return $this->render('paidOrders.html.twig', ['cart' => $cart]);
+    }
+
+    #[Route('/order/{dishId}', name: 'make_order', requirements: ['dishId' => '\d+'])]
+    public function makeOrder(Request $request, int $dishId): Response
+    {
+        $dishId = $request->get('dishId');
+        $userId = $this->getUser()->getId();
+        $this->cartService->putToCart($dishId, $userId);
+
+        return $this->redirect($request->headers->get('referer'));
+    }
+
+    #[Route('/delete/{orderId}', name: 'make_order', requirements: ['orderId' => '\d+'])]
+    public function deleteOrder(Request $request, int $orderId): Response
+    {
+        $orderId = $request->get('orderId');
+        $this->cartService->deleteFromCart($orderId);
+
+        return $this->redirect($request->headers->get('referer'));
+    }
+
+    #[Route('/delivery', name: 'toggle_delivery')]
+    public function toggleDelivery(Request $request): Response
+    {
+        $cart = $this->getCart();
+        $orderIds = array_map(fn($order) => $order['id'], $cart['orders']);
+        $this->cartService->toggleDelivery($orderIds, $request->get('isDelivery'));
+
+        return $this->redirect($request->headers->get('referer'));
+    }
+
+    private function getCart(): array
+    {
+        $userId = $this->getUser()->getId();
+
+        return $this->cartService->getCart($userId);
     }
 }

@@ -20,6 +20,19 @@ class OrderRepository extends ServiceEntityRepository
         parent::__construct($registry, Order::class);
     }
 
+    public function getCreatedUserOrders(int $userId): array
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('o')
+            ->from(Order::class, 'o')
+            ->where('o.user = :userId')
+            ->setParameter('userId', $userId)
+            ->andWhere('o.status = :status')
+            ->setParameter('status', 'Created');
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function getPaidOrders(int $page, int $perPage): array
     {
         $qb = $this->entityManager->createQueryBuilder();

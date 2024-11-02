@@ -24,17 +24,22 @@
 								},
 								{
 									"key": "email",
-									"value": "cuckoo@gmail.com",
+									"value": "test@gmail.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "qwerty",
+									"value": "TSshark1957work$",
 									"type": "text"
 								},
 								{
 									"key": "address",
 									"value": "Сосновый бор",
+									"type": "text"
+								},
+								{
+									"key": "roles[]",
+									"value": "ROLE_ADMIN",
 									"type": "text"
 								}
 							]
@@ -141,7 +146,7 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{host}}/api/v1/user?userId=35&address=Sortavala",
+							"raw": "{{host}}/api/v1/user?userId=38&roles[]=ROLE_VIEW&roles[]=ROLE_ADMIN",
 							"host": [
 								"{{host}}"
 							],
@@ -153,7 +158,7 @@
 							"query": [
 								{
 									"key": "userId",
-									"value": "35"
+									"value": "38"
 								},
 								{
 									"key": "email",
@@ -162,17 +167,26 @@
 								},
 								{
 									"key": "name",
-									"value": "Travis",
+									"value": "Shark",
 									"disabled": true
 								},
 								{
 									"key": "address",
-									"value": "Sortavala"
+									"value": "Sortavala",
+									"disabled": true
 								},
 								{
 									"key": "password",
 									"value": "abc",
 									"disabled": true
+								},
+								{
+									"key": "roles[]",
+									"value": "ROLE_VIEW"
+								},
+								{
+									"key": "roles[]",
+									"value": "ROLE_ADMIN"
 								}
 							]
 						}
@@ -190,7 +204,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{host}}/api/v1/user/35",
+							"raw": "{{host}}/api/v1/user/41",
 							"host": [
 								"{{host}}"
 							],
@@ -198,7 +212,7 @@
 								"api",
 								"v1",
 								"user",
-								"35"
+								"41"
 							]
 						}
 					},

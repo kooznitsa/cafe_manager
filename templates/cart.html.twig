@@ -3,5 +3,60 @@
 {% block title %}Корзина{% endblock %}
 
 {% block body %}
-<h1>Корзина</h1>
+    <h1>Корзина</h1>
+
+    {% if cart %}
+
+    {% set sum = 0 %}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Товар</th>
+                <th scope="col">Категория</th>
+                <th scope="col">Цена, руб.</th>
+                <th scope="col">Удалить</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set loopOutput %}
+            {% for order in cart.orders %}
+                <tr>
+                    <td>{{ order.dish.name }}</td>
+                    <td>{{ order.dish.category }}</td>
+                    <td>{{ order.dish.price }}</td>
+                    {% set sum = sum + order.dish.price %}
+                    <td><a href="/delete/{{ order.id }}"><img src="{{ asset('delete.png') }}" alt="Delete" class="sm-image"></a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endset %}
+    {{ loopOutput }}
+
+    <div class="form-check form-switch my-3">
+        <label class="form-check-label" for="flexSwitchCheckDefault">С доставкой на дом</label>
+        <input
+            class="form-check-input"
+            type="checkbox"
+            id="flexSwitchCheckDefault"
+            name="isDelivery"
+            onchange="delivery(this)"
+            {% if cart.orders[0].isDelivery %}checked{% endif %}
+        >
+    </div>
+
+    <a href="/pay" class="btn accent">Оплатить {{ sum }} руб.</a>
+
+    {% else %}
+        <p>Корзина пуста.</p>
+    {% endif %}
+
+    <script type="text/javascript">
+        function delivery(e) {
+            let isDelivery = e.checked ? 1 : 0;
+            location.href = '/delivery?isDelivery=' + isDelivery;
+        }
+    </script>
+
 {% endblock %}

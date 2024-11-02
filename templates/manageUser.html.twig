@@ -20,15 +20,15 @@
             {{ form_row(form.email) }}
             {{ form_row(form.address) }}
 
-            {% if form.orders is defined %}
-                <h3>Заказы</h3>
-                <ul class="orders">
-                    {% for order in form.orders %}
-                        <li>{{ form_row(order) }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-            {{ form_row(form.submit) }}
+{#            {% if form.orders is defined %}#}
+{#                <h3>Заказы</h3>#}
+{#                <ul class="orders">#}
+{#                    {% for order in form.orders %}#}
+{#                        <li>{{ form_row(order) }}</li>#}
+{#                    {% endfor %}#}
+{#                </ul>#}
+{#            {% endif %}#}
+            {{ form_row(form.submit, {'attr': {'class': 'accent'}}) }}
             {{ form_end(form, {'render_rest': false}) }}
         </div>
     </div>

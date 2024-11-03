@@ -15,3 +15,7 @@ body {
 .sm-image {
     width: 30px;
 }
+
+.canvas-main {
+    background-color: #FFF;
+}

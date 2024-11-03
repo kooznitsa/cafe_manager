@@ -42,7 +42,7 @@ class OrderRepository extends ServiceEntityRepository
             ->where('o.status IN (:statusList)')
             ->setParameter('statusList', [Status::Paid->name, Status::Delivered->name])
             ->groupBy('orderDate')
-            ->orderBy('orderDate', 'DESC')
+            ->orderBy('orderDate', 'ASC')
             ->setFirstResult($perPage * $page)
             ->setMaxResults($perPage);
 

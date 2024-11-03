@@ -7,7 +7,9 @@
             {% if is_granted('ROLE_ADMIN') %}
                 <a href="/recipe/{{ dish.id }}" class="btn accent">Рецепт</a>
             {% endif %}
+            {% if is_granted('ROLE_USER') %}
                 <a href="/order/{{ dish.id }}" class="btn accent">В корзину</a>
+            {% endif %}
         </div>
     </div>
 </div>

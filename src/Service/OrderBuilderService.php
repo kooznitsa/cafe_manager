@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Enum\Status;
 use App\Entity\Order;
 use App\Manager\{DishManager, OrderManager, UserManager};
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class OrderBuilderService
@@ -13,6 +14,7 @@ class OrderBuilderService
         private readonly OrderManager $orderManager,
         private readonly DishManager $dishManager,
         private readonly UserManager $userManager,
+        private HttpClientInterface $client,
     ) {
     }
 
@@ -87,5 +89,14 @@ class OrderBuilderService
         $isDelivery = $inputBag->get('isDelivery');
 
         return [$dishId, $userId, $status, $isDelivery];
+    }
+
+    public function getChartData(): array
+    {
+        $response = $this->client->request('GET', "{$_ENV['GATEWAY_BASE_URL']}/order/stats")->toArray();
+        $dates = array_column($response['orders'], 'orderDate');
+        $sums = array_column($response['orders'], 'total');
+
+        return [$dates, $sums];
     }
 }

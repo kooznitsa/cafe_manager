@@ -1,1 +1,14 @@
 {% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block javascripts %}
+    {% block importmap %}{{ importmap('app') }}{% endblock %}
+{% endblock %}
+
+{% block main %}
+    <div class="canvas-main">
+        <h1>Продажи по дням</h1>
+        <div>
+            {{ render_chart(chart) }}
+        </div>
+    </div>
+{% endblock %}

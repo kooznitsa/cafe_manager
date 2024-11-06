@@ -55,7 +55,9 @@ class PurchaseManager
             return null;
         }
         $purchaseProduct = $purchase->getProduct();
-        $purchaseProduct->removePurchase($purchase);
+        if ($product) {
+            $purchaseProduct->removePurchase($purchase);
+        }
         $this->setPurchaseParams($purchase, $product, $price, $amount);
         $product?->addPurchase($purchase);
         $this->entityManager->flush();

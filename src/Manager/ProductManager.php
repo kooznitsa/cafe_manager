@@ -14,10 +14,10 @@ class ProductManager
     ) {
     }
 
-    public function saveProduct(string $name, string $unit): ?int
+    public function saveProduct(string $name, string $unit, float $amount = 0): ?int
     {
         $product = new Product();
-        $product->setName($name)->setUnit($unit);
+        $product->setName($name)->setUnit($unit)->setAmount($amount);
 
         $this->entityManager->persist($product);
         $this->entityManager->flush();
@@ -38,20 +38,26 @@ class ProductManager
         return $this->productRepository->find($id);
     }
 
-    public function updateProduct(int $productId, ?string $name = null, ?string $unit = null): ?Product
-    {
+    public function updateProduct(
+        int $productId,
+        ?string $name = null,
+        ?string $unit = null,
+        ?float $amount = null,
+    ): ?Product {
         /** @var Product $product */
         $product = $this->productRepository->find($productId);
         if (!$product) {
             return null;
         }
-        if ($name) {
+        if ($name !== null) {
             $product->setName($name);
         }
-        if ($unit) {
+        if ($unit !== null) {
             $product->setUnit($unit);
         }
-        $this->entityManager->flush();
+        if ($amount !== null) {
+            $product->setAmount($amount);
+        }
 
         return $product;
     }
@@ -66,7 +72,7 @@ class ProductManager
 
     public function deleteProductById(int $productId): bool
     {
-        /** @var Product $dish */
+        /** @var Product $product */
         $product = $this->productRepository->find($productId);
         if (!$product) {
             return false;

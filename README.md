@@ -10,7 +10,7 @@
 
 ## Запуск проекта
 
-```php
+```bash
 git clone https://github.com/kooznitsa/cafe_manager.git
 cd cafe_manager
 cp .env.sample .env

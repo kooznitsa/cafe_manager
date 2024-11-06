@@ -22,10 +22,12 @@ class PurchaseBuilderService
     public function createPurchaseWithProduct(Request $request): ?int
     {
         [$productId, $price, $amount] = $this->getPurchaseParams($request);
-        $product = $this->productManager->getProductById($productId);
         if ($productId) {
+            $product = $this->productManager->getProductById($productId);
+
             return $this->purchaseManager->savePurchase($product, $price, $amount);
         }
+
         return null;
     }
 

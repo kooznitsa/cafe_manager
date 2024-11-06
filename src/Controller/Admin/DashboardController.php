@@ -13,8 +13,8 @@ use Symfony\UX\Chartjs\Model\Chart;
 
 class DashboardController extends AbstractDashboardController
 {
-    const CHART_COLOR = 'rgb(139, 69, 19)';
-    const CHART_MAX_SUM = 1000;
+    private const CHART_COLOR = 'rgb(139, 69, 19)';
+    private const CHART_MAX_SUM = 1000;
 
     public function __construct(
         private readonly ChartBuilderInterface $chartBuilder,

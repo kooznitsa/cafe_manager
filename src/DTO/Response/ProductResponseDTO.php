@@ -16,6 +16,14 @@ class ProductResponseDTO
 
         #[Assert\NotBlank]
         public readonly string $unit,
+
+        #[Assert\NotBlank]
+        #[Assert\Type('decimal')]
+        #[Assert\GreaterThanOrEqual(0)]
+        public readonly float $amount,
+
+        #[Assert\NotBlank]
+        public readonly string $updated_at,
     ) {
     }
 
@@ -25,6 +33,8 @@ class ProductResponseDTO
             'id' => $product->getId(),
             'name' => $product->getName(),
             'unit' => $product->getUnit(),
+            'amount' => $product->getAmount(),
+            'updated_at' => $product->getUpdatedAt()->format('Y-m-d H:i:s'),
         ]);
     }
 }

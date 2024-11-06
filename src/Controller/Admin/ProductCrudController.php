@@ -4,7 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Product;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\{IdField, TextField};
+use EasyCorp\Bundle\EasyAdminBundle\Field\{DateTimeField, IdField, IntegerField, TextField};
 
 class ProductCrudController extends AbstractCrudController
 {
@@ -18,5 +18,7 @@ class ProductCrudController extends AbstractCrudController
         yield IdField::new('id')->hideOnForm();
         yield TextField::new('name');
         yield TextField::new('unit');
+        yield IntegerField::new('amount')->hideOnForm();
+        yield DateTimeField::new('updated_at')->renderAsText()->hideOnForm();
     }
 }

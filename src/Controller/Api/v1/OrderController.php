@@ -169,22 +169,6 @@ class OrderController extends AbstractController
     }
 
     /**
-     * Deletes order by ID.
-     */
-    #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    #[OA\Response(
-        response: Response::HTTP_OK,
-        description: 'Order is deleted successfully.',
-        content: new OA\JsonContent(example: ['success' => true]),
-    )]
-    public function deleteOrderByIdAction(int $id): Response
-    {
-        $result = $this->orderManager->deleteOrderById($id);
-
-        return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
-    }
-
-    /**
      * Performs payment.
      */
     #[Route(path: '/pay/{id}', requirements: ['id' => '\d+'], methods: ['POST'])]
@@ -230,6 +214,22 @@ class OrderController extends AbstractController
         $result = $this->orderBuilderService->cancelOrder($id);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Deletes order by ID.
+     */
+    #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Order is deleted successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
+    )]
+    public function deleteOrderByIdAction(int $id): Response
+    {
+        $result = $this->orderBuilderService->deleteOrder($id);
+
+        return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }
 
     /**

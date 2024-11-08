@@ -17,7 +17,6 @@ class OrderBuilderService
         public readonly ProductManager $productManager,
         private readonly RecipeManager $recipeManager,
         private readonly UserManager $userManager,
-        private readonly EntityManagerInterface $entityManager,
         private HttpClientInterface $client,
     ) {
     }
@@ -31,29 +30,26 @@ class OrderBuilderService
             $dish = $this->dishManager->getDishById($dishId);
             $user = $this->userManager->getUserById($userId);
 
-            try {
-                $this->updateRelated($dish, null, $this->entityManager);
-                return $this->orderManager->saveOrder($dish, $user, $status, $isDelivery);
-            } catch (\RuntimeException) {
-                return 666;
-            }
+            $this->updateRelated($dish);
+            return $this->orderManager->saveOrder($dish, $user, $status, $isDelivery);
         }
         return null;
     }
 
     public function updateRelated(
         Dish $dish,
-        ?Order $order,
-        EntityManagerInterface $entityManager,
+        ?Order $order = null,
+        ?EntityManagerInterface $entityManager = null,
         bool $isSaved = false,
+        bool $isCancelled = false,
     ): void {
-        $updatedAmounts = $this->checkOrderIngredients($dish);
+        $updatedAmounts = $this->checkOrderIngredients($dish, $isCancelled);
 
         if ($updatedAmounts) {
             foreach ($updatedAmounts as $productId => $amount) {
                 $product = $this->productManager->getProductById($productId);
                 $this->productManager->updateProduct($product, amount: $amount, isFlush: false);
-                $this->dishManager->updateDish($dish);
+                $this->dishManager->updateDish($dish, isFlush: false);
             }
             if ($isSaved) {
                 $entityManager->persist($order);
@@ -74,6 +70,8 @@ class OrderBuilderService
 
         if ($dish !== null) {
             $dish = $this->dishManager->getDishById($dish);
+            $this->updateRelated($dish);
+            $this->updateRelated($order->getDish(), isCancelled: true);
         }
         if ($user !== null) {
             $user = $this->userManager->getUserById($user);
@@ -88,7 +86,7 @@ class OrderBuilderService
         if (!$order or !in_array($order->getStatus(), [Status::Created, Status::Delivered])) {
             return false;
         }
-        return $this->orderManager->updateStatus($order, Status::Paid);
+        return $this->updateStatus($order, Status::Paid);
     }
 
     public function deliverOrder(int $orderId): bool
@@ -101,7 +99,7 @@ class OrderBuilderService
         ) {
             return false;
         }
-        return $this->orderManager->updateStatus($order, Status::Delivered);
+        return $this->updateStatus($order, Status::Delivered);
     }
 
     public function cancelOrder(int $orderId): bool
@@ -110,19 +108,26 @@ class OrderBuilderService
         if (!$order or !in_array($order->getStatus(), [Status::Created])) {
             return false;
         }
-        return $this->orderManager->updateStatus($order, Status::Cancelled);
+        return $this->updateStatus($order, Status::Cancelled);
     }
 
-    public function getOrderParams(Request $request, string $requestMethod = 'POST'): array
+    public function deleteOrder(int $orderId): bool
     {
-        $inputBag = $requestMethod === 'POST' ? $request->request : $request->query;
+        $order = $this->orderManager->getOrderById($orderId);
+        if (!$order or !in_array($order->getStatus(), [Status::Created, Status::Cancelled])) {
+            return false;
+        }
+        return $this->updateStatus($order, Status::Deleted);
+    }
 
-        $dishId = $inputBag->get('dishId');
-        $userId = $inputBag->get('userId');
-        $status = $inputBag->get('status');
-        $isDelivery = $inputBag->get('isDelivery');
+    public function updateStatus(Order $order, Status $status, bool $isFlush = true): bool
+    {
+        if (in_array($status, [Status::Cancelled, Status::Deleted])) {
+            $this->updateRelated($order->getDish(), isCancelled: true);
+        }
+        $this->orderManager->updateStatus($order, $status, $isFlush);
 
-        return [$dishId, $userId, $status, $isDelivery];
+        return true;
     }
 
     public function getChartData(): array
@@ -134,14 +139,28 @@ class OrderBuilderService
         return [$dates, $sums];
     }
 
-    private function checkOrderIngredients(Dish $dish): ?array
+    private function getOrderParams(Request $request, string $requestMethod = 'POST'): array
+    {
+        $inputBag = $requestMethod === 'POST' ? $request->request : $request->query;
+
+        $dishId = $inputBag->get('dishId');
+        $userId = $inputBag->get('userId');
+        $status = $inputBag->get('status');
+        $isDelivery = $inputBag->get('isDelivery');
+
+        return [$dishId, $userId, $status, $isDelivery];
+    }
+
+    private function checkOrderIngredients(Dish $dish, bool $isCancelled = false): ?array
     {
         $recipeItems = $this->recipeManager->getDishRecipe($dish);
         $updatedAmounts = [];
 
         foreach ($recipeItems as $recipeItem) {
             $recipeProduct = $recipeItem->getProduct();
-            $newAmount = $recipeProduct->getAmount() - $recipeItem->getAmount();
+            $recipeAmount = $recipeItem->getAmount();
+            $productAmount = $recipeProduct->getAmount();
+            $newAmount = $isCancelled ? $productAmount + $recipeAmount : $productAmount - $recipeAmount;
             $updatedAmounts[$recipeProduct->getId()] = $newAmount > 0 ? $newAmount : null;
         }
 

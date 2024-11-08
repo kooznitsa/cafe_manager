@@ -65,12 +65,14 @@ class OrderManager
         return $order;
     }
 
-    public function updateStatus(Order $order, Status $status): bool
+    public function updateStatus(Order $order, Status $status, bool $isFlush = true): bool
     {
         $this->removeOrderFromParent($order);
         $order->setStatus($status);
         $this->addOrderToParent($order);
-        $this->entityManager->flush();
+        if ($isFlush) {
+            $this->entityManager->flush();
+        }
 
         return true;
     }

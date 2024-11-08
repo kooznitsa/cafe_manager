@@ -3,7 +3,6 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Order;
-use App\Manager\{DishManager, ProductManager};
 use App\Service\OrderBuilderService;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -16,8 +15,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\{AssociationField, BooleanField, Choic
 class OrderCrudController extends AbstractCrudController
 {
     public function __construct(
-        public readonly DishManager $dishManager,
-        public readonly ProductManager $productManager,
         public readonly OrderBuilderService $orderBuilderService,
         public readonly AdminContextProvider $adminContextProvider,
         public readonly AdminUrlGenerator $adminUrlGenerator,
@@ -73,5 +70,15 @@ class OrderCrudController extends AbstractCrudController
         } catch (\RuntimeException $e) {
             throw new \RuntimeException($e->getMessage());
         }
+    }
+
+    /**
+     * @param EntityManagerInterface $entityManager
+     * @param Order $entityInstance
+     * @return void
+     */
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $this->orderBuilderService->deleteOrder($entityInstance->getId());
     }
 }

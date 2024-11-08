@@ -10,7 +10,8 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class DashboardExceptionSubscriber implements EventSubscriberInterface {
+class DashboardExceptionSubscriber implements EventSubscriberInterface
+{
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly AdminContextProvider $adminContextProvider,
@@ -23,47 +24,47 @@ class DashboardExceptionSubscriber implements EventSubscriberInterface {
         return [KernelEvents::EXCEPTION => ['onKernelException']];
     }
 
-    public function sendFlashPrimary (ExceptionEvent|string $title = '', string $message = ''): void
+    public function sendFlashPrimary(ExceptionEvent|string $title = '', string $message = ''): void
     {
         $this->sendFlash('primary', $title, $message);
     }
 
-    public function sendFlashSecondary (ExceptionEvent|string $title = '', string $message = ''): void
+    public function sendFlashSecondary(ExceptionEvent|string $title = '', string $message = ''): void
     {
         $this->sendFlash('secondary', $title, $message);
     }
 
-    public function sendFlashDark (ExceptionEvent|string $title = '', string $message = ''): void
+    public function sendFlashDark(ExceptionEvent|string $title = '', string $message = ''): void
     {
         $this->sendFlash('dark', $title, $message);
     }
 
-    public function sendFlashLight (ExceptionEvent|string $title = '', string $message = ''): void
+    public function sendFlashLight(ExceptionEvent|string $title = '', string $message = ''): void
     {
         $this->sendFlash('light', $title, $message);
     }
 
-    public function sendFlashSuccess (ExceptionEvent|string $title = '', string $message = ''): void
+    public function sendFlashSuccess(ExceptionEvent|string $title = '', string $message = ''): void
     {
         $this->sendFlash('success', $title, $message);
     }
 
-    public function sendFlashInfo (ExceptionEvent|string $title = '', string $message = ''): void
+    public function sendFlashInfo(ExceptionEvent|string $title = '', string $message = ''): void
     {
         $this->sendFlash('info', $title, $message);
     }
 
-    public function sendFlashNotice (ExceptionEvent|string $title = '', string $message = ''): void
+    public function sendFlashNotice(ExceptionEvent|string $title = '', string $message = ''): void
     {
         $this->sendFlash('notice', $title, $message);
     }
 
-    public function sendFlashWarning (ExceptionEvent|string $title = '', string $message = ''): void
+    public function sendFlashWarning(ExceptionEvent|string $title = '', string $message = ''): void
     {
         $this->sendFlash('warning', $title, $message);
     }
 
-    public function sendFlashDanger (ExceptionEvent|string $title = '', string $message = ''): void
+    public function sendFlashDanger(ExceptionEvent|string $title = '', string $message = ''): void
     {
         $this->sendFlash('danger', $title, $message);
     }
@@ -81,7 +82,7 @@ class DashboardExceptionSubscriber implements EventSubscriberInterface {
         if (!empty($title)) {
             $title = "<b>" . $title . "</b><br/>";
         }
-        if (!empty($title.$message)) {
+        if (!empty($title . $message)) {
             $session = $this->requestStack->getSession();
             $session->getFlashBag()->add($type, $title . $message);
         }
@@ -114,8 +115,9 @@ class DashboardExceptionSubscriber implements EventSubscriberInterface {
         // - If exception happened in another section, redirect to index page first
         // - If exception happened after submitting a form, just redirect to the initial page
         $url = $this->adminUrlGenerator->unsetAll();
-        switch($action) {
-            case 'index': break;
+        switch ($action) {
+            case 'index':
+                break;
             default:
                 $url = $url->setController($controller);
                 if (isset($_POST) && !empty($_POST)) {

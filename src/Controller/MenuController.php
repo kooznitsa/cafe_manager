@@ -2,9 +2,7 @@
 
 namespace App\Controller;
 
-use App\Manager\CategoryManager;
-use App\Manager\DishManager;
-use App\Manager\RecipeManager;
+use App\Manager\{CategoryManager, DishManager, RecipeManager};
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

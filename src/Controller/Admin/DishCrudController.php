@@ -3,8 +3,9 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Dish;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\{AssociationField, IdField, ImageField, MoneyField, TextField};
+use EasyCorp\Bundle\EasyAdminBundle\Field\{AssociationField, BooleanField, IdField, ImageField, MoneyField, TextField};
 use Symfony\Component\Validator\Constraints\Image;
 
 class DishCrudController extends AbstractCrudController
@@ -12,6 +13,18 @@ class DishCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Dish::class;
+    }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setEntityLabelInSingular('Блюдо')
+            ->setEntityLabelInPlural('Блюда')
+            ->setSearchFields(['name'])
+            ->setPaginatorPageSize(100)
+            ->setDefaultSort(['isAvailable' => 'DESC'])
+            ->setEntityPermission('ROLE_ADMIN')
+            ;
     }
 
     public function configureFields(string $pageName): iterable
@@ -35,5 +48,6 @@ class DishCrudController extends AbstractCrudController
                 allowSquare: false,
                 allowPortrait: false,
             ));
+        yield BooleanField::new('isAvailable');
     }
 }

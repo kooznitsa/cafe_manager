@@ -17,25 +17,29 @@ class DishBuilderService
 
     public function createDishWithCategory(Request $request, string $fileDirectory): ?int
     {
-        [$name, $categoryId, $price, $image] = $this->getDishParams($request, $fileDirectory);
+        [$name, $categoryId, $price, $image, $isAvailable] = $this->getDishParams($request, $fileDirectory);
 
         if ($categoryId) {
             $category = $this->categoryManager->getCategoryById($categoryId);
 
-            return $this->dishManager->saveDish($name, $category, $price, $image);
+            return $this->dishManager->saveDish($name, $category, $price, $image, $isAvailable);
         }
         return null;
     }
 
     public function updateDishWithCategory(Request $request, string $fileDirectory): ?Dish
     {
-        [$name, $category, $price, $image] = $this->getDishParams($request, $fileDirectory, 'PATCH');
-        $dishId = $request->query->get('dishId');
+        [$name, $category, $price, $image, $isAvailable] = $this->getDishParams(
+            $request,
+            $fileDirectory,
+            'PATCH',
+        );
+        $dish = $this->dishManager->getDishById($request->query->get('dishId'));
         if ($category) {
             $category = $this->categoryManager->getCategoryById($category);
         }
 
-        return $this->dishManager->updateDish($dishId, $name, $category, $price, $image);
+        return $this->dishManager->updateDish($dish, $name, $category, $price, $image, $isAvailable);
     }
 
     public function getDishParams(Request $request, string $fileDirectory, string $requestMethod = 'POST'): array
@@ -46,8 +50,9 @@ class DishBuilderService
         $price = $inputBag->get('price');
         $categoryId = $inputBag->get('categoryId');
         $file = $request->files->get('image');
+        $isAvailable = $request->files->get('isAvailable');
         $imageName = $file ? $this->fileService->uploadFile($file, $fileDirectory) : null;
 
-        return [$name, $categoryId, $price, $imageName];
+        return [$name, $categoryId, $price, $imageName, $isAvailable];
     }
 }

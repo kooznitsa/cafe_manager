@@ -102,6 +102,12 @@ class DishController extends AbstractController
     #[OA\Parameter(name: 'categoryId', description: 'Category ID', in: 'query', schema: new OA\Schema(type: 'integer'))]
     #[OA\Parameter(name: 'price', description: 'Dish price', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'image', description: 'Dish image', in: 'query', schema: new OA\Schema(type: 'file'))]
+    #[OA\Parameter(
+        name: 'isAvailable',
+        description: 'Dish is available',
+        in: 'query',
+        schema: new OA\Schema(type: 'integer', enum: [0, 1]),
+    )]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'Dish is updated successfully.',

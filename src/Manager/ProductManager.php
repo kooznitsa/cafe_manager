@@ -14,13 +14,17 @@ class ProductManager
     ) {
     }
 
+    public function save(Product $product): void
+    {
+        $this->entityManager->persist($product);
+        $this->entityManager->flush();
+    }
+
     public function saveProduct(string $name, string $unit, float $amount = 0): ?int
     {
         $product = new Product();
         $product->setName($name)->setUnit($unit)->setAmount($amount);
-
-        $this->entityManager->persist($product);
-        $this->entityManager->flush();
+        $this->save($product);
 
         return $product->getId();
     }
@@ -39,13 +43,12 @@ class ProductManager
     }
 
     public function updateProduct(
-        int $productId,
+        ?Product $product,
         ?string $name = null,
         ?string $unit = null,
         ?float $amount = null,
+        bool $isFlush = true,
     ): ?Product {
-        /** @var Product $product */
-        $product = $this->productRepository->find($productId);
         if (!$product) {
             return null;
         }
@@ -57,6 +60,10 @@ class ProductManager
         }
         if ($amount !== null) {
             $product->setAmount($amount);
+        }
+
+        if ($isFlush) {
+            $this->entityManager->flush();
         }
 
         return $product;

@@ -45,7 +45,7 @@ class CartController extends AbstractController
         return $this->redirect($request->headers->get('referer'));
     }
 
-    #[Route('/delete/{orderId}', name: 'make_order', requirements: ['orderId' => '\d+'])]
+    #[Route('/delete/{orderId}', name: 'delete_order', requirements: ['orderId' => '\d+'])]
     public function deleteOrder(Request $request, int $orderId): Response
     {
         $orderId = $request->get('orderId');

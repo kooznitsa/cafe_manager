@@ -19,6 +19,9 @@ class DishRequestDTO
         public readonly float $price,
 
         public readonly ?string $image,
+
+        #[Assert\NotBlank]
+        public readonly int $isAvailable,
     ) {
     }
 
@@ -29,6 +32,7 @@ class DishRequestDTO
             'categoryId' => $dish->getCategory()->getId(),
             'price' => $dish->getPrice(),
             'image' => $dish->getImage(),
+            'isAvailable' => $dish->getIsAvailable(),
         ]);
     }
 }

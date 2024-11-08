@@ -8,7 +8,11 @@
                 <a href="/recipe/{{ dish.id }}" class="btn accent">Рецепт</a>
             {% endif %}
             {% if is_granted('ROLE_USER') %}
-                <a href="/order/{{ dish.id }}" class="btn accent">В корзину</a>
+                {% if not dish.isAvailable %}
+                    <p>Нет в наличии</p>
+                {% else %}
+                    <a href="/order/{{ dish.id }}" class="btn accent">В корзину</a>
+                {% endif %}
             {% endif %}
         </div>
     </div>

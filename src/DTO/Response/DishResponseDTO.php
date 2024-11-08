@@ -24,6 +24,9 @@ class DishResponseDTO
         #[Assert\NotBlank]
         public readonly string $image,
 
+        #[Assert\NotBlank]
+        public readonly int $isAvailable,
+
         #[Assert\Type('array')]
         public readonly array $recipes = [],
     ) {
@@ -40,6 +43,7 @@ class DishResponseDTO
             ],
             'price' => $dish->getPrice(),
             'image' => $dish->getImage(),
+            'isAvailable' => $dish->getIsAvailable(),
             'recipes' => array_map(
                 static function (Recipe $recipe) {
                     return ['id' => $recipe->getId(),

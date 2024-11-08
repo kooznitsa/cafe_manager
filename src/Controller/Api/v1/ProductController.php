@@ -92,6 +92,7 @@ class ProductController extends AbstractController
     )]
     #[OA\Parameter(name: 'name', description: 'Product name', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'unit', description: 'Product unit', in: 'query', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'amount', description: 'Product amount', in: 'query', schema: new OA\Schema(type: 'float'))]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'Product is updated successfully.',
@@ -102,7 +103,10 @@ class ProductController extends AbstractController
         $productId = $request->query->get('productId');
         $name = $request->query->get('name');
         $unit = $request->query->get('unit');
-        $result = $this->productManager->updateProduct($productId, $name, $unit);
+        $amount = $request->query->get('amount');
+
+        $product = $this->productManager->getProductById($productId);
+        $result = $this->productManager->updateProduct($product, $name, $unit, $amount);
 
         return new JsonResponse(
             ['success' => $result !== null],

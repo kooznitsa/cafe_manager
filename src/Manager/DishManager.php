@@ -14,13 +14,13 @@ class DishManager
     ) {
     }
 
-    public function saveDish(string $name, Category $category, float $price, ?string $image): ?int
+    public function saveDish(string $name, Category $category, float $price, ?string $image, ?bool $isAvailable): ?int
     {
         $dish = $this->getDishByNameAndCategory($name, $category);
 
         if (!$dish) {
             $dish = new Dish();
-            $this->setDishParams($dish, $name, $category, $price, $image);
+            $this->setDishParams($dish, $name, $category, $price, $image, $isAvailable);
             $category->addDish($dish);
             $this->entityManager->persist($dish);
             $this->entityManager->flush();
@@ -56,22 +56,22 @@ class DishManager
     }
 
     public function updateDish(
-        int $dishId,
+        ?Dish $dish,
         ?string $name = null,
         ?Category $category = null,
         ?float $price = null,
         ?string $image = null,
+        bool $isAvailable = true,
+        bool $isFlush = true,
     ): ?Dish {
-        /** @var Dish $dish */
-        $dish = $this->getDishById($dishId);
         if (!$dish) {
             return null;
         }
-        $categoryDish = $dish->getCategory();
-        $categoryDish->removeDish($dish);
-        $this->setDishParams($dish, $name, $category, $price, $image);
-        $category?->addDish($dish);
-        $this->entityManager->flush();
+        $this->setDishParams($dish, $name, $category, $price, $image, $isAvailable);
+
+        if ($isFlush) {
+            $this->entityManager->flush();
+        }
 
         return $dish;
     }
@@ -101,7 +101,11 @@ class DishManager
         ?Category $category,
         ?float $price,
         ?string $image,
+        ?bool $isAvailable,
     ): void {
         $dish->setName($name)->setCategory($category)->setPrice($price)->setImage($image);
+        if ($isAvailable !== null) {
+            $dish->setIsAvailable($isAvailable);
+        }
     }
 }

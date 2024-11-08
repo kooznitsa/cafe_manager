@@ -158,7 +158,7 @@ class OrderController extends AbstractController
         description: 'Order is updated successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function updateDishAction(Request $request): Response
+    public function updateOrderAction(Request $request): Response
     {
         $order = $this->orderBuilderService->updateOrderWithUserAndDish($request);
 

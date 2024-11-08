@@ -49,14 +49,12 @@ class OrderManager
     }
 
     public function updateOrder(
-        int $orderId,
+        ?Order $order,
         ?Dish $dish = null,
         ?User $user = null,
         ?Status $status = null,
         ?bool $isDelivery = null,
     ): ?Order {
-        /** @var Order $order */
-        $order = $this->getOrderById($orderId);
         if (!$order) {
             return null;
         }

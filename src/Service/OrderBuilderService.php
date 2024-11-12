@@ -2,64 +2,85 @@
 
 namespace App\Service;
 
+use App\DTO\Request\OrderRequestDTO;
 use App\Enum\Status;
-use App\Entity\Order;
-use App\Manager\{DishManager, OrderManager, UserManager};
+use App\Entity\{Dish, Order};
+use App\Manager\{DishManager, OrderManager, ProductManager, RecipeManager, UserManager};
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 class OrderBuilderService
 {
     public function __construct(
         private readonly OrderManager $orderManager,
         private readonly DishManager $dishManager,
+        public readonly ProductManager $productManager,
+        private readonly RecipeManager $recipeManager,
         private readonly UserManager $userManager,
         private HttpClientInterface $client,
     ) {
     }
 
-    public function createOrderWithUserAndDish(Request $request): ?int
+    public function createOrderWithUserAndDish(OrderRequestDTO $dto): ?int
     {
-        [$dishId, $userId, $status, $isDelivery] = $this->getOrderParams($request);
-        $status = $status ? Status::from($status) : $status;
+        [$dish, $user, $status, $isDelivery] = $this->getOrderParams($dto);
 
-        if ($dishId and $userId) {
-            $dish = $this->dishManager->getDishById($dishId);
-            $user = $this->userManager->getUserById($userId);
+        if ($dish and $user) {
+            $this->updateRelated($dish);
 
             return $this->orderManager->saveOrder($dish, $user, $status, $isDelivery);
         }
         return null;
     }
 
-    public function updateOrderWithUserAndDish(Request $request): ?Order
-    {
-        [$dish, $user, $status, $isDelivery] = $this->getOrderParams($request, 'PATCH');
-        $orderId = $request->query->get('orderId');
-        $status = $status ? Status::from($status) : $status;
+    public function updateRelated(
+        Dish $dish,
+        ?Order $order = null,
+        ?EntityManagerInterface $entityManager = null,
+        bool $isSaved = false,
+        bool $isCancelled = false,
+    ): void {
+        $updatedAmounts = $this->checkOrderIngredients($dish, $isCancelled);
 
-        if ($dish) {
-            $dish = $this->dishManager->getDishById($dish);
+        if ($updatedAmounts) {
+            foreach ($updatedAmounts as $productId => $amount) {
+                $product = $this->productManager->getProductById($productId);
+                $this->productManager->updateProduct($product, amount: $amount, isFlush: false);
+                $dish->setIsAvailable(true);
+            }
+            if ($isSaved) {
+                $entityManager->persist($order);
+                $entityManager->flush();
+            }
+        } else {
+            $dish->setIsAvailable(false);
+            $this->dishManager->save($dish);
+            throw new \RuntimeException('Недостаточно ингредиентов для заказа.');
         }
-        if ($user) {
-            $user = $this->userManager->getUserById($user);
-        }
-
-        return $this->orderManager->updateOrder($orderId, $dish, $user, $status, $isDelivery);
     }
 
-    public function payOrder(int $orderId): bool
+    public function updateOrderWithUserAndDish(Order $order, OrderRequestDTO $dto): ?Order
     {
-        $order = $this->orderManager->getOrderById($orderId);
+        [$dish, $user, $status, $isDelivery] = $this->getOrderParams($dto);
+
+        if ($dish !== null) {
+            $this->updateRelated($dish);
+            $this->updateRelated($order->getDish(), isCancelled: true);
+        }
+
+        return $this->orderManager->updateOrder($order, $dish, $user, $status, $isDelivery);
+    }
+
+    public function payOrder(Order $order): bool
+    {
         if (!$order or !in_array($order->getStatus(), [Status::Created, Status::Delivered])) {
             return false;
         }
-        return $this->orderManager->updateStatus($order, Status::Paid);
+        return $this->updateStatus($order, Status::Paid);
     }
 
-    public function deliverOrder(int $orderId): bool
+    public function deliverOrder(Order $order): bool
     {
-        $order = $this->orderManager->getOrderById($orderId);
         if (
             !$order or
             !in_array($order->getStatus(), [Status::Created, Status::Paid]) or
@@ -67,28 +88,33 @@ class OrderBuilderService
         ) {
             return false;
         }
-        return $this->orderManager->updateStatus($order, Status::Delivered);
+        return $this->updateStatus($order, Status::Delivered);
     }
 
-    public function cancelOrder(int $orderId): bool
+    public function cancelOrder(Order $order): bool
     {
-        $order = $this->orderManager->getOrderById($orderId);
         if (!$order or !in_array($order->getStatus(), [Status::Created])) {
             return false;
         }
-        return $this->orderManager->updateStatus($order, Status::Cancelled);
+        return $this->updateStatus($order, Status::Cancelled);
     }
 
-    public function getOrderParams(Request $request, string $requestMethod = 'POST'): array
+    public function deleteOrder(Order $order): bool
     {
-        $inputBag = $requestMethod === 'POST' ? $request->request : $request->query;
+        if (!$order or !in_array($order->getStatus(), [Status::Created, Status::Cancelled])) {
+            return false;
+        }
+        return $this->updateStatus($order, Status::Deleted);
+    }
 
-        $dishId = $inputBag->get('dishId');
-        $userId = $inputBag->get('userId');
-        $status = $inputBag->get('status');
-        $isDelivery = $inputBag->get('isDelivery');
+    public function updateStatus(Order $order, Status $status, bool $isFlush = true): bool
+    {
+        if (in_array($status, [Status::Cancelled, Status::Deleted])) {
+            $this->updateRelated($order->getDish(), isCancelled: true);
+        }
+        $this->orderManager->updateStatus($order, $status, $isFlush);
 
-        return [$dishId, $userId, $status, $isDelivery];
+        return true;
     }
 
     public function getChartData(): array
@@ -98,5 +124,31 @@ class OrderBuilderService
         $sums = array_column($response['orders'], 'total');
 
         return [$dates, $sums];
+    }
+
+    private function getOrderParams(OrderRequestDTO $dto): array
+    {
+        $dish = $dto->dishId ? $this->dishManager->getDishById($dto->dishId) : null;
+        $user = $dto->userId ? $this->userManager->getUserById($dto->userId) : null;
+        $status = $dto->status ? Status::from($dto->status) : null;
+        $isDelivery = $dto->isDelivery;
+
+        return [$dish, $user, $status, $isDelivery];
+    }
+
+    private function checkOrderIngredients(Dish $dish, bool $isCancelled = false): ?array
+    {
+        $recipeItems = $this->recipeManager->getDishRecipe($dish);
+        $updatedAmounts = [];
+
+        foreach ($recipeItems as $recipeItem) {
+            $recipeProduct = $recipeItem->getProduct();
+            $recipeAmount = $recipeItem->getAmount();
+            $productAmount = $recipeProduct->getAmount();
+            $newAmount = $isCancelled ? $productAmount + $recipeAmount : $productAmount - $recipeAmount;
+            $updatedAmounts[$recipeProduct->getId()] = $newAmount > 0 ? $newAmount : null;
+        }
+
+        return in_array(null, $updatedAmounts, true) ? null : $updatedAmounts;
     }
 }

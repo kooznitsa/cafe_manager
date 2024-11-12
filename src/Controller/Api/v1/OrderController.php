@@ -4,7 +4,6 @@ namespace App\Controller\Api\v1;
 
 use App\DTO\Request\OrderRequestDTO;
 use App\DTO\Response\OrderResponseDTO;
-use App\Enum\Status;
 use App\Entity\{Dish, Order, User};
 use App\Manager\OrderManager;
 use App\Service\OrderBuilderService;
@@ -13,6 +12,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
+use Symfony\Component\HttpKernel\Attribute\{MapQueryParameter, MapQueryString, MapRequestPayload};
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/api/v1/order')]
@@ -45,9 +45,9 @@ class OrderController extends AbstractController
         description: 'Order is created successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function saveOrderAction(Request $request): Response
+    public function saveOrderAction(#[MapRequestPayload] OrderRequestDTO $dto): Response
     {
-        $orderId = $this->orderBuilderService->createOrderWithUserAndDish($request);
+        $orderId = $this->orderBuilderService->createOrderWithUserAndDish($dto);
 
         [$data, $code] = $orderId === null ?
             [['success' => false], Response::HTTP_BAD_REQUEST] :
@@ -75,7 +75,6 @@ class OrderController extends AbstractController
         )
     )]
     public function getUserOrdersAction(
-        Request $request,
         #[MapEntity(mapping: ['user_id' => 'id'])] User $user,
     ): Response {
         $orders = $this->orderManager->getUserOrders($user);
@@ -106,7 +105,6 @@ class OrderController extends AbstractController
         )
     )]
     public function getDishOrdersAction(
-        Request $request,
         #[MapEntity(mapping: ['dish_id' => 'id'])] Dish $dish,
     ): Response {
         $orders = $this->orderManager->getDishOrders($dish);
@@ -129,59 +127,22 @@ class OrderController extends AbstractController
         required: true,
         schema: new OA\Schema(type: 'integer'),
     )]
-    #[OA\Parameter(
-        name: 'dishId',
-        description: 'Dish ID',
-        in: 'query',
-        schema: new OA\Schema(type: 'integer'),
-    )]
-    #[OA\Parameter(
-        name: 'userId',
-        description: 'User ID',
-        in: 'query',
-        schema: new OA\Schema(type: 'integer'),
-    )]
-    #[OA\Parameter(
-        name: 'status',
-        description: 'Order status',
-        in: 'query',
-        schema: new OA\Schema(type: 'string', enum: Status::class),
-    )]
-    #[OA\Parameter(
-        name: 'isDelivery',
-        description: 'Order for delivery',
-        in: 'query',
-        schema: new OA\Schema(type: 'integer', enum: [0, 1]),
-    )]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'Order is updated successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function updateDishAction(Request $request): Response
-    {
-        $order = $this->orderBuilderService->updateOrderWithUserAndDish($request);
+    public function updateOrderAction(
+        #[MapQueryParameter] int $orderId,
+        #[MapQueryString] OrderRequestDTO $dto,
+    ): Response {
+        $order = $this->orderManager->getOrderById($orderId);
+        $result = $this->orderBuilderService->updateOrderWithUserAndDish($order, $dto);
 
         return new JsonResponse(
-            ['success' => $order !== null],
-            ($order !== null) ? Response::HTTP_OK : Response::HTTP_NOT_FOUND,
+            ['success' => $result !== null],
+            ($result !== null) ? Response::HTTP_OK : Response::HTTP_NOT_FOUND,
         );
-    }
-
-    /**
-     * Deletes order by ID.
-     */
-    #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    #[OA\Response(
-        response: Response::HTTP_OK,
-        description: 'Order is deleted successfully.',
-        content: new OA\JsonContent(example: ['success' => true]),
-    )]
-    public function deleteOrderByIdAction(int $id): Response
-    {
-        $result = $this->orderManager->deleteOrderById($id);
-
-        return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -193,9 +154,10 @@ class OrderController extends AbstractController
         description: 'Order is paid successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function payOrderAction(int $id): Response
-    {
-        $result = $this->orderBuilderService->payOrder($id);
+    public function payOrderAction(
+        #[MapEntity(mapping: ['id' => 'id'])] Order $order,
+    ): Response {
+        $result = $this->orderBuilderService->payOrder($order);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST);
     }
@@ -209,9 +171,10 @@ class OrderController extends AbstractController
         description: 'Order is delivered successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function deliverOrderAction(int $id): Response
-    {
-        $result = $this->orderBuilderService->deliverOrder($id);
+    public function deliverOrderAction(
+        #[MapEntity(mapping: ['id' => 'id'])] Order $order,
+    ): Response {
+        $result = $this->orderBuilderService->deliverOrder($order);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST);
     }
@@ -225,11 +188,29 @@ class OrderController extends AbstractController
         description: 'Order is cancelled successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function cancelOrderAction(int $id): Response
-    {
-        $result = $this->orderBuilderService->cancelOrder($id);
+    public function cancelOrderAction(
+        #[MapEntity(mapping: ['id' => 'id'])] Order $order,
+    ): Response {
+        $result = $this->orderBuilderService->cancelOrder($order);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Deletes order by ID.
+     */
+    #[Route(path: '/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Order is deleted successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
+    )]
+    public function deleteOrderByIdAction(
+        #[MapEntity(mapping: ['id' => 'id'])] Order $order,
+    ): Response {
+        $result = $this->orderBuilderService->deleteOrder($order);
+
+        return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Manager;
 use App\Entity\{Dish, Product, Recipe};
 use App\Repository\RecipeRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class RecipeManager
 {
@@ -14,18 +15,23 @@ class RecipeManager
     ) {
     }
 
-    public function saveRecipe(Dish $dish, Product $product, float $amount): ?int
+    public function save(Recipe $recipe): void
+    {
+        $this->entityManager->persist($recipe);
+        $this->entityManager->flush();
+    }
+
+    public function saveRecipe(Dish $dish, Product $product, float $amount): Recipe
     {
         $recipe = $this->getRecipeByDishAndProduct($dish, $product);
 
         if (!$recipe) {
             $recipe = new Recipe();
             $this->setRecipeParams($recipe, $dish, $product, $amount);
-            $this->entityManager->persist($recipe);
-            $this->entityManager->flush();
+            $this->save($recipe);
         }
 
-        return $recipe->getId();
+        return $recipe;
     }
 
     /**
@@ -36,16 +42,19 @@ class RecipeManager
         return $this->recipeRepository->findBy(['dish' => $dish]);
     }
 
+    public function getRecipeById(int $id): ?Recipe
+    {
+        return $this->recipeRepository->find($id);
+    }
+
     public function updateRecipe(
-        int $recipeId,
+        ?Recipe $recipe,
         ?Dish $dish = null,
         ?Product $product = null,
         ?float $amount = null,
     ): ?Recipe {
-        /** @var Recipe $recipe */
-        $recipe = $this->recipeRepository->find($recipeId);
         if (!$recipe) {
-            return null;
+            throw new UnprocessableEntityHttpException('Recipe does not exist');
         }
         $recipeDish = $recipe->getDish();
         $recipeDish->removeRecipe($recipe);
@@ -55,23 +64,16 @@ class RecipeManager
         return $recipe;
     }
 
-    public function deleteRecipe(Recipe $recipe): bool
+    public function deleteRecipe(?Recipe $recipe): bool
     {
+        if (!$recipe) {
+            return false;
+        }
         $this->entityManager->remove($recipe);
         $recipe->getDish()->removeRecipe($recipe);
         $this->entityManager->flush();
 
         return true;
-    }
-
-    public function deleteRecipeById(int $recipeId): bool
-    {
-        /** @var Recipe $recipe */
-        $recipe = $this->recipeRepository->find($recipeId);
-        if (!$recipe) {
-            return false;
-        }
-        return $this->deleteRecipe($recipe);
     }
 
     private function getRecipeByDishAndProduct(Dish $dish, Product $product): ?Recipe

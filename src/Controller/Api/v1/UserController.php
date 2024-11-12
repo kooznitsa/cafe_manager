@@ -11,6 +11,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
+use Symfony\Component\HttpKernel\Attribute\{MapQueryParameter, MapQueryString, MapRequestPayload};
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/api/v1/user')]
@@ -42,13 +43,10 @@ class UserController extends AbstractController
         description: 'User is created successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function saveUserAction(Request $request): Response
+    public function saveUserAction(#[MapRequestPayload] UserRequestDTO $dto): Response
     {
-        $dto = UserRequestDTO::fromRequest($request);
-        $userId = $this->userManager->saveUser(new User(), $dto);
-        [$data, $code] = $userId === null ?
-            [['success' => false], Response::HTTP_BAD_REQUEST] :
-            [['success' => true, 'userId' => $userId], Response::HTTP_OK];
+        $user = $this->userManager->saveUser($dto);
+        [$data, $code] = [['success' => true, 'userId' => $user->getId()], Response::HTTP_OK];
 
         return new JsonResponse($data, $code);
     }
@@ -110,28 +108,19 @@ class UserController extends AbstractController
         description: 'User ID',
         in: 'query',
         required: true,
-        schema: new OA\Schema(type: 'string'),
-    )]
-    #[OA\Parameter(name: 'name', description: 'User name', in: 'query', schema: new OA\Schema(type: 'string'))]
-    #[OA\Parameter(name: 'password', description: 'User password', in: 'query', schema: new OA\Schema(type: 'string'))]
-    #[OA\Parameter(name: 'email', description: 'User email', in: 'query', schema: new OA\Schema(type: 'string'))]
-    #[OA\Parameter(name: 'address', description: 'User address', in: 'query', schema: new OA\Schema(type: 'string'))]
-    #[OA\Parameter(
-        name: 'roles[]',
-        description: 'User roles',
-        in: 'query',
-        schema: new OA\Schema(type: 'array', items: new OA\Items(type: 'string')),
+        schema: new OA\Schema(type: 'integer'),
     )]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'User is updated successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function updateUserAction(Request $request): Response
-    {
-        $userId = $request->query->get('userId');
-        $dto = UserRequestDTO::fromRequest($request);
-        $result = $this->userManager->updateUser($userId, $dto);
+    public function updateUserAction(
+        #[MapQueryParameter] int $userId,
+        #[MapQueryString] UserRequestDTO $dto,
+    ): Response {
+        $user = $this->userManager->getUserById($userId);
+        $result = $this->userManager->updateUser($user, $dto);
 
         return new JsonResponse(
             ['success' => $result !== null],
@@ -148,9 +137,10 @@ class UserController extends AbstractController
         description: 'User is deleted successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function deleteUserByIdAction(int $id): Response
-    {
-        $result = $this->userManager->deleteUserById($id);
+    public function deleteUserByIdAction(
+        #[MapEntity(mapping: ['id' => 'id'])] User $user,
+    ): Response {
+        $result = $this->userManager->deleteUser($user);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }

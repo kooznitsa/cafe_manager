@@ -15,39 +15,59 @@ class DishBuilderService
     ) {
     }
 
-    public function createDishWithCategory(Request $request, string $fileDirectory): ?int
+    public function saveDish(Request $request, string $fileDirectory): Dish
     {
-        [$name, $categoryId, $price, $image] = $this->getDishParams($request, $fileDirectory);
+        $category = $this->categoryManager->getCategoryById($request->request->get('categoryId'));
+        $dish = $this->dishManager->getDishByNameAndCategory($request->request->get('name'), $category);
 
-        if ($categoryId) {
-            $category = $this->categoryManager->getCategoryById($categoryId);
-
-            return $this->dishManager->saveDish($name, $category, $price, $image);
+        if (!$dish) {
+            $dish = new Dish();
+            $dish = $this->setDishParams($dish, $request, $fileDirectory);
+            $this->dishManager->save($dish);
         }
+
+        return $dish;
+    }
+
+    public function updateDish(Request $request, string $fileDirectory): ?Dish
+    {
+        $dish = $this->dishManager->getDishById($request->query->get('dishId'));
+        if ($dish !== null) {
+            $dish = $this->setDishParams($dish, $request, $fileDirectory);
+            $this->dishManager->save($dish);
+
+            return $dish;
+        }
+
         return null;
     }
 
-    public function updateDishWithCategory(Request $request, string $fileDirectory): ?Dish
+    public function getDishParams(Request $request, string $fileDirectory): array
     {
-        [$name, $category, $price, $image] = $this->getDishParams($request, $fileDirectory, 'PATCH');
-        $dishId = $request->query->get('dishId');
-        if ($category) {
-            $category = $this->categoryManager->getCategoryById($category);
-        }
-
-        return $this->dishManager->updateDish($dishId, $name, $category, $price, $image);
-    }
-
-    public function getDishParams(Request $request, string $fileDirectory, string $requestMethod = 'POST'): array
-    {
-        $inputBag = $requestMethod === 'POST' ? $request->request : $request->query;
-
-        $name = $inputBag->get('name');
-        $price = $inputBag->get('price');
-        $categoryId = $inputBag->get('categoryId');
+        $name = $request->request->get('name') ?? $request->query->get('name');
+        $price = $request->request->get('price') ?? $request->query->get('price');
+        $categoryId = $request->request->get('categoryId') ?? $request->query->get('categoryId');
+        $category = $categoryId ? $this->categoryManager->getCategoryById($categoryId) : null;
+        $isAvailable = $request->request->get('isAvailable') ?? $request->query->get('isAvailable');
         $file = $request->files->get('image');
         $imageName = $file ? $this->fileService->uploadFile($file, $fileDirectory) : null;
 
-        return [$name, $categoryId, $price, $imageName];
+        return [$name, $category, $price, $imageName, $isAvailable];
+    }
+
+    private function setDishParams(
+        Dish $dish,
+        Request $request,
+        ?string $fileDirectory,
+    ): Dish {
+        [$name, $category, $price, $imageName, $isAvailable] = $this->getDishParams($request, $fileDirectory);
+
+        $dish->setName($name)->setCategory($category)->setPrice($price)->setImage($imageName);
+
+        if ($isAvailable !== null) {
+            $dish->setIsAvailable($isAvailable);
+        }
+
+        return $dish;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\DTO\Request\PurchaseRequestDTO;
 use App\Entity\Purchase;
 use App\Manager\{ProductManager, PurchaseManager};
 use DateTime;
@@ -19,35 +20,18 @@ class PurchaseBuilderService
     ) {
     }
 
-    public function createPurchaseWithProduct(Request $request): ?int
+    public function createPurchaseWithProduct(PurchaseRequestDTO $dto): Purchase
     {
-        [$productId, $price, $amount] = $this->getPurchaseParams($request);
-        $product = $this->productManager->getProductById($productId);
-        if ($productId) {
-            return $this->purchaseManager->savePurchase($product, $price, $amount);
-        }
-        return null;
+        $product = $dto->productId ? $this->productManager->getProductById($dto->productId) : null;
+
+        return $this->purchaseManager->savePurchase($dto, $product);
     }
 
-    public function updatePurchaseWithProduct(Request $request): ?Purchase
+    public function updatePurchaseWithProduct(Purchase $purchase, PurchaseRequestDTO $dto): ?Purchase
     {
-        [$product, $price, $amount] = $this->getPurchaseParams($request, 'PATCH');
-        $purchaseId = $request->query->get('purchaseId');
-        if ($product) {
-            $product = $this->productManager->getProductById($product);
-        }
-        return $this->purchaseManager->updatePurchase($purchaseId, $product, $price, $amount);
-    }
+        $product = $dto->productId ? $this->productManager->getProductById($dto->productId) : null;
 
-    public function getPurchaseParams(Request $request, string $requestMethod = 'POST'): array
-    {
-        $inputBag = $requestMethod === 'POST' ? $request->request : $request->query;
-
-        $price = $inputBag->get('price');
-        $amount = $inputBag->get('amount');
-        $productId = $inputBag->get('productId');
-
-        return [$productId, $price, $amount];
+        return $this->purchaseManager->updatePurchase($purchase, $product, $dto);
     }
 
     public function getFilterPurchaseParams(Request $request): array

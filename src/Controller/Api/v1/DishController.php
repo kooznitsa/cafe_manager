@@ -2,7 +2,6 @@
 
 namespace App\Controller\Api\v1;
 
-use App\DTO\Request\DishRequestDTO;
 use App\DTO\Response\DishResponseDTO;
 use App\Entity\{Category, Dish};
 use App\Manager\DishManager;
@@ -34,7 +33,15 @@ class DishController extends AbstractController
         content: [
             new OA\MediaType(
                 mediaType: 'multipart/form-data',
-                schema: new OA\Schema(ref: new Model(type: DishRequestDTO::class)),
+                schema: new OA\Schema(
+                    required: ['name', 'categoryId', 'price'],
+                    properties: [
+                        new OA\Property(property: 'name', type: 'string'),
+                        new OA\Property(property: 'categoryId', type: 'integer'),
+                        new OA\Property(property: 'price', type: 'float'),
+                        new OA\Property(property: 'image', type: 'file'),
+                    ]
+                )
             ),
         ]
     )]
@@ -45,13 +52,10 @@ class DishController extends AbstractController
     )]
     public function saveDishAction(
         Request $request,
-        #[Autowire('%kernel.project_dir%/public/uploads/images')] string $fileDirectory
+        #[Autowire('%kernel.project_dir%/public/uploads/images')] string $fileDirectory,
     ): Response {
-        $dishId = $this->dishBuilderService->createDishWithCategory($request, $fileDirectory);
-
-        [$data, $code] = $dishId === null ?
-            [['success' => false], Response::HTTP_BAD_REQUEST] :
-            [['success' => true, 'dishId' => $dishId], Response::HTTP_OK];
+        $dish = $this->dishBuilderService->saveDish($request, $fileDirectory);
+        [$data, $code] = [['success' => true, 'dishId' => $dish->getId()], Response::HTTP_OK];
 
         return new JsonResponse($data, $code);
     }
@@ -75,7 +79,6 @@ class DishController extends AbstractController
         )
     )]
     public function getCategoryDishesAction(
-        Request $request,
         #[MapEntity(mapping: ['category_id' => 'id'])] Category $category,
     ): Response {
         $dishes = $this->dishManager->getCategoryDishes($category);
@@ -102,6 +105,12 @@ class DishController extends AbstractController
     #[OA\Parameter(name: 'categoryId', description: 'Category ID', in: 'query', schema: new OA\Schema(type: 'integer'))]
     #[OA\Parameter(name: 'price', description: 'Dish price', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'image', description: 'Dish image', in: 'query', schema: new OA\Schema(type: 'file'))]
+    #[OA\Parameter(
+        name: 'isAvailable',
+        description: 'Dish is available',
+        in: 'query',
+        schema: new OA\Schema(type: 'integer', enum: [0, 1]),
+    )]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'Dish is updated successfully.',
@@ -111,7 +120,7 @@ class DishController extends AbstractController
         Request $request,
         #[Autowire('%kernel.project_dir%/public/uploads/images')] string $fileDirectory
     ): Response {
-        $dish = $this->dishBuilderService->updateDishWithCategory($request, $fileDirectory);
+        $dish = $this->dishBuilderService->updateDish($request, $fileDirectory);
 
         return new JsonResponse(
             ['success' => $dish !== null],
@@ -129,12 +138,11 @@ class DishController extends AbstractController
         content: new OA\JsonContent(example: ['success' => true]),
     )]
     public function deleteDishByIdAction(
-        int $id,
+        #[MapEntity(mapping: ['id' => 'id'])] Dish $dish,
         #[Autowire('%kernel.project_dir%/public/uploads/images')] string $fileDirectory,
     ): Response {
-        $imageName = $this->dishManager->getDishById($id)->getImage();
-        $this->fileService->removeFile($fileDirectory, $imageName);
-        $result = $this->dishManager->deleteDishById($id);
+        $this->fileService->removeFile($fileDirectory, $dish->getImage());
+        $result = $this->dishManager->deleteDish($dish);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }

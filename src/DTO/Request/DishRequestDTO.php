@@ -8,17 +8,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 class DishRequestDTO
 {
     public function __construct(
-        #[Assert\NotBlank]
-        public readonly string $name,
+        public readonly ?string $name,
 
-        #[Assert\NotBlank]
-        public readonly int $categoryId,
+        public readonly ?int $categoryId,
 
-        #[Assert\NotBlank]
-        #[Assert\Type('decimal')]
-        public readonly float $price,
+        #[Assert\GreaterThanOrEqual(0)]
+        public readonly ?float $price,
 
         public readonly ?string $image,
+
+        public readonly ?int $isAvailable,
     ) {
     }
 
@@ -29,6 +28,7 @@ class DishRequestDTO
             'categoryId' => $dish->getCategory()->getId(),
             'price' => $dish->getPrice(),
             'image' => $dish->getImage(),
+            'isAvailable' => $dish->getIsAvailable(),
         ]);
     }
 }

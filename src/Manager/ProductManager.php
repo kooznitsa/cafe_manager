@@ -2,6 +2,7 @@
 
 namespace App\Manager;
 
+use App\DTO\Request\ProductRequestDTO;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,15 +15,19 @@ class ProductManager
     ) {
     }
 
-    public function saveProduct(string $name, string $unit): ?int
+    public function save(Product $product): void
     {
-        $product = new Product();
-        $product->setName($name)->setUnit($unit);
-
         $this->entityManager->persist($product);
         $this->entityManager->flush();
+    }
 
-        return $product->getId();
+    public function saveProduct(ProductRequestDTO $dto): Product
+    {
+        $product = new Product();
+        $product->setName($dto->name)->setUnit($dto->unit)->setAmount($dto->amount);
+        $this->save($product);
+
+        return $product;
     }
 
     /**
@@ -38,39 +43,40 @@ class ProductManager
         return $this->productRepository->find($id);
     }
 
-    public function updateProduct(int $productId, ?string $name = null, ?string $unit = null): ?Product
-    {
-        /** @var Product $product */
-        $product = $this->productRepository->find($productId);
+    public function updateProduct(
+        ?Product $product,
+        ProductRequestDTO $dto,
+        bool $isFlush = true,
+    ): ?Product {
         if (!$product) {
             return null;
         }
-        if ($name) {
-            $product->setName($name);
+        if ($dto->name !== null) {
+            $product->setName($dto->name);
         }
-        if ($unit) {
-            $product->setUnit($unit);
+        if ($dto->unit !== null) {
+            $product->setUnit($dto->unit);
         }
-        $this->entityManager->flush();
+        if ($dto->amount !== null) {
+            $product->setAmount($dto->amount);
+        }
+
+        if ($isFlush) {
+            $this->entityManager->flush();
+        }
 
         return $product;
     }
 
-    public function deleteProduct(Product $product): bool
+    public function deleteProduct(?Product $product): bool
     {
+        if (!$product) {
+            return false;
+        }
+
         $this->entityManager->remove($product);
         $this->entityManager->flush();
 
         return true;
-    }
-
-    public function deleteProductById(int $productId): bool
-    {
-        /** @var Product $dish */
-        $product = $this->productRepository->find($productId);
-        if (!$product) {
-            return false;
-        }
-        return $this->deleteProduct($product);
     }
 }

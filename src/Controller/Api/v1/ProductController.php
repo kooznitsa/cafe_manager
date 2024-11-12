@@ -8,8 +8,10 @@ use App\Entity\Product;
 use App\Manager\ProductManager;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
+use Symfony\Component\HttpFoundation\{JsonResponse, Response};
+use Symfony\Component\HttpKernel\Attribute\{MapQueryParameter, MapQueryString, MapRequestPayload};
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/api/v1/product')]
@@ -38,14 +40,10 @@ class ProductController extends AbstractController
         description: 'Product is created successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function saveProductAction(Request $request): Response
+    public function saveProductAction(#[MapRequestPayload] ProductRequestDTO $dto): Response
     {
-        $name = $request->get('name');
-        $unit = $request->get('unit');
-        $productId = $this->productManager->saveProduct($name, $unit);
-        [$data, $code] = $productId === null ?
-            [['success' => false], Response::HTTP_BAD_REQUEST] :
-            [['success' => true, 'categoryId' => $productId], Response::HTTP_OK];
+        $product = $this->productManager->saveProduct($dto);
+        [$data, $code] = [['success' => true, 'categoryId' => $product->getId()], Response::HTTP_OK];
 
         return new JsonResponse($data, $code);
     }
@@ -65,10 +63,10 @@ class ProductController extends AbstractController
                     items: new OA\Items(ref: new Model(type: ProductResponseDTO::class))
                 ),
             ],
-            type: 'object'
+            type: 'object',
         )
     )]
-    public function getProductsAction(Request $request): Response
+    public function getProductsAction(): Response
     {
         $products = $this->productManager->getProducts();
         $code = empty($products) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
@@ -90,19 +88,17 @@ class ProductController extends AbstractController
         required: true,
         schema: new OA\Schema(type: 'integer'),
     )]
-    #[OA\Parameter(name: 'name', description: 'Product name', in: 'query', schema: new OA\Schema(type: 'string'))]
-    #[OA\Parameter(name: 'unit', description: 'Product unit', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'Product is updated successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function updateProductAction(Request $request): Response
-    {
-        $productId = $request->query->get('productId');
-        $name = $request->query->get('name');
-        $unit = $request->query->get('unit');
-        $result = $this->productManager->updateProduct($productId, $name, $unit);
+    public function updateProductAction(
+        #[MapQueryParameter] int $productId,
+        #[MapQueryString] ProductRequestDTO $dto,
+    ): Response {
+        $product = $this->productManager->getProductById($productId);
+        $result = $this->productManager->updateProduct($product, $dto);
 
         return new JsonResponse(
             ['success' => $result !== null],
@@ -119,9 +115,10 @@ class ProductController extends AbstractController
         description: 'Product is deleted successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function deleteProductByIdAction(int $id): Response
-    {
-        $result = $this->productManager->deleteProductById($id);
+    public function deleteProductByIdAction(
+        #[MapEntity(mapping: ['id' => 'id'])] Product $product,
+    ): Response {
+        $result = $this->productManager->deleteProduct($product);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }

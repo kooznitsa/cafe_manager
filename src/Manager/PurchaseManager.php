@@ -2,10 +2,12 @@
 
 namespace App\Manager;
 
+use App\DTO\Request\PurchaseRequestDTO;
 use App\Entity\{Product, Purchase};
 use App\Repository\PurchaseRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class PurchaseManager
 {
@@ -15,14 +17,19 @@ class PurchaseManager
     ) {
     }
 
-    public function savePurchase(Product $product, float $price, float $amount): ?int
+    public function save(Purchase $purchase): void
     {
-        $purchase = new Purchase();
-        $this->setPurchaseParams($purchase, $product, $price, $amount);
         $this->entityManager->persist($purchase);
         $this->entityManager->flush();
+    }
 
-        return $purchase->getId();
+    public function savePurchase(PurchaseRequestDTO $dto, Product $product): Purchase
+    {
+        $purchase = new Purchase();
+        $this->setPurchaseParams($purchase, $product, $dto);
+        $this->save($purchase);
+
+        return $purchase;
     }
 
     /**
@@ -43,28 +50,28 @@ class PurchaseManager
         return $this->purchaseRepository->find($id);
     }
 
-    public function updatePurchase(
-        int $purchaseId,
-        ?Product $product = null,
-        ?float $price = null,
-        ?float $amount = null,
-    ): ?Purchase {
-        /** @var Purchase $purchase */
-        $purchase = $this->getPurchaseById($purchaseId);
+    public function updatePurchase(?Purchase $purchase, ?Product $product, PurchaseRequestDTO $dto): ?Purchase
+    {
         if (!$purchase) {
-            return null;
+            throw new UnprocessableEntityHttpException('Purchase does not exist');
         }
+
         $purchaseProduct = $purchase->getProduct();
-        $purchaseProduct->removePurchase($purchase);
-        $this->setPurchaseParams($purchase, $product, $price, $amount);
+        if ($product) {
+            $purchaseProduct->removePurchase($purchase);
+        }
+        $this->setPurchaseParams($purchase, $product, $dto);
         $product?->addPurchase($purchase);
         $this->entityManager->flush();
 
         return $purchase;
     }
 
-    public function deletePurchase(Purchase $purchase): bool
+    public function deletePurchase(?Purchase $purchase): bool
     {
+        if (!$purchase) {
+            return false;
+        }
         $this->entityManager->remove($purchase);
         $purchase->getProduct()->removePurchase($purchase);
         $this->entityManager->flush();
@@ -72,18 +79,8 @@ class PurchaseManager
         return true;
     }
 
-    public function deletePurchaseById(int $purchaseId): bool
+    private function setPurchaseParams(Purchase $purchase, Product $product, PurchaseRequestDTO $dto): void
     {
-        /** @var Purchase $purchase */
-        $purchase = $this->getPurchaseById($purchaseId);
-        if (!$purchase) {
-            return false;
-        }
-        return $this->deletePurchase($purchase);
-    }
-
-    private function setPurchaseParams(Purchase $purchase, ?Product $product, ?float $price, ?float $amount): void
-    {
-        $purchase->setProduct($product)->setPrice($price)->setAmount($amount);
+        $purchase->setProduct($product)->setPrice($dto->price)->setAmount($dto->amount);
     }
 }

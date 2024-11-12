@@ -8,8 +8,10 @@ use App\Entity\Category;
 use App\Manager\CategoryManager;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
+use Symfony\Component\HttpFoundation\{JsonResponse, Response};
+use Symfony\Component\HttpKernel\Attribute\{MapQueryParameter, MapQueryString, MapRequestPayload};
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/api/v1/category')]
@@ -38,12 +40,12 @@ class CategoryController extends AbstractController
         description: 'Category is created successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function saveCategoryAction(Request $request): Response
+    public function saveCategoryAction(#[MapRequestPayload] CategoryRequestDTO $dto): Response
     {
-        $categoryId = $this->categoryManager->saveCategory($request->request->get('name'));
-        [$data, $code] = $categoryId === null ?
+        $category = $this->categoryManager->saveCategory($dto);
+        [$data, $code] = $category === null ?
             [['success' => false], Response::HTTP_BAD_REQUEST] :
-            [['success' => true, 'categoryId' => $categoryId], Response::HTTP_OK];
+            [['success' => true, 'categoryId' => $category->getId()], Response::HTTP_OK];
 
         return new JsonResponse($data, $code);
     }
@@ -66,7 +68,7 @@ class CategoryController extends AbstractController
             type: 'object'
         )
     )]
-    public function getCategoriesAction(Request $request): Response
+    public function getCategoriesAction(): Response
     {
         $categories = $this->categoryManager->getCategories();
         $code = empty($categories) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
@@ -88,17 +90,17 @@ class CategoryController extends AbstractController
         required: true,
         schema: new OA\Schema(type: 'integer'),
     )]
-    #[OA\Parameter(name: 'name', description: 'Category name', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'Category is updated successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function updateCategoryAction(Request $request): Response
-    {
-        $categoryId = $request->query->get('categoryId');
-        $name = $request->query->get('name');
-        $result = $this->categoryManager->updateCategory($categoryId, $name);
+    public function updateCategoryAction(
+        #[MapQueryParameter] int $categoryId,
+        #[MapQueryString] CategoryRequestDTO $dto,
+    ): Response {
+        $category = $this->categoryManager->getCategoryById($categoryId);
+        $result = $this->categoryManager->updateCategory($category, $dto);
 
         return new JsonResponse(
             ['success' => $result !== null],
@@ -115,9 +117,10 @@ class CategoryController extends AbstractController
         description: 'Category is deleted successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function deleteCategoryByIdAction(int $id): Response
-    {
-        $result = $this->categoryManager->deleteCategoryById($id);
+    public function deleteCategoryByIdAction(
+        #[MapEntity(mapping: ['id' => 'id'])] Category $category,
+    ): Response {
+        $result = $this->categoryManager->deleteCategory($category);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }

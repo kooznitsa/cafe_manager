@@ -8,11 +8,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ProductRequestDTO
 {
     public function __construct(
-        #[Assert\NotBlank]
-        public readonly string $name,
+        public readonly ?string $name,
 
-        #[Assert\NotBlank]
-        public readonly string $unit,
+        public readonly ?string $unit,
+
+        #[Assert\GreaterThanOrEqual(0)]
+        public readonly ?float $amount,
     ) {
     }
 
@@ -21,6 +22,7 @@ class ProductRequestDTO
         return new self(...[
             'name' => $product->getName(),
             'unit' => $product->getUnit(),
+            'amount' => $product->getAmount(),
         ]);
     }
 }

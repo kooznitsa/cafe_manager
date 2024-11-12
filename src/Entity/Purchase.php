@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use App\Contract\HasMetaTimestampsInterface;
 use App\Repository\PurchaseRepository;
-use DateTime;
+use App\Trait\{DateTimeTrait, IdTrait};
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'purchases')]
@@ -12,10 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class Purchase implements HasMetaTimestampsInterface
 {
-    #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private ?int $id = null;
+    use DateTimeTrait;
+    use IdTrait;
 
     #[ORM\ManyToOne(inversedBy: 'purchases')]
     #[ORM\JoinColumn]
@@ -26,17 +24,6 @@ class Purchase implements HasMetaTimestampsInterface
 
     #[ORM\Column(type: 'decimal', precision: 15, scale: 2, nullable: false)]
     private ?string $amount = null;
-
-    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
-    private DateTime $createdAt;
-
-    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
-    private DateTime $updatedAt;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getProduct(): ?Product
     {
@@ -72,28 +59,5 @@ class Purchase implements HasMetaTimestampsInterface
         $this->amount = $amount ?? $this->amount;
 
         return $this;
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    #[ORM\PrePersist]
-    public function setCreatedAt(): void
-    {
-        $this->createdAt = new DateTime();
-    }
-
-    public function getUpdatedAt(): DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
-    public function setUpdatedAt(): void
-    {
-        $this->updatedAt = new DateTime();
     }
 }

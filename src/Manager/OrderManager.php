@@ -49,14 +49,12 @@ class OrderManager
     }
 
     public function updateOrder(
-        int $orderId,
+        ?Order $order,
         ?Dish $dish = null,
         ?User $user = null,
         ?Status $status = null,
         ?bool $isDelivery = null,
     ): ?Order {
-        /** @var Order $order */
-        $order = $this->getOrderById($orderId);
         if (!$order) {
             return null;
         }
@@ -67,25 +65,16 @@ class OrderManager
         return $order;
     }
 
-    public function updateStatus(Order $order, Status $status): bool
+    public function updateStatus(Order $order, Status $status, bool $isFlush = true): bool
     {
         $this->removeOrderFromParent($order);
         $order->setStatus($status);
         $this->addOrderToParent($order);
-        $this->entityManager->flush();
-
-        return true;
-    }
-
-    public function deleteOrderById(int $orderId): bool
-    {
-        /** @var Order $order */
-        $order = $this->getOrderById($orderId);
-        if (!$order) {
-            return false;
+        if ($isFlush) {
+            $this->entityManager->flush();
         }
 
-        return $this->updateStatus($order, Status::Deleted);
+        return true;
     }
 
     public function getPaidOrders(int $page, int $perPage): array

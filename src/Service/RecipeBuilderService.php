@@ -2,9 +2,9 @@
 
 namespace App\Service;
 
+use App\DTO\Request\RecipeRequestDTO;
 use App\Entity\Recipe;
 use App\Manager\{DishManager, ProductManager, RecipeManager};
-use Symfony\Component\HttpFoundation\Request;
 
 class RecipeBuilderService
 {
@@ -15,30 +15,25 @@ class RecipeBuilderService
     ) {
     }
 
-    public function createRecipeWithDishAndProduct(Request $request): ?int
+    public function createRecipeWithDishAndProduct(RecipeRequestDTO $dto): Recipe
     {
-        [$dish, $product, $amount] = $this->getRecipeParams($request);
+        [$dish, $product, $amount] = $this->getRecipeParams($dto);
 
         return $this->recipeManager->saveRecipe($dish, $product, $amount);
     }
 
-    public function updateRecipeWithDishAndProduct(Request $request): ?Recipe
+    public function updateRecipeWithDishAndProduct(Recipe $recipe, RecipeRequestDTO $dto): ?Recipe
     {
-        [$dish, $product, $amount] = $this->getRecipeParams($request, 'PATCH');
-        $recipeId = $request->query->get('recipeId');
+        [$dish, $product, $amount] = $this->getRecipeParams($dto);
 
-        return $this->recipeManager->updateRecipe($recipeId, $dish, $product, $amount);
+        return $this->recipeManager->updateRecipe($recipe, $dish, $product, $amount);
     }
 
-    public function getRecipeParams(Request $request, string $requestMethod = 'POST'): array
+    public function getRecipeParams(RecipeRequestDTO $dto): array
     {
-        $inputBag = $requestMethod === 'POST' ? $request->request : $request->query;
-
-        $dishId = $inputBag->get('dishId');
-        $productId = $inputBag->get('productId');
-        $amount = $inputBag->get('amount');
-        $dish = $dishId ? $this->dishManager->getDishById($dishId) : null;
-        $product = $productId ? $this->productManager->getProductById($productId) : null;
+        $dish = $dto->dishId ? $this->dishManager->getDishById($dto->dishId) : null;
+        $product = $dto->productId ? $this->productManager->getProductById($dto->productId) : null;
+        $amount = $dto->amount;
 
         return [$dish, $product, $amount];
     }

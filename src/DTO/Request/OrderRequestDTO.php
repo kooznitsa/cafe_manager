@@ -3,22 +3,20 @@
 namespace App\DTO\Request;
 
 use App\Entity\Order;
+use App\Enum\Status;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class OrderRequestDTO
 {
     public function __construct(
-        #[Assert\NotBlank]
-        public readonly int $dishId,
+        public readonly ?int $dishId,
 
-        #[Assert\NotBlank]
-        public readonly int $userId,
+        public readonly ?int $userId,
 
-        #[Assert\NotBlank]
-        public readonly string $status,
+        #[Assert\Callback([Status::class, 'validate'])]
+        public readonly ?string $status,
 
-        #[Assert\NotBlank]
-        public readonly int $isDelivery,
+        public readonly ?bool $isDelivery,
     ) {
     }
 

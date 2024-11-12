@@ -6,8 +6,8 @@ use App\DTO\Request\UserRequestDTO;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserManager
 {
@@ -18,13 +18,19 @@ class UserManager
     ) {
     }
 
-    public function saveUser(User $user, UserRequestDTO $manageUserDTO): ?int
+    public function save(User $user): void
     {
-        $this->setUserParams($user, $manageUserDTO);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+    }
 
-        return $user->getId();
+    public function saveUser(UserRequestDTO $dto): User
+    {
+        $user = new User();
+        $this->setUserParams($user, $dto);
+        $this->save($user);
+
+        return $user;
     }
 
     /**
@@ -40,47 +46,45 @@ class UserManager
         return $this->userRepository->find($id);
     }
 
-    public function updateUser(int $userId, UserRequestDTO $manageUserDTO): ?User
+    public function updateUser(?User $user, UserRequestDTO $dto): ?User
     {
-        /** @var User $user */
-        $user = $this->getUserById($userId);
-
-        if ($user === null) {
+        if (!$user) {
             throw new UnprocessableEntityHttpException('User does not exist');
         }
 
-        $this->setUserParams($user, $manageUserDTO);
+        $this->setUserParams($user, $dto);
         $this->entityManager->flush();
 
         return $user;
     }
 
-    public function deleteUser(User $user): bool
+    public function deleteUser(?User $user): bool
     {
+        if (!$user) {
+            return false;
+        }
         $this->entityManager->remove($user);
         $this->entityManager->flush();
 
         return true;
     }
 
-    public function deleteUserById(int $userId): bool
-    {
-        /** @var User $user */
-        $user = $this->getUserById($userId);
-        if (!$user) {
-            return false;
-        }
-        return $this->deleteUser($user);
-    }
-
     private function setUserParams(User $user, UserRequestDTO $dto): void
     {
-        $user->setName($dto->name);
+        if ($dto->name !== null) {
+            $user->setName($dto->name);
+        }
         if ($dto->password !== null) {
             $user->setPassword($this->userPasswordHasher->hashPassword($user, $dto->password));
         }
-        $user->setEmail($dto->email)
-            ->setAddress($dto->address)
-            ->setRoles($dto->roles);
+        if ($dto->email !== null) {
+            $user->setEmail($dto->email);
+        }
+        if ($dto->address !== null) {
+            $user->setAddress($dto->address);
+        }
+        if ($dto->roles !== null) {
+            $user->setRoles($dto->roles);
+        }
     }
 }

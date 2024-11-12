@@ -3,18 +3,17 @@
 namespace App\Entity;
 
 use App\Repository\DishRepository;
+use App\Trait\IdTrait;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'dishes')]
 #[ORM\Entity(repositoryClass: DishRepository::class)]
 #[ORM\UniqueConstraint(name: 'dishes__name__category__unique', columns: ['name', 'category_id'])]
+#[ORM\HasLifecycleCallbacks]
 class Dish
 {
-    #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private ?int $id = null;
+    use IdTrait;
 
     #[ORM\Column(length: 255, nullable: false)]
     private ?string $name = null;
@@ -29,6 +28,9 @@ class Dish
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
+    private ?bool $isAvailable = true;
+
     /**
      * @var Collection<int, Recipe>
      */
@@ -38,18 +40,13 @@ class Dish
     /**
      * @var Collection<int, Order>
      */
-    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'dish')]
+    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'dish', cascade: ['persist'])]
     private Collection $orders;
 
     public function __construct()
     {
         $this->recipes = new ArrayCollection();
         $this->orders = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getName(): ?string
@@ -96,6 +93,18 @@ class Dish
     public function setImage(?string $image): static
     {
         $this->image = $image ?? $this->image;
+
+        return $this;
+    }
+
+    public function getIsAvailable(): ?bool
+    {
+        return $this->isAvailable;
+    }
+
+    public function setIsAvailable(bool $isAvailable): static
+    {
+        $this->isAvailable = $isAvailable;
 
         return $this;
     }

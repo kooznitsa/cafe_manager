@@ -17,7 +17,7 @@ class PurchaseCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Закупку')
+            ->setEntityLabelInSingular('Закупка')
             ->setEntityLabelInPlural('Закупки')
             ->setSearchFields(['product'])
             ->setPaginatorPageSize(100)

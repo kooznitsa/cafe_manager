@@ -71,12 +71,20 @@ class UserManager
 
     private function setUserParams(User $user, UserRequestDTO $dto): void
     {
-        $user->setName($dto->name);
+        if ($dto->name !== null) {
+            $user->setName($dto->name);
+        }
         if ($dto->password !== null) {
             $user->setPassword($this->userPasswordHasher->hashPassword($user, $dto->password));
         }
-        $user->setEmail($dto->email)
-            ->setAddress($dto->address)
-            ->setRoles($dto->roles);
+        if ($dto->email !== null) {
+            $user->setEmail($dto->email);
+        }
+        if ($dto->address !== null) {
+            $user->setAddress($dto->address);
+        }
+        if ($dto->roles !== null) {
+            $user->setRoles($dto->roles);
+        }
     }
 }

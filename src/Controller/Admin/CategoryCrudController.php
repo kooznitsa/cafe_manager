@@ -18,7 +18,7 @@ class CategoryCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Категорию')
+            ->setEntityLabelInSingular('Категория')
             ->setEntityLabelInPlural('Категории')
             ->setSearchFields(['name'])
             ->setEntityPermission('ROLE_ADMIN')

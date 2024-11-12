@@ -2,9 +2,11 @@
 
 namespace App\Manager;
 
+use App\DTO\Request\CategoryRequestDTO;
 use App\Entity\Category;
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class CategoryManager
 {
@@ -14,8 +16,9 @@ class CategoryManager
     ) {
     }
 
-    public function saveCategory(string $name): ?int
+    public function saveCategory(CategoryRequestDTO $dto): ?Category
     {
+        $name = $dto->name;
         $category = $this->getCategoryByName($name);
 
         if (!$category) {
@@ -25,7 +28,7 @@ class CategoryManager
             $this->entityManager->flush();
         }
 
-        return $category->getId();
+        return $category;
     }
 
     /**
@@ -46,35 +49,27 @@ class CategoryManager
         return $this->categoryRepository->findOneBy(['name' => $name]);
     }
 
-    public function updateCategory(int $categoryId, string $name): ?Category
+    public function updateCategory(?Category $category, CategoryRequestDTO $dto): ?Category
     {
-        /** @var Category $category */
-        $category = $this->getCategoryById($categoryId);
         if (!$category) {
-            return null;
+            throw new UnprocessableEntityHttpException('Category does not exist');
         }
 
-        $category->setName($name);
+        $category->setName($dto->name);
         $this->entityManager->flush();
 
         return $category;
     }
 
-    public function deleteCategory(Category $category): bool
+    public function deleteCategory(?Category $category): bool
     {
+        if (!$category) {
+            return false;
+        }
+
         $this->entityManager->remove($category);
         $this->entityManager->flush();
 
         return true;
-    }
-
-    public function deleteCategoryById(int $categoryId): bool
-    {
-        /** @var Category $category */
-        $category = $this->getCategoryById($categoryId);
-        if (!$category) {
-            return false;
-        }
-        return $this->deleteCategory($category);
     }
 }

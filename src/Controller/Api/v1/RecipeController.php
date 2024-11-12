@@ -11,7 +11,8 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
+use Symfony\Component\HttpFoundation\{JsonResponse, Response};
+use Symfony\Component\HttpKernel\Attribute\{MapQueryParameter, MapQueryString, MapRequestPayload};
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/api/v1/recipe')]
@@ -41,13 +42,10 @@ class RecipeController extends AbstractController
         description: 'Recipe is created successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function saveDishAction(Request $request): Response
+    public function saveDishAction(#[MapRequestPayload] RecipeRequestDTO $dto): Response
     {
-        $recipeId = $this->recipeBuilderService->createRecipeWithDishAndProduct($request);
-
-        [$data, $code] = $recipeId === null ?
-            [['success' => false], Response::HTTP_BAD_REQUEST] :
-            [['success' => true, 'recipeId' => $recipeId], Response::HTTP_OK];
+        $recipe = $this->recipeBuilderService->createRecipeWithDishAndProduct($dto);
+        [$data, $code] = [['success' => true, 'recipeId' => $recipe->getId()], Response::HTTP_OK];
 
         return new JsonResponse($data, $code);
     }
@@ -71,7 +69,6 @@ class RecipeController extends AbstractController
         )
     )]
     public function getDishRecipesAction(
-        Request $request,
         #[MapEntity(mapping: ['dish_id' => 'id'])] Dish $dish,
     ): Response {
         $recipes = $this->recipeManager->getDishRecipe($dish);
@@ -94,21 +91,21 @@ class RecipeController extends AbstractController
         required: true,
         schema: new OA\Schema(type: 'integer'),
     )]
-    #[OA\Parameter(name: 'dishId', description: 'Dish ID', in: 'query', schema: new OA\Schema(type: 'integer'))]
-    #[OA\Parameter(name: 'productId', description: 'Product ID', in: 'query', schema: new OA\Schema(type: 'integer'))]
-    #[OA\Parameter(name: 'amount', description: 'Amount', in: 'query', schema: new OA\Schema(type: 'float'))]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'Recipe is updated successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function updateDishAction(Request $request): Response
-    {
-        $recipe = $this->recipeBuilderService->updateRecipeWithDishAndProduct($request);
+    public function updateRecipeAction(
+        #[MapQueryParameter] int $recipeId,
+        #[MapQueryString] RecipeRequestDTO $dto,
+    ): Response {
+        $recipe = $this->recipeManager->getRecipeById($recipeId);
+        $result = $this->recipeBuilderService->updateRecipeWithDishAndProduct($recipe, $dto);
 
         return new JsonResponse(
-            ['success' => $recipe !== null],
-            ($recipe !== null) ? Response::HTTP_OK : Response::HTTP_NOT_FOUND,
+            ['success' => $result !== null],
+            ($result !== null) ? Response::HTTP_OK : Response::HTTP_NOT_FOUND,
         );
     }
 
@@ -121,9 +118,10 @@ class RecipeController extends AbstractController
         description: 'Recipe is deleted successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function deleteRecipeByIdAction(int $id): Response
-    {
-        $result = $this->recipeManager->deleteRecipeById($id);
+    public function deleteRecipeByIdAction(
+        #[MapEntity(mapping: ['id' => 'id'])] Recipe $recipe,
+    ): Response {
+        $result = $this->recipeManager->deleteRecipe($recipe);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }

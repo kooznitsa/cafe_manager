@@ -77,17 +77,6 @@ class OrderManager
         return true;
     }
 
-    public function deleteOrderById(int $orderId): bool
-    {
-        /** @var Order $order */
-        $order = $this->getOrderById($orderId);
-        if (!$order) {
-            return false;
-        }
-
-        return $this->updateStatus($order, Status::Deleted);
-    }
-
     public function getPaidOrders(int $page, int $perPage): array
     {
         return $this->orderRepository->getPaidOrders($page, $perPage);

@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use App\Contract\HasMetaTimestampsInterface;
 use App\Repository\ProductRepository;
-use DateTime;
+use App\Trait\{DateTimeTrait, IdTrait};
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
 
@@ -14,10 +14,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class Product implements HasMetaTimestampsInterface
 {
-    #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private ?int $id = null;
+    use DateTimeTrait;
+    use IdTrait;
 
     #[ORM\Column(length: 255, nullable: false)]
     private ?string $name = null;
@@ -28,12 +26,6 @@ class Product implements HasMetaTimestampsInterface
     #[ORM\Column(type: 'decimal', precision: 15, scale: 2, nullable: false)]
     private ?string $amount = '0.0';
 
-    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
-    private DateTime $createdAt;
-
-    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
-    private DateTime $updatedAt;
-
     /**
      * @var Collection<int, Purchase>
      */
@@ -43,11 +35,6 @@ class Product implements HasMetaTimestampsInterface
     public function __construct()
     {
         $this->purchases = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getName(): ?string
@@ -84,29 +71,6 @@ class Product implements HasMetaTimestampsInterface
         $this->amount = $amount ?? $this->amount;
 
         return $this;
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    #[ORM\PrePersist]
-    public function setCreatedAt(): void
-    {
-        $this->createdAt = new DateTime();
-    }
-
-    public function getUpdatedAt(): DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
-    public function setUpdatedAt(): void
-    {
-        $this->updatedAt = new DateTime();
     }
 
     /**

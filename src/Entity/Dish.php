@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\DishRepository;
+use App\Trait\IdTrait;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
 
@@ -12,10 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class Dish
 {
-    #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private ?int $id = null;
+    use IdTrait;
 
     #[ORM\Column(length: 255, nullable: false)]
     private ?string $name = null;
@@ -49,11 +47,6 @@ class Dish
     {
         $this->recipes = new ArrayCollection();
         $this->orders = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getName(): ?string

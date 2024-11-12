@@ -5,7 +5,7 @@ namespace App\Entity;
 use App\Contract\HasMetaTimestampsInterface;
 use App\Enum\Role;
 use App\Repository\UserRepository;
-use DateTime;
+use App\Trait\{DateTimeTrait, IdTrait};
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\{PasswordAuthenticatedUserInterface, UserInterface};
@@ -16,10 +16,8 @@ use Symfony\Component\Security\Core\User\{PasswordAuthenticatedUserInterface, Us
 #[ORM\HasLifecycleCallbacks]
 class User implements HasMetaTimestampsInterface, UserInterface, PasswordAuthenticatedUserInterface
 {
-    #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private ?int $id = null;
+    use DateTimeTrait;
+    use IdTrait;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
     private ?string $name = null;
@@ -36,12 +34,6 @@ class User implements HasMetaTimestampsInterface, UserInterface, PasswordAuthent
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $address = null;
 
-    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
-    private DateTime $createdAt;
-
-    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
-    private DateTime $updatedAt;
-
     public function __construct()
     {
         $this->orders = new ArrayCollection();
@@ -52,16 +44,6 @@ class User implements HasMetaTimestampsInterface, UserInterface, PasswordAuthent
      */
     #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'user')]
     private Collection $orders;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getName(): string
     {
@@ -130,29 +112,6 @@ class User implements HasMetaTimestampsInterface, UserInterface, PasswordAuthent
         $this->address = $address ?? $this->address;
 
         return $this;
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    #[ORM\PrePersist]
-    public function setCreatedAt(): void
-    {
-        $this->createdAt = new DateTime();
-    }
-
-    public function getUpdatedAt(): DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
-    public function setUpdatedAt(): void
-    {
-        $this->updatedAt = new DateTime();
     }
 
     /**

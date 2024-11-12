@@ -23,36 +23,32 @@ class PurchaseAmountEventListener
     {
         $product = $purchase->getProduct();
         $productAmount = $product->getAmount() + $purchase->getAmount();
-        $this->productManager->updateProduct($product, amount: $productAmount);
+        $product->setAmount($productAmount);
+        $this->productManager->save($product);
     }
 
     public function preUpdate(Purchase $purchase, PreUpdateEventArgs $args): void
     {
-        if ($args->hasChangedField('amount')) {
-            if (!$args->hasChangedField('product')) {
-                $product = $purchase->getProduct();
-                $productAmount = $product->getAmount() - $args->getOldValue('amount')
-                    + $args->getNewValue('amount');
-            } else {
-                $oldProduct = $args->getOldValue('product');
-                $oldProductAmount = $oldProduct->getAmount() - $args->getOldValue('amount');
-                $this->productManager->updateProduct($oldProduct, amount: $oldProductAmount, isFlush: false);
-
-                $product = $args->getNewValue('product');
-                $productAmount = $product->getAmount() + $args->getNewValue('amount');
-            }
-
-            $this->productManager->updateProduct($product, amount: $productAmount, isFlush: false);
-        }
+        $product = $purchase->getProduct();
+        $purchaseAmount = $purchase->getAmount();
 
         if ($args->hasChangedField('product')) {
+            // Reduce old product amount
+            $amount = $args->hasChangedField('amount') ? $args->getOldValue('amount') : $purchaseAmount;
             $oldProduct = $args->getOldValue('product');
-            $oldProductAmount = $oldProduct->getAmount() - $purchase->getAmount();
-            $this->productManager->updateProduct($oldProduct, amount: $oldProductAmount, isFlush: false);
+            $oldProductAmount = $oldProduct->getAmount() - $amount;
+            $oldProduct->setAmount($oldProductAmount);
 
-            $product = $purchase->getProduct();
-            $productAmount = $product->getAmount() + $purchase->getAmount();
-            $this->productManager->updateProduct($product, amount: $productAmount, isFlush: false);
+            // Increase new product amount
+            $productAmount = $product->getAmount() + $purchaseAmount;
+            $product->setAmount($productAmount);
+        }
+
+        // Update existing product amount
+        if ($args->hasChangedField('amount')) {
+            $productAmount = $product->getAmount() - $args->getOldValue('amount')
+                + $args->getNewValue('amount');
+            $product->setAmount($productAmount);
         }
     }
 
@@ -67,6 +63,6 @@ class PurchaseAmountEventListener
     {
         $product = $purchase->getProduct();
         $productAmount = $product->getAmount() - $purchase->getAmount();
-        $this->productManager->updateProduct($product, amount: $productAmount, isFlush: false);
+        $product->setAmount($productAmount);
     }
 }

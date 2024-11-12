@@ -9,8 +9,10 @@ use App\Manager\PurchaseManager;
 use App\Service\PurchaseBuilderService;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
+use Symfony\Component\HttpKernel\Attribute\{MapQueryParameter, MapQueryString, MapRequestPayload};
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/api/v1/purchase')]
@@ -40,13 +42,10 @@ class PurchaseController extends AbstractController
         description: 'Purchase is created successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function savePurchaseAction(Request $request): Response
+    public function savePurchaseAction(#[MapRequestPayload] PurchaseRequestDTO $dto): Response
     {
-        $purchaseId = $this->purchaseBuilderService->createPurchaseWithProduct($request);
-
-        [$data, $code] = $purchaseId === null ?
-            [['success' => false], Response::HTTP_BAD_REQUEST] :
-            [['success' => true, 'purchaseId' => $purchaseId], Response::HTTP_OK];
+        $purchase = $this->purchaseBuilderService->createPurchaseWithProduct($dto);
+        [$data, $code] = [['success' => true, 'purchaseId' => $purchase->getId()], Response::HTTP_OK];
 
         return new JsonResponse($data, $code);
     }
@@ -104,21 +103,21 @@ class PurchaseController extends AbstractController
         required: true,
         schema: new OA\Schema(type: 'integer'),
     )]
-    #[OA\Parameter(name: 'productId', description: 'Product ID', in: 'query', schema: new OA\Schema(type: 'integer'))]
-    #[OA\Parameter(name: 'price', description: 'Purchase price', in: 'query', schema: new OA\Schema(type: 'float'))]
-    #[OA\Parameter(name: 'amount', description: 'Purchase amount', in: 'query', schema: new OA\Schema(type: 'float'))]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'Purchase is updated successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function updatePurchaseAction(Request $request): Response
-    {
-        $purchase = $this->purchaseBuilderService->updatePurchaseWithProduct($request);
+    public function updatePurchaseAction(
+        #[MapQueryParameter] int $purchaseId,
+        #[MapQueryString] PurchaseRequestDTO $dto,
+    ): Response {
+        $purchase = $this->purchaseManager->getPurchaseById($purchaseId);
+        $result = $this->purchaseBuilderService->updatePurchaseWithProduct($purchase, $dto);
 
         return new JsonResponse(
-            ['success' => $purchase !== null],
-            ($purchase !== null) ? Response::HTTP_OK : Response::HTTP_NOT_FOUND,
+            ['success' => $result !== null],
+            ($result !== null) ? Response::HTTP_OK : Response::HTTP_NOT_FOUND,
         );
     }
 
@@ -131,9 +130,9 @@ class PurchaseController extends AbstractController
         description: 'Purchase is deleted successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function deletePurchaseByIdAction(int $id): Response
+    public function deletePurchaseByIdAction(#[MapEntity(mapping: ['id' => 'id'])] Purchase $purchase): Response
     {
-        $result = $this->purchaseManager->deletePurchaseById($id);
+        $result = $this->purchaseManager->deletePurchase($purchase);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Manager;
 
+use App\DTO\Request\ProductRequestDTO;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,13 +21,13 @@ class ProductManager
         $this->entityManager->flush();
     }
 
-    public function saveProduct(string $name, string $unit, float $amount = 0): ?int
+    public function saveProduct(ProductRequestDTO $dto): Product
     {
         $product = new Product();
-        $product->setName($name)->setUnit($unit)->setAmount($amount);
+        $product->setName($dto->name)->setUnit($dto->unit)->setAmount($dto->amount);
         $this->save($product);
 
-        return $product->getId();
+        return $product;
     }
 
     /**
@@ -44,22 +45,20 @@ class ProductManager
 
     public function updateProduct(
         ?Product $product,
-        ?string $name = null,
-        ?string $unit = null,
-        ?float $amount = null,
+        ProductRequestDTO $dto,
         bool $isFlush = true,
     ): ?Product {
         if (!$product) {
             return null;
         }
-        if ($name !== null) {
-            $product->setName($name);
+        if ($dto->name !== null) {
+            $product->setName($dto->name);
         }
-        if ($unit !== null) {
-            $product->setUnit($unit);
+        if ($dto->unit !== null) {
+            $product->setUnit($dto->unit);
         }
-        if ($amount !== null) {
-            $product->setAmount($amount);
+        if ($dto->amount !== null) {
+            $product->setAmount($dto->amount);
         }
 
         if ($isFlush) {
@@ -69,21 +68,15 @@ class ProductManager
         return $product;
     }
 
-    public function deleteProduct(Product $product): bool
+    public function deleteProduct(?Product $product): bool
     {
+        if (!$product) {
+            return false;
+        }
+
         $this->entityManager->remove($product);
         $this->entityManager->flush();
 
         return true;
-    }
-
-    public function deleteProductById(int $productId): bool
-    {
-        /** @var Product $product */
-        $product = $this->productRepository->find($productId);
-        if (!$product) {
-            return false;
-        }
-        return $this->deleteProduct($product);
     }
 }

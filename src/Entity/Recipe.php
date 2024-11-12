@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\RecipeRepository;
+use App\Trait\IdTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'recipes')]
@@ -10,10 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\UniqueConstraint(name: 'recipes__dish_id__product_id__unique', columns: ['product_id', 'dish_id'])]
 class Recipe
 {
-    #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private ?int $id = null;
+    use IdTrait;
 
     #[ORM\ManyToOne(inversedBy: 'recipes')]
     #[ORM\JoinColumn]
@@ -25,11 +23,6 @@ class Recipe
 
     #[ORM\Column(type: 'decimal', precision: 15, scale: 2, nullable: false)]
     private ?string $amount = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getDish(): ?Dish
     {

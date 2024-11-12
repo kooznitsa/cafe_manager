@@ -14,19 +14,10 @@ class DishManager
     ) {
     }
 
-    public function saveDish(string $name, Category $category, float $price, ?string $image, ?bool $isAvailable): ?int
+    public function save(Dish $dish): void
     {
-        $dish = $this->getDishByNameAndCategory($name, $category);
-
-        if (!$dish) {
-            $dish = new Dish();
-            $this->setDishParams($dish, $name, $category, $price, $image, $isAvailable);
-            $category->addDish($dish);
-            $this->entityManager->persist($dish);
-            $this->entityManager->flush();
-        }
-
-        return $dish->getId();
+        $this->entityManager->persist($dish);
+        $this->entityManager->flush();
     }
 
     /**
@@ -55,57 +46,16 @@ class DishManager
         return $this->dishRepository->findBy(['category' => $category]);
     }
 
-    public function updateDish(
-        ?Dish $dish,
-        ?string $name = null,
-        ?Category $category = null,
-        ?float $price = null,
-        ?string $image = null,
-        bool $isAvailable = true,
-        bool $isFlush = true,
-    ): ?Dish {
-        if (!$dish) {
-            return null;
-        }
-        $this->setDishParams($dish, $name, $category, $price, $image, $isAvailable);
-
-        if ($isFlush) {
-            $this->entityManager->flush();
-        }
-
-        return $dish;
-    }
-
-    public function deleteDish(Dish $dish): bool
+    public function deleteDish(?Dish $dish): bool
     {
+        if (!$dish) {
+            return false;
+        }
+
         $this->entityManager->remove($dish);
         $dish->getCategory()->removeDish($dish);
         $this->entityManager->flush();
 
         return true;
-    }
-
-    public function deleteDishById(int $dishId): bool
-    {
-        /** @var Dish $dish */
-        $dish = $this->getDishById($dishId);
-        if (!$dish) {
-            return false;
-        }
-        return $this->deleteDish($dish);
-    }
-
-    private function setDishParams(
-        Dish $dish,
-        ?string $name,
-        ?Category $category,
-        ?float $price,
-        ?string $image,
-        ?bool $isAvailable,
-    ): void {
-        $dish->setName($name)->setCategory($category)->setPrice($price)->setImage($image);
-        if ($isAvailable !== null) {
-            $dish->setIsAvailable($isAvailable);
-        }
     }
 }

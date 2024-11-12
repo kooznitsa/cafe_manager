@@ -3,9 +3,9 @@
 namespace App\Entity;
 
 use App\Contract\HasMetaTimestampsInterface;
-use App\Repository\OrderRepository;
 use App\Enum\Status;
-use DateTime;
+use App\Repository\OrderRepository;
+use App\Trait\{DateTimeTrait, IdTrait};
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'orders')]
@@ -13,10 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class Order implements HasMetaTimestampsInterface
 {
-    #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private ?int $id = null;
+    use DateTimeTrait;
+    use IdTrait;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
     #[ORM\JoinColumn]
@@ -31,17 +29,6 @@ class Order implements HasMetaTimestampsInterface
 
     #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     private ?bool $isDelivery = false;
-
-    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
-    private DateTime $createdAt;
-
-    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
-    private DateTime $updatedAt;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getDish(): ?Dish
     {
@@ -89,29 +76,6 @@ class Order implements HasMetaTimestampsInterface
         $this->isDelivery = $isDelivery;
 
         return $this;
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    #[ORM\PrePersist]
-    public function setCreatedAt(): void
-    {
-        $this->createdAt = new DateTime();
-    }
-
-    public function getUpdatedAt(): DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
-    public function setUpdatedAt(): void
-    {
-        $this->updatedAt = new DateTime();
     }
 
     public function __toString(): string

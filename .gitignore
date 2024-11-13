@@ -18,3 +18,7 @@
 .idea/
 /public/uploads/images/tmp
 auth.json
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###

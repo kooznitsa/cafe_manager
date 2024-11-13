@@ -1,5 +1,12 @@
 nelmio_api_doc:
     documentation:
+        components:
+            securitySchemes:
+                Bearer:
+                    type: http
+                    scheme: bearer
+        security:
+            - Bearer: [ ]
         info:
             title: Cafe Manager API
             description: API routes for managing cafe's inventory, menu and orders.

@@ -11,14 +11,17 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class OrderBuilderService
 {
+    private HttpClientInterface $client;
+
     public function __construct(
         private readonly OrderManager $orderManager,
         private readonly DishManager $dishManager,
         public readonly ProductManager $productManager,
         private readonly RecipeManager $recipeManager,
         private readonly UserManager $userManager,
-        private HttpClientInterface $client,
+        private readonly TokenRequestService $tokenRequestService,
     ) {
+        $this->client = $this->tokenRequestService->client();
     }
 
     public function createOrderWithUserAndDish(OrderRequestDTO $dto): ?int
@@ -26,9 +29,12 @@ class OrderBuilderService
         [$dish, $user, $status, $isDelivery] = $this->getOrderParams($dto);
 
         if ($dish and $user) {
-            $this->updateRelated($dish);
-
-            return $this->orderManager->saveOrder($dish, $user, $status, $isDelivery);
+            try {
+                $this->updateRelated($dish);
+                return $this->orderManager->saveOrder($dish, $user, $status, $isDelivery);
+            } catch (\RuntimeException) {
+                return null;
+            }
         }
         return null;
     }
@@ -45,7 +51,7 @@ class OrderBuilderService
         if ($updatedAmounts) {
             foreach ($updatedAmounts as $productId => $amount) {
                 $product = $this->productManager->getProductById($productId);
-                $this->productManager->updateProduct($product, amount: $amount, isFlush: false);
+                $product->setAmount($amount);
                 $dish->setIsAvailable(true);
             }
             if ($isSaved) {

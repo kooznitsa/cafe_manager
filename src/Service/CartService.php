@@ -6,9 +6,12 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class CartService
 {
+    private HttpClientInterface $client;
+
     public function __construct(
-        private HttpClientInterface $client,
+        private readonly TokenRequestService $tokenRequestService,
     ) {
+        $this->client = $this->tokenRequestService->client();
     }
 
     public function getCart(int $userId): ?array

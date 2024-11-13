@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\User\{PasswordAuthenticatedUserInterface, Us
 #[ORM\Table(name: '`users`')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'users__email__unique', columns: ['email'])]
+#[ORM\UniqueConstraint(name: 'users__token__unique', columns: ['token'])]
 #[ORM\HasLifecycleCallbacks]
 class User implements HasMetaTimestampsInterface, UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -33,6 +34,9 @@ class User implements HasMetaTimestampsInterface, UserInterface, PasswordAuthent
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $address = null;
+
+    #[ORM\Column(type: 'string', length: 32, unique: true, nullable: true)]
+    private ?string $token = null;
 
     public function __construct()
     {
@@ -112,6 +116,16 @@ class User implements HasMetaTimestampsInterface, UserInterface, PasswordAuthent
         $this->address = $address ?? $this->address;
 
         return $this;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(?string $token): void
+    {
+        $this->token = $token;
     }
 
     /**

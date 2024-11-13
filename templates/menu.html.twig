@@ -5,6 +5,13 @@
 {% block body %}
     <h1>Меню</h1>
 
+    {% for flash_message in app.flashes('warning') %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ flash_message }}
+            <a href="/" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></a>
+        </div>
+    {% endfor %}
+
     <div class="menu-list">
         <h2 class="my-3">Кофе</h2>
         <div class="row row-cols-2 justify-content-between">

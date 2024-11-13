@@ -87,4 +87,33 @@ class UserManager
             $user->setRoles($dto->roles);
         }
     }
+
+    public function findUserByEmail(string $email): ?User
+    {
+        /** @var User|null $user */
+        $user = $this->userRepository->findOneBy(['email' => $email]);
+
+        return $user;
+    }
+
+    public function updateUserToken(string $email): string|bool
+    {
+        $user = $this->findUserByEmail($email);
+        if ($user === null) {
+            return false;
+        }
+        $token = base64_encode(random_bytes(20));
+        $user->setToken($token);
+        $this->entityManager->flush();
+
+        return $token;
+    }
+
+    public function findUserByToken(string $token): ?User
+    {
+        /** @var User|null $user */
+        $user = $this->userRepository->findOneBy(['token' => $token]);
+
+        return $user;
+    }
 }

@@ -43,7 +43,7 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => UserRequestDTO::class,
-            'empty_data' => new UserRequestDTO(),
+            'empty_data' => '',
             'isNew' => false,
         ]);
     }

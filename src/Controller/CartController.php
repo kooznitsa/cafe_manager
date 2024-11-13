@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Manager\DishManager;
 use App\Service\{CartService, OrderBuilderService};
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{Request, Response};
@@ -12,6 +13,7 @@ class CartController extends AbstractController
     public function __construct(
         private readonly CartService $cartService,
         private readonly OrderBuilderService $orderBuilderService,
+        private readonly DishManager $dishManager,
     ) {
     }
 
@@ -38,9 +40,12 @@ class CartController extends AbstractController
     #[Route('/order/{dishId}', name: 'make_order', requirements: ['dishId' => '\d+'])]
     public function makeOrder(Request $request, int $dishId): Response
     {
-        $dishId = $request->get('dishId');
-        $userId = $this->getUser()->getId();
-        $this->cartService->putToCart($dishId, $userId);
+        try {
+            $this->cartService->putToCart($dishId, $this->getUser()->getId());
+        } catch (\RuntimeException) {
+            $dishName = $this->dishManager->getDishById($dishId)->getName();
+            $this->addFlash('warning', "Блюда $dishName нет в наличии.");
+        }
 
         return $this->redirect($request->headers->get('referer'));
     }

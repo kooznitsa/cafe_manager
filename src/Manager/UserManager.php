@@ -2,6 +2,7 @@
 
 namespace App\Manager;
 
+use App\Client\StatsdAPIClient;
 use App\DTO\Request\UserRequestDTO;
 use App\Entity\User;
 use App\Repository\UserRepository;
@@ -15,6 +16,7 @@ class UserManager
         private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository,
         private readonly UserPasswordHasherInterface $userPasswordHasher,
+        private readonly StatsdAPIClient $statsdAPIClient,
     ) {
     }
 
@@ -26,6 +28,8 @@ class UserManager
 
     public function saveUser(UserRequestDTO $dto): User
     {
+        $this->statsdAPIClient->increment('save_user_v1_attempt');
+
         $user = new User();
         $this->setUserParams($user, $dto);
         $this->save($user);

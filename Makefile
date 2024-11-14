@@ -7,25 +7,35 @@ PHP_CONSOLE := php bin/console
 
 # -------------- DOCKER --------------
 
-# Runs database container
+# Runs php and database containers
 .PHONY: run
 run:
-	$(DOCKER_COMPOSE) up -d --build
+	$(DOCKER_COMPOSE) --profile cm up -d --build
 
-# Runs all containers
-.PHONY: fullrun
-fullrun:
-	$(DOCKER_COMPOSE) --profile deploy up -d --build
-
-# Removes database container
+# Removes php and database containers
 .PHONY: stop
 stop:
-	$(DOCKER_COMPOSE) down
+	$(DOCKER_COMPOSE) --profile cm down
 
-# Removes all containers
-.PHONY: fullstop
-fullstop:
-	$(DOCKER_COMPOSE) --profile deploy down
+# Runs basic containers + Graphite/Grafana containers
+.PHONY: grafrun
+grafrun:
+	$(DOCKER_COMPOSE) --profile monitoring up -d --build
+
+# Removes basic containers + Graphite/Grafana containers
+.PHONY: grafstop
+grafstop:
+	$(DOCKER_COMPOSE) --profile monitoring down
+
+# Runs basic containers + Sentry containers
+.PHONY: sentryrun
+sentryrun:
+	$(DOCKER_COMPOSE) --profile sentry up -d --build
+
+# Removes basic containers + Sentry containers
+.PHONY: sentrystop
+sentrystop:
+	$(DOCKER_COMPOSE) --profile sentry down
 
 # Enters PHP container
 .PHONY: entercontainer

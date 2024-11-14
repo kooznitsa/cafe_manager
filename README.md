@@ -17,11 +17,13 @@ cp .env.sample .env
 // Отредактировать .env
 cp auth.json.sample auth.json
 // Отредактировать auth.json
-make fullrun
+make grafrun
 ```
 
-Проект доступен по адресу: http://localhost:7777
+Урлы:
 
-Админка: http://localhost:7777/admin
-
-Документация API: http://localhost:7777/api/v1/doc
+- Сайт: http://localhost:7777
+- Админка: http://localhost:7777/admin
+- Документация API: http://localhost:7777/api/v1/doc
+- Graphite: http://localhost:8000 (stats_counts)
+- Grafana: http://localhost:3000

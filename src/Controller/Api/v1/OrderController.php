@@ -80,10 +80,7 @@ class OrderController extends AbstractController
         $orders = $this->orderManager->getUserOrders($user);
         $code = empty($orders) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
-        return new JsonResponse(
-            ['orders' => array_map(fn(Order $order) => OrderResponseDTO::fromEntity($order), $orders)],
-            $code,
-        );
+        return new JsonResponse(['orders' => $orders], $code);
     }
 
     /**

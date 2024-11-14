@@ -2,25 +2,35 @@
 
 namespace App\Manager;
 
+use App\DTO\Response\OrderResponseDTO;
 use App\Enum\Status;
 use App\Entity\{Dish, Order, User};
 use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Contracts\Cache\{ItemInterface, TagAwareCacheInterface};
 
 class OrderManager
 {
+    private const CACHE_TAG = 'orders';
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly OrderRepository $orderRepository,
+        private readonly TagAwareCacheInterface $cache,
     ) {
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function saveOrder(Dish $dish, User $user, Status $status, bool $isDelivery): ?int
     {
         $order = new Order();
         $this->setOrderParams($order, $dish, $user, $status, $isDelivery);
         $this->entityManager->persist($order);
         $this->entityManager->flush();
+        $this->cache->invalidateTags([self::CACHE_TAG]);
 
         return $order->getId();
     }
@@ -38,9 +48,26 @@ class OrderManager
         return $this->orderRepository->find($id);
     }
 
+    /**
+     * Uses cache to get user orders.
+     *
+     * @return Order[]
+     *
+     * @throws InvalidArgumentException
+     */
     public function getUserOrders(User $user): array
     {
-        return $this->orderRepository->getCreatedUserOrders($user->getId());
+        return $this->cache->get(
+            self::CACHE_TAG,
+            function (ItemInterface $item) use ($user) {
+                $orders = $this->orderRepository->getCreatedUserOrders($user->getId());
+                $ordersSerialized = array_map(static fn(Order $order) => OrderResponseDTO::fromEntity($order), $orders);
+                $item->set($ordersSerialized);
+                $item->tag(self::CACHE_TAG);
+
+                return $ordersSerialized;
+            }
+        );
     }
 
     public function getDishOrders(Dish $dish): array
@@ -48,6 +75,9 @@ class OrderManager
         return $this->orderRepository->findBy(['dish' => $dish]);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function updateOrder(
         ?Order $order,
         ?Dish $dish = null,
@@ -61,6 +91,7 @@ class OrderManager
         $this->removeOrderFromParent($order);
         $this->setOrderParams($order, $dish, $user, $status, $isDelivery);
         $this->entityManager->flush();
+        $this->cache->invalidateTags([self::CACHE_TAG]);
 
         return $order;
     }

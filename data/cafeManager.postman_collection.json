@@ -19,12 +19,12 @@
 							"formdata": [
 								{
 									"key": "name",
-									"value": "Кукушка",
+									"value": "Cat",
 									"type": "text"
 								},
 								{
 									"key": "email",
-									"value": "test@gmail.com",
+									"value": "cat@gmail.com",
 									"type": "text"
 								},
 								{
@@ -34,7 +34,7 @@
 								},
 								{
 									"key": "address",
-									"value": "Сосновый бор",
+									"value": "New York",
 									"type": "text"
 								},
 								{
@@ -53,28 +53,6 @@
 								"api",
 								"v1",
 								"user"
-							],
-							"query": [
-								{
-									"key": "name",
-									"value": "Cat",
-									"disabled": true
-								},
-								{
-									"key": "password",
-									"value": "qwerty",
-									"disabled": true
-								},
-								{
-									"key": "email",
-									"value": "cat@email.com",
-									"disabled": true
-								},
-								{
-									"key": "address",
-									"value": "Брянск",
-									"disabled": true
-								}
 							]
 						}
 					},
@@ -146,7 +124,7 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{host}}/api/v1/user?userId=38&roles[]=ROLE_VIEW&roles[]=ROLE_ADMIN",
+							"raw": "{{host}}/api/v1/user?name=Cat&userId=48",
 							"host": [
 								"{{host}}"
 							],
@@ -157,18 +135,13 @@
 							],
 							"query": [
 								{
-									"key": "userId",
-									"value": "38"
-								},
-								{
 									"key": "email",
 									"value": "cuckoo@gmail.com",
 									"disabled": true
 								},
 								{
 									"key": "name",
-									"value": "Shark",
-									"disabled": true
+									"value": "Cat"
 								},
 								{
 									"key": "address",
@@ -182,11 +155,17 @@
 								},
 								{
 									"key": "roles[]",
-									"value": "ROLE_VIEW"
+									"value": "ROLE_VIEW",
+									"disabled": true
 								},
 								{
 									"key": "roles[]",
-									"value": "ROLE_ADMIN"
+									"value": "ROLE_ADMIN",
+									"disabled": true
+								},
+								{
+									"key": "userId",
+									"value": "48"
 								}
 							]
 						}
@@ -816,12 +795,12 @@
 							"formdata": [
 								{
 									"key": "dishId",
-									"value": "1",
+									"value": "2",
 									"type": "text"
 								},
 								{
 									"key": "userId",
-									"value": "1",
+									"value": "37",
 									"type": "text"
 								},
 								{
@@ -899,7 +878,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/v1/order/by-user/9",
+							"raw": "{{host}}/api/v1/order/by-user/37",
 							"host": [
 								"{{host}}"
 							],
@@ -908,7 +887,7 @@
 								"v1",
 								"order",
 								"by-user",
-								"9"
+								"37"
 							]
 						}
 					},
@@ -1086,7 +1065,7 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					"pm.request.headers.add({key: 'Authorization', value: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MzE0ODkzNjMsImV4cCI6MTczMTQ5Mjk2MywidXNlcm5hbWUiOiJjdWNrb29AZ21haWwuY29tIiwicm9sZXMiOlsiUk9MRV9VU0VSIiwiUk9MRV9BRE1JTiJdfQ.Lz_8DihcP4XP7OflxAL--k7viyeWG5lWTUH9z9nqe7pxf_nPgQ2gLqHJYIJnHMDhhFjVGF0t_FJ8QTUSk78ybImLdcXLub5y8j8lvLXUWw6rl-ghAxrQECDU_-NVcJUbKO6_ogEff-hl2GPgO6JtCtEvVnSE_JiBeXmuJaiBVjzwCu75xXTrov9349UdMQGVmoWnqm6umuVQFI0Bbw7WvZ-YWDvgQqyRHAQvyKen4MCcod2nfH-6muO0cmJ_8IuXH26DTMDACHywzVnUtedV7vEobkCEe4vGWaVn3qyI8XPIhnmzBHJC0ZGok92hSVtDquL4zBTzsvk4Y-Zkj20HQZj6Inbuz_JJGsMD_RUlwZsfipwgW-5OxPv6QZZ0QjCDPIHoDnpwm-6SNMNPpPOjdD8-Sa-PDbH336Oji1M99PHFow8IhlXvPP_pc4tQyaX--lZ9uXCxQQQaGh3w43rL8YYbIDJVM7AzbFXy8gpRA2SCRVycmTBzkbDEwxziS19B6G9jUVtP4ucz_n7o3zc7etbC282KNt6DYyOyxRSNls2h9kUy3eShKwnKPvQO7pp2v57v00XAUC-ZuM9NtlsBb4Nm37zRHS2B1kxJCBt_l2C7Si2schLHAIPazR1Erbf_UDPLIkh2jbasOxELipLKv6UGYoNC-QY-p-T9b0dobdM' })"
+					"pm.request.headers.add({key: 'Authorization', value: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MzE1OTE0NjQsImV4cCI6MTczMTU5NTA2NCwidXNlcm5hbWUiOiJjdWNrb29AZ21haWwuY29tIiwicm9sZXMiOlsiUk9MRV9VU0VSIiwiUk9MRV9BRE1JTiJdfQ.d4oabrDxzS17tMWBGgepPTugxQNGsKfhrHCojudgTIg3sSeRgqvXNZRSAyPoWvWCWTt8FZSVoaZtWy102OrYxDAWpoKbu_F9InXml6kb-5dLsq9JPan78A8QEH1fyJAhGyYLG2Vqx36OOVxMTJjFysL0cy8I-fHI0DkFSBDtU-TRpsiuClLAwoT-lj-kKzml7Qp9BZNaGDtih9Sq38bOs2ai-YpXGGv4vu9wls3nEUGCBViPYBLRc0sl6KHDVEkwo6CqJTF2jlU5v2CQGItd_5zZNxStWRCZIJ-N4xQe7PDQgVrkKYRgqieYVWM0lzDZsicoFeJxoecrKBwkAQk7n9V_U6XMfO7tIN62dHbZjaa_Sjb5imGyKwctF7ReOqJmfPOiAOkAmvk-yBZH1p2ZfYPg0olZycsziSyfQP6w8VhHo8FsaqB4mCKmP82UzXqT4nZn4q3B-MEVfZ_20N-BqKDmK4cYT21QAOHImCyXhvT9XNM6xKqKF1x1niSQXgmKwF4Igwwt-wqcFWlQQe9O4e_lUPL5mc5PJKfwpqvhVpo3EQpzZ4r-BGrBG3EJnxV4haKsS8KXMUCcL9RZh9jW-V0I8trI-2dUIEM21usPxZ48AwYvBKERHcBg1z6l9IvjveFvZjJtW4KNHwYZ_aC5r2dab1pVm6im_BpZEWbTtOc' })"
 				]
 			}
 		},

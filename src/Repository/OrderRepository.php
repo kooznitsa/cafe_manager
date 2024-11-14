@@ -28,9 +28,11 @@ class OrderRepository extends ServiceEntityRepository
             ->where('o.user = :userId')
             ->setParameter('userId', $userId)
             ->andWhere('o.status = :status')
-            ->setParameter('status', 'Created');
+            ->setParameter('status', 'Created')
+            ->orderBy('o.updatedAt', 'DESC')
+        ;
 
-        return $qb->getQuery()->getResult();
+        return $qb->getQuery()->enableResultCache(null, "orders_$userId")->getResult();
     }
 
     public function getPaidOrders(int $page, int $perPage): array
@@ -44,8 +46,9 @@ class OrderRepository extends ServiceEntityRepository
             ->groupBy('orderDate')
             ->orderBy('orderDate', 'ASC')
             ->setFirstResult($perPage * $page)
-            ->setMaxResults($perPage);
+            ->setMaxResults($perPage)
+        ;
 
-        return $qb->getQuery()->getResult();
+        return $qb->getQuery()->enableResultCache(null, "orders_{$page}_{$perPage}")->getResult();
     }
 }

@@ -45,6 +45,27 @@ doctrine:
                 alias: App
         controller_resolver:
             auto_mapping: false
+        metadata_cache_driver:
+            type: service
+            id: doctrine.cache.memcached
+        query_cache_driver:
+            type: service
+            id: doctrine.cache.memcached
+        result_cache_driver:
+            type: service
+            id: doctrine.cache.memcached
+
+services:
+    memcached.doctrine:
+        class: Memcached
+        factory: Symfony\Component\Cache\Adapter\MemcachedAdapter::createConnection
+        arguments:
+            - '%env(MEMCACHED_DSN)%'
+            - PREFIX_KEY: '%env(APP_NAME)%_doctrine'
+    doctrine.cache.memcached:
+        class: Doctrine\Common\Cache\MemcachedCache
+        calls:
+            - ['setMemcached', ['@memcached.doctrine']]
 
 when@test:
     doctrine:
@@ -69,5 +90,6 @@ when@prod:
             pools:
                 doctrine.result_cache_pool:
                     adapter: cache.app
+                    default_lifetime: 86400
                 doctrine.system_cache_pool:
                     adapter: cache.system

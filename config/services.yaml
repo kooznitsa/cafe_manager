@@ -31,6 +31,8 @@ services:
         arguments:
             $tokenTTL: '%env(JWT_TTL_SEC)%'
 
+    # Logging and monitoring
+
     monolog.formatter.app_formatter:
         class: Monolog\Formatter\LineFormatter
         arguments:
@@ -40,4 +42,27 @@ services:
         arguments:
             - graphite
             - 8125
-            - my_app
+            - '%env(APP_NAME)%'
+
+    # Cache
+
+    redis_client:
+        class: Redis
+        factory: Symfony\Component\Cache\Adapter\RedisAdapter::createConnection
+        arguments:
+            - '%env(REDIS_DSN)%'
+
+    redis_adapter:
+        class: Symfony\Component\Cache\Adapter\RedisTagAwareAdapter
+        arguments:
+            - '@redis_client'
+            - '%env(APP_NAME)%'
+
+    redis_adapter_decorated:
+        class: App\Symfony\CountingAdapterDecorator
+        arguments:
+            - '@redis_adapter'
+
+    App\Manager\OrderManager:
+        arguments:
+            $cache: '@redis_adapter'

@@ -17,15 +17,15 @@ run:
 stop:
 	$(DOCKER_COMPOSE) --profile cm down
 
-# Runs basic containers + Graphite/Grafana containers
+# Runs basic containers + RabbitMQ
 .PHONY: grafrun
 grafrun:
-	$(DOCKER_COMPOSE) --profile monitoring up -d --build
+	$(DOCKER_COMPOSE) --profile rabbit up -d --build
 
-# Removes basic containers + Graphite/Grafana containers
+# Removes basic containers + RabbitMQ
 .PHONY: grafstop
 grafstop:
-	$(DOCKER_COMPOSE) --profile monitoring down
+	$(DOCKER_COMPOSE) --profile rabbit down
 
 # Runs basic containers + Sentry containers
 .PHONY: sentryrun
@@ -92,6 +92,14 @@ migrate:
 .PHONY: factory
 factory:
 	$(DOCKER_EXEC) $(PHP_CONSOLE) php bin/console make:factory
+
+
+# -------------- RABBITMQ --------------
+
+# Launches consumer
+.PHONY: q
+q:
+	$(DOCKER_EXEC) $(PHP_CONSOLE) rabbitmq:consumer create_order
 
 
 # -------------- LINTER --------------

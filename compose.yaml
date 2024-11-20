@@ -1,3 +1,8 @@
+x-app-main:
+  &app-main
+  networks:
+    - service
+
 x-sentry-common:
   &sentry-common
   environment:
@@ -10,6 +15,7 @@ x-sentry-common:
 
 services:
   database:
+    <<: *app-main
     image: postgres:${POSTGRES_VERSION:-16}-alpine
     container_name: "${APP_NAME}_database"
     working_dir: /app
@@ -30,9 +36,10 @@ services:
       - database_data:/var/lib/postgresql/data:rw
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       # - ./docker/db/data:/var/lib/postgresql/data:rw
-    profiles: [cm, monitoring, sentry]
+    profiles: [cm, sentry, rabbit]
 
   php-fpm:
+    <<: *app-main
     build: deploy
     container_name: "${APP_NAME}_php"
     ports:
@@ -41,9 +48,10 @@ services:
       - ./:/app
     working_dir: /app
     user: 1000:1000
-    profiles: [cm, monitoring, sentry]
+    profiles: [cm, sentry, rabbit]
 
   nginx:
+    <<: *app-main
     image: nginx
     container_name: "${APP_NAME}_nginx"
     working_dir: /app
@@ -52,24 +60,27 @@ services:
     volumes:
       - ./:/app
       - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf
-    profiles: [cm, monitoring, sentry]
+    profiles: [cm, sentry, rabbit]
 
   memcached:
+    <<: *app-main
     image: memcached:latest
     container_name: "memcached"
     restart: always
     ports:
       - "11211:11211"
-    profiles: [cm, monitoring, sentry]
+    profiles: [cm, sentry, rabbit]
 
   redis:
+    <<: *app-main
     container_name: "redis"
     image: redis:alpine
     ports:
       - "6379:6379"
-    profiles: [cm, monitoring, sentry]
+    profiles: [cm, sentry, rabbit]
 
   graphite:
+    <<: *app-main
     image: graphiteapp/graphite-statsd
     container_name: "graphite"
     restart: always
@@ -83,9 +94,10 @@ services:
       - "8126:8126"
     volumes:
       - "graphite_storage:/var/lib/graphite"
-    profiles: [monitoring]
+    profiles: [cm, sentry, rabbit]
 
   grafana:
+    <<: *app-main
     image: grafana/grafana
     container_name: "grafana"
     restart: always
@@ -93,9 +105,26 @@ services:
       - "3000:3000"
     volumes:
       - "grafana_storage:/var/lib/grafana"
-    profiles: [monitoring]
+    profiles: [cm, sentry, rabbit]
+
+  rabbitmq:
+    <<: *app-main
+    image: rabbitmq:3.7.5-management
+    working_dir: /app
+    hostname: rabbitmq
+    container_name: "rabbitmq"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-user}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-password}
+    volumes:
+      - rabbitmq_volume:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+    profiles: [rabbit]
 
   sentry-postgres:
+    <<: *app-main
     image: postgres
     container_name: "sentry-postgres"
     ports:
@@ -111,7 +140,7 @@ services:
   sentry:
     <<: *sentry-common
     image: sentry
-    # platform: linux/x86_64 # Для Mac на m1
+    # platform: linux/x86_64 # For Mac m1
     container_name: "sentry"
     links:
       - redis
@@ -142,4 +171,9 @@ volumes:
   database_data:
   graphite_storage:
   grafana_storage:
+  rabbitmq_volume:
   sentry_pgdb:
+
+networks:
+  service:
+    name: service

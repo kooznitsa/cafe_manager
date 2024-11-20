@@ -6,7 +6,7 @@ use App\DTO\Request\OrderRequestDTO;
 use App\DTO\Response\OrderResponseDTO;
 use App\Entity\{Dish, Order, User};
 use App\Manager\OrderManager;
-use App\Service\OrderBuilderService;
+use App\Service\{AsyncService, OrderBuilderService};
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -25,6 +25,7 @@ class OrderController extends AbstractController
     public function __construct(
         private readonly OrderManager $orderManager,
         private readonly OrderBuilderService $orderBuilderService,
+        private readonly AsyncService $asyncService,
     ) {
     }
 
@@ -45,11 +46,46 @@ class OrderController extends AbstractController
         description: 'Order is created successfully.',
         content: new OA\JsonContent(example: ['success' => true]),
     )]
-    public function saveOrderAction(#[MapRequestPayload] OrderRequestDTO $dto): Response
-    {
+    public function saveOrderAction(
+        #[MapRequestPayload] OrderRequestDTO $dto,
+    ): Response {
         $orderId = $this->orderBuilderService->createOrderWithUserAndDish($dto);
+        [$data, $code] = $orderId !== null ?
+            [['success' => false], Response::HTTP_BAD_REQUEST] :
+            [['success' => true, 'orderId' => $orderId], Response::HTTP_OK];
 
-        [$data, $code] = $orderId === null ?
+        return new JsonResponse($data, $code);
+    }
+
+    /**
+     * Creates order with queue.
+     */
+    #[Route(path: '/q/{isAsync}', requirements: ['isAsync' => '0|1'], methods: ['POST'])]
+    #[OA\RequestBody(
+        content: [
+            new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(ref: new Model(type: OrderRequestDTO::class)),
+            ),
+        ]
+    )]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Order is created successfully.',
+        content: new OA\JsonContent(example: ['success' => true]),
+    )]
+    public function saveOrderWithQueueAction(
+        #[MapRequestPayload] OrderRequestDTO $dto,
+        int $isAsync,
+    ): Response {
+        if ($isAsync === 0) {
+            $orderId = $this->orderBuilderService->createOrderWithUserAndDish($dto);
+        } else {
+            $message = $dto->toAMQPMessage();
+            $orderId = $this->asyncService->publishToExchange(AsyncService::CREATE_ORDER, $message);
+        }
+
+        [$data, $code] = $orderId !== null ?
             [['success' => false], Response::HTTP_BAD_REQUEST] :
             [['success' => true, 'orderId' => $orderId], Response::HTTP_OK];
 

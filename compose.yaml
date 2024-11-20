@@ -124,7 +124,7 @@ services:
   sentry:
     <<: *sentry-common
     image: sentry
-    # platform: linux/x86_64 # Для Mac на m1
+    # platform: linux/x86_64 # For Mac m1
     container_name: "sentry"
     links:
       - redis

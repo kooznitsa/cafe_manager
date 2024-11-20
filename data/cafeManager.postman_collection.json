@@ -19,12 +19,12 @@
 							"formdata": [
 								{
 									"key": "name",
-									"value": "Cat",
+									"value": "Pug",
 									"type": "text"
 								},
 								{
 									"key": "email",
-									"value": "cat@gmail.com",
+									"value": "pug@gmail.com",
 									"type": "text"
 								},
 								{
@@ -786,7 +786,7 @@
 			"name": "Order",
 			"item": [
 				{
-					"name": "Create Order",
+					"name": "Create Order With Queue",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -795,7 +795,7 @@
 							"formdata": [
 								{
 									"key": "dishId",
-									"value": "2",
+									"value": "12",
 									"type": "text"
 								},
 								{
@@ -812,18 +812,26 @@
 									"key": "isDelivery",
 									"value": "0",
 									"type": "text"
+								},
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
 								}
 							]
 						},
 						"url": {
-							"raw": "{{host}}/api/v1/order",
+							"raw": "{{host}}/api/v1/order/q/1",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"order"
+								"order",
+								"q",
+								"1"
 							]
 						}
 					},
@@ -1016,6 +1024,50 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Create Order",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "dishId",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "userId",
+									"value": "37",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "Created",
+									"type": "text"
+								},
+								{
+									"key": "isDelivery",
+									"value": "0",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/v1/order",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -1065,7 +1117,7 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					"pm.request.headers.add({key: 'Authorization', value: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MzE1OTE0NjQsImV4cCI6MTczMTU5NTA2NCwidXNlcm5hbWUiOiJjdWNrb29AZ21haWwuY29tIiwicm9sZXMiOlsiUk9MRV9VU0VSIiwiUk9MRV9BRE1JTiJdfQ.d4oabrDxzS17tMWBGgepPTugxQNGsKfhrHCojudgTIg3sSeRgqvXNZRSAyPoWvWCWTt8FZSVoaZtWy102OrYxDAWpoKbu_F9InXml6kb-5dLsq9JPan78A8QEH1fyJAhGyYLG2Vqx36OOVxMTJjFysL0cy8I-fHI0DkFSBDtU-TRpsiuClLAwoT-lj-kKzml7Qp9BZNaGDtih9Sq38bOs2ai-YpXGGv4vu9wls3nEUGCBViPYBLRc0sl6KHDVEkwo6CqJTF2jlU5v2CQGItd_5zZNxStWRCZIJ-N4xQe7PDQgVrkKYRgqieYVWM0lzDZsicoFeJxoecrKBwkAQk7n9V_U6XMfO7tIN62dHbZjaa_Sjb5imGyKwctF7ReOqJmfPOiAOkAmvk-yBZH1p2ZfYPg0olZycsziSyfQP6w8VhHo8FsaqB4mCKmP82UzXqT4nZn4q3B-MEVfZ_20N-BqKDmK4cYT21QAOHImCyXhvT9XNM6xKqKF1x1niSQXgmKwF4Igwwt-wqcFWlQQe9O4e_lUPL5mc5PJKfwpqvhVpo3EQpzZ4r-BGrBG3EJnxV4haKsS8KXMUCcL9RZh9jW-V0I8trI-2dUIEM21usPxZ48AwYvBKERHcBg1z6l9IvjveFvZjJtW4KNHwYZ_aC5r2dab1pVm6im_BpZEWbTtOc' })"
+					"pm.request.headers.add({key: 'Authorization', value: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MzIwOTM1NzIsImV4cCI6MTczMjA5NzE3MiwidXNlcm5hbWUiOiJjdWNrb29AZ21haWwuY29tIiwicm9sZXMiOlsiUk9MRV9VU0VSIiwiUk9MRV9BRE1JTiJdfQ.ieiQLnTUQbfTN2pZB-VXF-5FRmJC0v3E-4XIj6bPx75wB4Zp2wksvODwfC13vpvm4aq1PMCo_Wjc9Af3VJMgNlrM43h_IpdOYIi_W2U1WmYYpBic8sSOU9FqIK9r0p00IQz3-BpLqe0BVYlUo8VHdGN6okse7QVaFPJB4zXAdtXT6Uap4o533MESrJbdn2cOnSoXVyjeUQ4aOTs-GOuyGlOz2-ejRDSQakeQ5pB5YXoBdgqYJkih2gIhDMxX7CVYDNrOO2OlP4e2fqWuI6vud-FzbSmd_D7NVTOvw-roAaZ6DG_bBgWl3op5V6b1LOZCACF7LTpSW_pds8CPQqahaTcFaaR0KYMTzFZR3V8JnMN4lvWHw2WgXeLaaCIj6LwsE1ceENqWKsIruBBWL9wKqz7NjZgMRkdX2vdqSpU3QhXL1KSbjv3Puik3G6tP2BAf8RIkjFlJnEB7F3g6b4FBudWqP4iQpY8DIPvuKqNN7WYCpkC9KRDBqu6eQoQBMQq4lPtA3_MnvdRKuCRhxF8nAYj5LLG6QzEZDmHhFrAIrjjWPjo7DAuwVWqaAT7F3VKMM6mmylX1pH4QoQfOZI_LCBuwJwbP84vxkaJ4j1qd_njUO0R0zj_Yc9hy52Gznk79K_6n_RnHreEl6aLu6ChO_hur4qeT6-Ke7FDzyUE3oc8' })"
 				]
 			}
 		},

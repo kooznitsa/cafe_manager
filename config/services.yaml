@@ -66,3 +66,12 @@ services:
     App\Manager\OrderManager:
         arguments:
             $cache: '@redis_adapter'
+
+    # RabbitMQ
+
+    App\Service\AsyncService:
+        calls:
+            - [
+                'registerProducer',
+                [!php/const App\Service\AsyncService::CREATE_ORDER, '@old_sound_rabbit_mq.create_order_producer'],
+            ]

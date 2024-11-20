@@ -4,6 +4,7 @@ namespace App\DTO\Request;
 
 use App\Entity\Order;
 use App\Enum\Status;
+use JsonException;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class OrderRequestDTO
@@ -28,5 +29,20 @@ class OrderRequestDTO
             'status' => $order->getStatus(),
             'isDelivery' => $order->getIsDelivery(),
         ]);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function toAMQPMessage(): string
+    {
+        $payload = [
+            'dishId' => $this->dishId,
+            'userId' => $this->userId,
+            'status' => $this->status,
+            'isDelivery' => $this->isDelivery,
+        ];
+
+        return json_encode($payload, JSON_THROW_ON_ERROR);
     }
 }

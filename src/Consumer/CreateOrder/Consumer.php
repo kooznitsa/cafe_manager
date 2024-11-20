@@ -56,7 +56,7 @@ class Consumer implements ConsumerInterface
         if (order === null) {
             $this->reject('Order was not created');
         } else {
-            $this->logger->debug("Order was created");
+            $this->logger->info("Order was created");
         }
 
         $this->entityManager->clear();

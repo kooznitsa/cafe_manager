@@ -1,3 +1,8 @@
+x-app-main:
+  &app-main
+  networks:
+    - service
+
 x-sentry-common:
   &sentry-common
   environment:
@@ -10,6 +15,7 @@ x-sentry-common:
 
 services:
   database:
+    <<: *app-main
     image: postgres:${POSTGRES_VERSION:-16}-alpine
     container_name: "${APP_NAME}_database"
     working_dir: /app
@@ -33,6 +39,7 @@ services:
     profiles: [cm, sentry, rabbit]
 
   php-fpm:
+    <<: *app-main
     build: deploy
     container_name: "${APP_NAME}_php"
     ports:
@@ -44,6 +51,7 @@ services:
     profiles: [cm, sentry, rabbit]
 
   nginx:
+    <<: *app-main
     image: nginx
     container_name: "${APP_NAME}_nginx"
     working_dir: /app
@@ -55,6 +63,7 @@ services:
     profiles: [cm, sentry, rabbit]
 
   memcached:
+    <<: *app-main
     image: memcached:latest
     container_name: "memcached"
     restart: always
@@ -63,6 +72,7 @@ services:
     profiles: [cm, sentry, rabbit]
 
   redis:
+    <<: *app-main
     container_name: "redis"
     image: redis:alpine
     ports:
@@ -70,6 +80,7 @@ services:
     profiles: [cm, sentry, rabbit]
 
   graphite:
+    <<: *app-main
     image: graphiteapp/graphite-statsd
     container_name: "graphite"
     restart: always
@@ -86,6 +97,7 @@ services:
     profiles: [cm, sentry, rabbit]
 
   grafana:
+    <<: *app-main
     image: grafana/grafana
     container_name: "grafana"
     restart: always
@@ -96,6 +108,7 @@ services:
     profiles: [cm, sentry, rabbit]
 
   rabbitmq:
+    <<: *app-main
     image: rabbitmq:3.7.5-management
     working_dir: /app
     hostname: rabbitmq
@@ -106,9 +119,12 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-user}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-password}
+    volumes:
+      - rabbitmq_volume:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
     profiles: [rabbit]
 
   sentry-postgres:
+    <<: *app-main
     image: postgres
     container_name: "sentry-postgres"
     ports:
@@ -155,4 +171,9 @@ volumes:
   database_data:
   graphite_storage:
   grafana_storage:
+  rabbitmq_volume:
   sentry_pgdb:
+
+networks:
+  service:
+    name: service

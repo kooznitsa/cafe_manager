@@ -50,7 +50,7 @@ class OrderController extends AbstractController
         #[MapRequestPayload] OrderRequestDTO $dto,
     ): Response {
         $orderId = $this->orderBuilderService->createOrderWithUserAndDish($dto);
-        [$data, $code] = $orderId === null ?
+        [$data, $code] = $orderId !== null ?
             [['success' => false], Response::HTTP_BAD_REQUEST] :
             [['success' => true, 'orderId' => $orderId], Response::HTTP_OK];
 
@@ -85,7 +85,7 @@ class OrderController extends AbstractController
             $orderId = $this->asyncService->publishToExchange(AsyncService::CREATE_ORDER, $message);
         }
 
-        [$data, $code] = $orderId === null ?
+        [$data, $code] = $orderId !== null ?
             [['success' => false], Response::HTTP_BAD_REQUEST] :
             [['success' => true, 'orderId' => $orderId], Response::HTTP_OK];
 

@@ -107,6 +107,38 @@ services:
       - "grafana_storage:/var/lib/grafana"
     profiles: [cm, sentry, rabbit]
 
+  elasticsearch:
+    <<: *app-main
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+    container_name: "elasticsearch"
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch
+    profiles: [cm, sentry, rabbit]
+
+  kibana:
+    <<: *app-main
+    image: docker.elastic.co/kibana/kibana:7.9.2
+    container_name: "kibana"
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    volumes:
+      - kibana_data:/usr/share/kibana
+    profiles: [cm, sentry, rabbit]
+
   rabbitmq:
     <<: *app-main
     image: rabbitmq:3.7.5-management
@@ -121,7 +153,7 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-password}
     volumes:
       - rabbitmq_volume:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
-    profiles: [rabbit]
+    profiles: [cm, sentry, rabbit]
 
   sentry-postgres:
     <<: *app-main
@@ -171,6 +203,8 @@ volumes:
   database_data:
   graphite_storage:
   grafana_storage:
+  elasticsearch_data:
+  kibana_data:
   rabbitmq_volume:
   sentry_pgdb:
 

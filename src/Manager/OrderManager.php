@@ -7,6 +7,11 @@ use App\Enum\Status;
 use App\Entity\{Dish, Order, User};
 use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Elastica\Aggregation\Terms;
+use Elastica\Query;
+use Elastica\Query\QueryString;
+use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
+use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\{ItemInterface, TagAwareCacheInterface};
 
@@ -18,13 +23,14 @@ class OrderManager
         private readonly EntityManagerInterface $entityManager,
         private readonly OrderRepository $orderRepository,
         private readonly TagAwareCacheInterface $cache,
+        private readonly PaginatedFinderInterface $finder,
     ) {
     }
 
     /**
      * @throws InvalidArgumentException
      */
-    public function saveOrder(Dish $dish, User $user, Status $status, bool $isDelivery): ?int
+    public function saveOrder(Dish $dish, User $user, Status $status, bool $isDelivery): Order
     {
         $order = new Order();
         $this->setOrderParams($order, $dish, $user, $status, $isDelivery);
@@ -32,7 +38,7 @@ class OrderManager
         $this->entityManager->flush();
         $this->cache->invalidateTags([self::CACHE_TAG]);
 
-        return $order->getId();
+        return $order;
     }
 
     /**
@@ -73,6 +79,36 @@ class OrderManager
     public function getDishOrders(Dish $dish): array
     {
         return $this->orderRepository->findBy(['dish' => $dish]);
+    }
+
+    /**
+     * @return Order[]
+     */
+    public function findOrdersByQuery(string $query, int $perPage, int $page): array
+    {
+        $paginatedResult = $this->finder->findPaginated($query);
+        $paginatedResult->setMaxPerPage($perPage);
+        $paginatedResult->setCurrentPage($page);
+        $result = [];
+        array_push($result, ...$paginatedResult->getCurrentPageResults());
+
+        return $result;
+    }
+
+    /**
+     * @return Order[]
+     */
+    public function findOrdersWithAggregation(string $queryString, string $field): array
+    {
+        $aggregation = new Terms('orders');
+        $aggregation->setField($field);
+        $query = new Query(new QueryString($queryString));
+        $query->addAggregation($aggregation);
+        $paginatedResult = $this->finder->findPaginated($query);
+        /** @var FantaPaginatorAdapter $adapter */
+        $adapter = $paginatedResult->getAdapter();
+
+        return $adapter->getAggregations();
     }
 
     /**

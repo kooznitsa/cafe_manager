@@ -66,6 +66,7 @@ services:
     App\Manager\OrderManager:
         arguments:
             $cache: '@redis_adapter'
+            $finder: '@fos_elastica.finder.order'
 
     # RabbitMQ
 

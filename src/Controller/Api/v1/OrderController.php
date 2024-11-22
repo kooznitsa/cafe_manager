@@ -9,6 +9,7 @@ use App\Manager\OrderManager;
 use App\Service\{AsyncService, OrderBuilderService};
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
@@ -21,11 +22,13 @@ class OrderController extends AbstractController
 {
     private const DEFAULT_PAGE = 0;
     private const DEFAULT_PER_PAGE = 20;
+    private const AGGREGATION_FIELD = 'status';
 
     public function __construct(
         private readonly OrderManager $orderManager,
         private readonly OrderBuilderService $orderBuilderService,
         private readonly AsyncService $asyncService,
+        private readonly LoggerInterface $elasticsearchLogger,
     ) {
     }
 
@@ -49,10 +52,16 @@ class OrderController extends AbstractController
     public function saveOrderAction(
         #[MapRequestPayload] OrderRequestDTO $dto,
     ): Response {
-        $orderId = $this->orderBuilderService->createOrderWithUserAndDish($dto);
-        [$data, $code] = $orderId !== null ?
-            [['success' => false], Response::HTTP_BAD_REQUEST] :
-            [['success' => true, 'orderId' => $orderId], Response::HTTP_OK];
+        $this->elasticsearchLogger->info('Creating new order');
+        $order = $this->orderBuilderService->createOrderWithUserAndDish($dto);
+
+        if ($order === null) {
+            $this->elasticsearchLogger->error("Creation error");
+            [$data, $code] = [['success' => false], Response::HTTP_BAD_REQUEST];
+        } else {
+            $this->elasticsearchLogger->info("New order created with ID {$order->getId()}");
+            [$data, $code] = [['success' => true, 'orderId' => $order->getId()], Response::HTTP_OK];
+        }
 
         return new JsonResponse($data, $code);
     }
@@ -79,15 +88,15 @@ class OrderController extends AbstractController
         int $isAsync,
     ): Response {
         if ($isAsync === 0) {
-            $orderId = $this->orderBuilderService->createOrderWithUserAndDish($dto);
+            $order = $this->orderBuilderService->createOrderWithUserAndDish($dto);
         } else {
             $message = $dto->toAMQPMessage();
-            $orderId = $this->asyncService->publishToExchange(AsyncService::CREATE_ORDER, $message);
+            $order = $this->asyncService->publishToExchange(AsyncService::CREATE_ORDER, $message);
         }
 
-        [$data, $code] = $orderId !== null ?
+        [$data, $code] = $order === null ?
             [['success' => false], Response::HTTP_BAD_REQUEST] :
-            [['success' => true, 'orderId' => $orderId], Response::HTTP_OK];
+            [['success' => true, 'orderId' => $order->getId()], Response::HTTP_OK];
 
         return new JsonResponse($data, $code);
     }
@@ -266,5 +275,63 @@ class OrderController extends AbstractController
         $code = empty($orders) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
         return new JsonResponse(['orders' => $orders], $code);
+    }
+
+    #[Route(path: '/get-orders-by-query', methods: ['GET'])]
+    #[OA\Parameter(name: 'query', description: 'Query string', in: 'query', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'page', description: 'Page', in: 'query', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'perPage', description: 'Per page', in: 'query', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Array of orders is retrieved successfully.',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(
+                    property: 'orders',
+                    type: 'array',
+                    items: new OA\Items(ref: new Model(type: OrderResponseDTO::class)),
+                ),
+            ],
+            type: 'object'
+        )
+    )]
+    public function getOrdersByQueryAction(Request $request): Response
+    {
+        $query = $request->query->get('query') ?? '';
+        $perPage = $request->query->get('perPage') ?? self::DEFAULT_PER_PAGE;
+        $page = $request->query->get('page') ?? self::DEFAULT_PAGE;
+        $orders = $this->orderManager->findOrdersByQuery($query, $perPage, $page);
+
+        return new JsonResponse(
+            ['orders' => array_map(fn(Order $order) => OrderResponseDTO::fromEntity($order), $orders)],
+            empty($orders) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK,
+        );
+    }
+
+    #[Route(path: '/get-orders-with-aggregation', methods: ['GET'])]
+    #[OA\Parameter(name: 'field', description: 'Field', in: 'query', schema: new OA\Schema(type: 'string'))]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Orders grouped by status are retrieved successfully.',
+        content: new OA\JsonContent(
+            example: ['orders' => [
+                'doc_count_error_upper_bound' => 0,
+                'sum_other_doc_count' => 0,
+                'buckets' => [
+                    ['key' => 'created', 'doc_count' => 24],
+                    ['key' => 'paid', 'doc_count' => 9],
+                    ['key' => 'deleted', 'doc_count' => 3],
+                    ['key' => 'cancelled', 'doc_count' => 1],
+                ]
+            ]],
+        ),
+    )]
+    public function getOrdersWithAggregationAction(Request $request): Response
+    {
+        $queryString = $request->query->get('queryString') ?? '';
+        $field = $request->query->get('field') ?? self::AGGREGATION_FIELD;
+        $orders = $this->orderManager->findOrdersWithAggregation($queryString, $field);
+
+        return new JsonResponse($orders, empty($orders) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK);
     }
 }

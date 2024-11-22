@@ -24,7 +24,7 @@ class OrderBuilderService
         $this->client = $this->tokenRequestService->client();
     }
 
-    public function createOrderWithUserAndDish(OrderRequestDTO $dto): ?int
+    public function createOrderWithUserAndDish(OrderRequestDTO $dto): ?Order
     {
         [$dish, $user, $status, $isDelivery] = $this->getOrderParams($dto);
 

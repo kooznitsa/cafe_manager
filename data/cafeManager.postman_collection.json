@@ -795,7 +795,7 @@
 							"formdata": [
 								{
 									"key": "dishId",
-									"value": "12",
+									"value": "2",
 									"type": "text"
 								},
 								{
@@ -1068,6 +1068,70 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get Orders By Query",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/order/get-orders-by-query?query=2024-11-01&page=1&perPage=10",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"get-orders-by-query"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "2024-11-01"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "perPage",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Orders With Aggregation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/v1/order/get-orders-with-aggregation?queryString=false&field=status",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"get-orders-with-aggregation"
+							],
+							"query": [
+								{
+									"key": "queryString",
+									"value": "false"
+								},
+								{
+									"key": "field",
+									"value": "status"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -1117,7 +1181,7 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					"pm.request.headers.add({key: 'Authorization', value: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MzIwOTM1NzIsImV4cCI6MTczMjA5NzE3MiwidXNlcm5hbWUiOiJjdWNrb29AZ21haWwuY29tIiwicm9sZXMiOlsiUk9MRV9VU0VSIiwiUk9MRV9BRE1JTiJdfQ.ieiQLnTUQbfTN2pZB-VXF-5FRmJC0v3E-4XIj6bPx75wB4Zp2wksvODwfC13vpvm4aq1PMCo_Wjc9Af3VJMgNlrM43h_IpdOYIi_W2U1WmYYpBic8sSOU9FqIK9r0p00IQz3-BpLqe0BVYlUo8VHdGN6okse7QVaFPJB4zXAdtXT6Uap4o533MESrJbdn2cOnSoXVyjeUQ4aOTs-GOuyGlOz2-ejRDSQakeQ5pB5YXoBdgqYJkih2gIhDMxX7CVYDNrOO2OlP4e2fqWuI6vud-FzbSmd_D7NVTOvw-roAaZ6DG_bBgWl3op5V6b1LOZCACF7LTpSW_pds8CPQqahaTcFaaR0KYMTzFZR3V8JnMN4lvWHw2WgXeLaaCIj6LwsE1ceENqWKsIruBBWL9wKqz7NjZgMRkdX2vdqSpU3QhXL1KSbjv3Puik3G6tP2BAf8RIkjFlJnEB7F3g6b4FBudWqP4iQpY8DIPvuKqNN7WYCpkC9KRDBqu6eQoQBMQq4lPtA3_MnvdRKuCRhxF8nAYj5LLG6QzEZDmHhFrAIrjjWPjo7DAuwVWqaAT7F3VKMM6mmylX1pH4QoQfOZI_LCBuwJwbP84vxkaJ4j1qd_njUO0R0zj_Yc9hy52Gznk79K_6n_RnHreEl6aLu6ChO_hur4qeT6-Ke7FDzyUE3oc8' })"
+					"pm.request.headers.add({key: 'Authorization', value: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MzIyNzI5MzQsImV4cCI6MTczMjI3NjUzNCwidXNlcm5hbWUiOiJjdWNrb29AZ21haWwuY29tIiwicm9sZXMiOlsiUk9MRV9VU0VSIiwiUk9MRV9BRE1JTiJdfQ.LRQyz17DKFMQt6AjtWT4kk1ulRsPCWF1lZjKs6tGcgpak2-0VCl_VqJ0autEcLb6Kh6cu-xc5um5iTadttX1Q0rQqRqJumGB9rox4sV30_p3eW3yqT9340yiYAlH1fACa4ksDqYsQH3RmZKSYctavga9SG4_bEKIMZtQvc73qojX_c4Nq-QERlIzsvARH2VE_XGPp--z8vV4iUxJ6Q6mk1gripyX97eG5HjAtrQpAa3_HRq8HLugQeXRdmPO1NTGlTWhUNEcZdvxnLUO3boZLRLjmV3dqFfeXXVukxkdrQspLTaCbk4uKe1LHaentGZKRhKlRgXIeGLAG0tVhqOzNUTvsEwS0nVisEhRFds83VRk8WI9IZSmBQpcX-ldTCBkvfCTG3KwWeOE_dIMJRHR7Jv996Enul80Xxo1Oc_ajUoqixB6ADOKns4jlseiE5hOIrLYnLbNtPJkAntQDA2fq49ZHPTcmqdNULOOv7JTNvy0u9A8KPXNgo-WozYzeZAWYpajzivQB4Lo66g_erybov74KSp-8oFzaHdf8zD4-ef3OkQS-iwgVTuP3Q74V_mcZfjxqh7UPyJyJES6O3qPp2PS7VyfhcUwvqujywRc-32MVOhdAKwXBIuJ4Jbj0sLe3OmreSfGbrrbF5E3hqMIZRF_-gjSs1F_-lR6ZziOaGM' })"
 				]
 			}
 		},

@@ -7,6 +7,7 @@ use App\Enum\Status;
 use App\Repository\OrderRepository;
 use App\Trait\{DateTimeTrait, IdTrait};
 use Doctrine\ORM\Mapping as ORM;
+use JetBrains\PhpStorm\ArrayShape;
 
 #[ORM\Table(name: 'orders')]
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
@@ -81,5 +82,36 @@ class Order implements HasMetaTimestampsInterface
     public function __toString(): string
     {
         return $this->user->getEmail() . ' - ' . $this->dish->getName();
+    }
+
+    #[ArrayShape([
+        'id' => 'int|null',
+        'dish' => 'array',
+        'user' => 'array',
+        'status' => 'string',
+        'isDelivery' => 'bool',
+        'createdAt' => 'string',
+        'updatedAt' => 'string',
+    ])]
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'dish' => isset($this->dish) ? [
+                'id' => $this->dish->getId(),
+                'category' => $this->dish->getCategory()->getName(),
+                'name' => $this->dish->getName(),
+                'price' => $this->dish->getPrice(),
+            ] : null,
+            'user' => isset($this->user) ? [
+                'id' => $this->user->getId(),
+                'name' => $this->user->getName(),
+                'email' => $this->user->getEmail(),
+                'address' => $this->user->getAddress(),
+            ] : null,
+            'status' => $this->status->name,
+            'isDelivery' => $this->isDelivery,
+            'createdAt' => isset($this->createdAt) ? $this->createdAt->format('Y-m-d h:i:s') : '',
+        ];
     }
 }

@@ -8,6 +8,10 @@
 - Make
 - [Symfony 7.1](https://symfony.com/doc/current/setup.html)
 
+## Диаграмма базы данных
+
+![Диаграмма базы данных](https://raw.githubusercontent.com/kooznitsa/cafe_manager/refs/heads/main/sql_diagram.png)
+
 ## Запуск проекта
 
 ```bash

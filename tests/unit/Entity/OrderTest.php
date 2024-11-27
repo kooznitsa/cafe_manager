@@ -1,6 +1,6 @@
 <?php
 
-namespace UnitTests\Entity;
+namespace UnitTest\Entity;
 
 use App\Entity\{Category, Dish, Order, User};
 use App\Enum\Status;

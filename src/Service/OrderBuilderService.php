@@ -16,7 +16,7 @@ class OrderBuilderService
     public function __construct(
         private readonly OrderManager $orderManager,
         private readonly DishManager $dishManager,
-        public readonly ProductManager $productManager,
+        private readonly ProductManager $productManager,
         private readonly RecipeManager $recipeManager,
         private readonly UserManager $userManager,
         private readonly TokenRequestService $tokenRequestService,

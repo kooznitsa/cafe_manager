@@ -24,8 +24,8 @@ services:
     restart: "always"
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
       POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
     healthcheck:
       test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
       timeout: 5s
@@ -36,6 +36,23 @@ services:
       - database_data:/var/lib/postgresql/data:rw
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       # - ./docker/db/data:/var/lib/postgresql/data:rw
+    profiles: [cm, sentry, rabbit]
+
+  database_test:
+    <<: *app-main
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    ports:
+      - "25432:5432"
+    container_name: "${APP_NAME}_database_test"
+    working_dir: /app
+    restart: always
+    environment:
+      POSTGRES_DB: "${APP_NAME}_database"
+      POSTGRES_USER: "${APP_NAME}_user_test"
+      POSTGRES_PASSWORD: "${APP_NAME}_password_test"
+    volumes:
+      - dump:/app/dump
+      - test_database_data:/var/lib/postgresql/data:rw
     profiles: [cm, sentry, rabbit]
 
   php-fpm:
@@ -201,6 +218,7 @@ services:
 volumes:
   dump:
   database_data:
+  test_database_data:
   graphite_storage:
   grafana_storage:
   elasticsearch_data:

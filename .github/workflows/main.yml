@@ -17,50 +17,18 @@ jobs:
         run: cp .env.sample .env
 
       - name: Create auth.json
-        run: |
-          touch auth.json
-          cp auth.json.sample auth.json
+        run: cp auth.json.sample auth.json
 
       - name: Install make
         run: |
           sudo apt-get update
           sudo apt-get -y install make
 
-  lint:
-    runs-on: ubuntu-latest
-    needs: install
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Create .env
-        run: cp .env.sample .env
-
       - name: Lint files
         run: make linter
 
-  build:
-    runs-on: ubuntu-latest
-    needs: install
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Create .env
-        run: cp .env.sample .env
-
       - name: Run containers
         run: make run
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Create .env
-        run: cp .env.sample .env
 
       - name: Run unit tests
         run: make unittest

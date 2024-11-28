@@ -64,7 +64,7 @@ services:
     volumes:
       - ./:/app
     working_dir: /app
-    user: 1000:1000
+    #user: 1000:1000
     profiles: [cm, sentry, rabbit]
 
   nginx:

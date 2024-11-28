@@ -21,7 +21,9 @@ cp .env.sample .env
 // Отредактировать .env
 cp auth.json.sample auth.json
 // Отредактировать auth.json
+sudo apt install php-codesniffer
 make run
+make install
 ```
 
 Урлы:

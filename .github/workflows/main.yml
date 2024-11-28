@@ -31,7 +31,9 @@ jobs:
         run: make run
 
       - name: Install dependencies
-        run: make install
+        run: |
+          git config --global --add safe.directory /app
+          make install
 
       - name: Run unit tests
         run: make unittest

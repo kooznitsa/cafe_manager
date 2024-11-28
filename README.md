@@ -49,3 +49,4 @@ make run
 - Кэширование ресурсозатратных операций с помощью Memcached и Redis.
 - Логирование (Elasticsearch и Kibana для визуализации логов).
 - Мониторинг с помощью Graphite и Grafana.
+- Юнит-тесты (библиотеки: phpunit/phpunit, symfony/phpunit-bridge, mockery/mockery, zenstruck/foundry).

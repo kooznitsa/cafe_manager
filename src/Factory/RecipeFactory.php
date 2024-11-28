@@ -34,7 +34,7 @@ final class RecipeFactory extends PersistentProxyObjectFactory
         return [
             'dish' => DishFactory::new(),
             'product' => ProductFactory::new(),
-            'amount' => 20,
+            'amount' => 20.0,
         ];
     }
 

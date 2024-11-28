@@ -25,6 +25,8 @@ class OrderServiceTest extends KernelTestCase
     use Factories;
 
     private static EntityManagerInterface|MockInterface $entityManager;
+    private const PRODUCT_AMOUNT = 1000.0;
+    private const RECIPE_AMOUNT = 20.0;
 
     public function testCreateOrderSuccessfully(): void
     {
@@ -55,10 +57,12 @@ class OrderServiceTest extends KernelTestCase
             $americanoOrder->getIsDelivery(),
         ];
 
+        $amount = self::PRODUCT_AMOUNT - self::RECIPE_AMOUNT;
+
         self::assertEquals($expected, $actual);
         self::assertSame(true, $americano->getIsAvailable());
         self::assertSame(
-            [980.0, 980.0, 980.0],
+            [$amount, $amount, $amount],
             array_map(fn(Recipe $recipe) => $recipe->getProduct()->getAmount(), $americano->getRecipes()),
         );
     }
@@ -77,7 +81,7 @@ class OrderServiceTest extends KernelTestCase
         self::assertEquals(null, $blackTeaOrder);
         self::assertSame(false, $blackTea->getIsAvailable());
         self::assertSame(
-            [0.0, 1000.0, 1000.0],
+            [0.0, self::PRODUCT_AMOUNT, self::PRODUCT_AMOUNT],
             array_map(fn(Recipe $recipe) => $recipe->getProduct()->getAmount(), $blackTea->getRecipes()),
         );
     }

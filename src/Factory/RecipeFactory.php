@@ -34,13 +34,8 @@ final class RecipeFactory extends PersistentProxyObjectFactory
         return [
             'dish' => DishFactory::new(),
             'product' => ProductFactory::new(),
-            'amount' => self::faker()->randomFloat(),
+            'amount' => 20,
         ];
-    }
-
-    public function getProduct(): ?ProductFactory
-    {
-        return $this->defaults()['product'];
     }
 
     /**

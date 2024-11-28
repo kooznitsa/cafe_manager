@@ -3,14 +3,14 @@
 namespace UnitTest\Service;
 
 use App\Client\StatsdAPIClient;
-use App\DataFixture\{DishesFixture, ProductsFixture, UsersFixture};
 use App\DTO\Request\OrderRequestDTO;
+use App\Entity\Recipe;
 use App\Enum\Status;
 use App\Factory\{DishFactory, OrderFactory, ProductFactory, RecipeFactory, UserFactory};
 use App\Manager\{DishManager, OrderManager, ProductManager, RecipeManager, UserManager};
 use App\Repository\{DishRepository, OrderRepository, ProductRepository, RecipeRepository, UserRepository};
 use App\Service\{OrderBuilderService, TokenRequestService};
-use Doctrine\ORM\{EntityManagerInterface, EntityRepository};
+use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Mockery;
 use Mockery\MockInterface;
@@ -35,9 +35,32 @@ class OrderServiceTest extends KernelTestCase
             status: Status::Created->name,
             isDelivery: true,
         );
+        $newOrder = OrderFactory::new()->create([
+            'dish' => $americano,
+            'user' => $user,
+            'status' => Status::Created,
+            'isDelivery' => true,
+        ])->_real();
         $americanoOrder = $orderService->createOrderWithUserAndDish($americanoDto);
+        $expected = [
+            $newOrder->getDish()->getName(),
+            $newOrder->getUser()->getEmail(),
+            $newOrder->getStatus(),
+            $newOrder->getIsDelivery(),
+        ];
+        $actual = [
+            $americanoOrder->getDish()->getName(),
+            $americanoOrder->getUser()->getEmail(),
+            $americanoOrder->getStatus(),
+            $americanoOrder->getIsDelivery(),
+        ];
 
-        self::assertEquals(OrderFactory::last(), $americanoOrder);
+        self::assertEquals($expected, $actual);
+        self::assertSame(true, $americano->getIsAvailable());
+        self::assertSame(
+            [980.0, 980.0, 980.0],
+            array_map(fn(Recipe $recipe) => $recipe->getProduct()->getAmount(), $americano->getRecipes()),
+        );
     }
 
     public function testOrderWithoutIngredients(): void
@@ -52,29 +75,31 @@ class OrderServiceTest extends KernelTestCase
         $blackTeaOrder = $orderService->createOrderWithUserAndDish($blackTeaDto);
 
         self::assertEquals(null, $blackTeaOrder);
+        self::assertSame(false, $blackTea->getIsAvailable());
+        self::assertSame(
+            [0.0, 1000.0, 1000.0],
+            array_map(fn(Recipe $recipe) => $recipe->getProduct()->getAmount(), $blackTea->getRecipes()),
+        );
     }
 
     private function prepareData(): array
     {
-        $user = UserFactory::new()->create(['name' => UsersFixture::TIGER])->_real();
-
-        $americano = DishFactory::new()->create(['name' => DishesFixture::AMERICANO, 'isAvailable' => true])->_real();
-        $blackTea = DishFactory::new()->create(['name' => DishesFixture::BLACK_TEA, 'isAvailable' => false])->_real();
-
-        $coffee = ProductFactory::new()->create(['name' => ProductsFixture::COFFEE, 'amount' => 1000])->_real();
-        $water = ProductFactory::new()->create(['name' => ProductsFixture::WATER, 'amount' => 1000])->_real();
-        $sugar = ProductFactory::new()->create(['name' => ProductsFixture::SUGAR, 'amount' => 1000])->_real();
-        $tea = ProductFactory::new()->create(['name' => ProductsFixture::TEA, 'amount' => 0])->_real();
-
+        $user = UserFactory::new()->create()->_real();
+        $americano = DishFactory::new()->create(['id' => 1, 'name' => 'Американо', 'isAvailable' => true])->_real();
+        $blackTea = DishFactory::new()->create(['id' => 2, 'name' => 'Черный чай', 'isAvailable' => true])->_real();
+        $coffee = ProductFactory::new()->create(['name' => 'Кофе'])->_real();
+        $water = ProductFactory::new()->create(['name' => 'Вода'])->_real();
+        $sugar = ProductFactory::new()->create(['name' => 'Сахар'])->_real();
+        $tea = ProductFactory::new()->create(['name' => 'Чай', 'amount' => 0])->_real();
         $americanoRecipe = [
-            RecipeFactory::new()->create(['dish' => $americano, 'product' => $coffee, 'amount' => 20])->_real(),
-            RecipeFactory::new()->create(['dish' => $americano, 'product' => $water, 'amount' => 20])->_real(),
-            RecipeFactory::new()->create(['dish' => $americano, 'product' => $sugar, 'amount' => 20])->_real(),
+            RecipeFactory::new()->create(['dish' => $americano, 'product' => $coffee])->_real(),
+            RecipeFactory::new()->create(['dish' => $americano, 'product' => $water])->_real(),
+            RecipeFactory::new()->create(['dish' => $americano, 'product' => $sugar])->_real(),
         ];
         $blackTeaRecipe = [
-            RecipeFactory::new()->create(['dish' => $blackTea, 'product' => $tea, 'amount' => 20])->_real(),
-            RecipeFactory::new()->create(['dish' => $blackTea, 'product' => $water, 'amount' => 20])->_real(),
-            RecipeFactory::new()->create(['dish' => $blackTea, 'product' => $sugar, 'amount' => 20])->_real(),
+            RecipeFactory::new()->create(['dish' => $blackTea, 'product' => $tea])->_real(),
+            RecipeFactory::new()->create(['dish' => $blackTea, 'product' => $water])->_real(),
+            RecipeFactory::new()->create(['dish' => $blackTea, 'product' => $sugar])->_real(),
         ];
 
         return [
@@ -104,34 +129,9 @@ class OrderServiceTest extends KernelTestCase
             $blackTeaRecipe,
         ] = $this->prepareData();
 
-        /** @var MockInterface|EntityRepository $repository */
-        $repository = Mockery::mock(EntityRepository::class);
-
-        /** @var MockInterface|EntityManagerInterface $repository */
         self::$entityManager = Mockery::mock(EntityManagerInterface::class);
         self::$entityManager->shouldReceive('persist');
         self::$entityManager->shouldReceive('flush');
-
-        $cache = Mockery::mock(TagAwareCacheInterface::class);
-        $cache->shouldReceive('invalidateTags', 'get');
-        $orderManager = new OrderManager(
-            self::$entityManager,
-            Mockery::mock(OrderRepository::class),
-            $cache,
-            Mockery::mock(PaginatedFinderInterface::class),
-        );
-
-        $dishRepository = Mockery::mock(DishRepository::class);
-        $dishRepository->shouldReceive('find')->once()->andReturn($americano, $blackTea);
-        $dishManager = new DishManager(self::$entityManager, $dishRepository);
-
-        $productRepository = Mockery::mock(ProductRepository::class);
-        $productRepository->shouldReceive('find')->andReturn($coffee, $tea, $sugar, $water);
-        $productManager = new ProductManager(self::$entityManager, $productRepository);
-
-        $recipeRepository = Mockery::mock(RecipeRepository::class);
-        $recipeRepository->shouldReceive('findBy')->andReturn($americanoRecipe, $blackTeaRecipe);
-        $recipeManager = new RecipeManager(self::$entityManager, $recipeRepository);
 
         $userRepository = Mockery::mock(UserRepository::class);
         $userRepository->shouldReceive('find')->andReturn($user);
@@ -142,6 +142,33 @@ class OrderServiceTest extends KernelTestCase
             Mockery::mock(StatsdAPIClient::class),
         );
 
+        $productRepository = Mockery::mock(ProductRepository::class);
+        $productRepository->shouldReceive('find')->andReturn($coffee, $water, $sugar, $tea);
+        $productManager = new ProductManager(self::$entityManager, $productRepository);
+
+        $dishRepository = Mockery::mock(DishRepository::class);
+        $dishRepository->shouldReceive('find')->with(1)->andReturn($americano, $blackTea);
+        $dishRepository->shouldReceive('find')->with(2)->andReturn($blackTea);
+        $dishManager = new DishManager(self::$entityManager, $dishRepository);
+
+        $recipeRepository = Mockery::mock(RecipeRepository::class);
+        $recipeRepository->shouldReceive('findBy')
+            ->with(['dish' => $americano])
+            ->andReturn($americanoRecipe);
+        $recipeRepository->shouldReceive('findBy')
+            ->with(['dish' => $blackTea])
+            ->andReturn($blackTeaRecipe);
+        $recipeManager = new RecipeManager(self::$entityManager, $recipeRepository);
+
+        $cache = Mockery::mock(TagAwareCacheInterface::class);
+        $cache->shouldReceive('invalidateTags');
+        $cache->shouldReceive('get');
+        $orderManager = new OrderManager(
+            self::$entityManager,
+            Mockery::mock(OrderRepository::class),
+            $cache,
+            Mockery::mock(PaginatedFinderInterface::class),
+        );
         $tokenRequestService = Mockery::mock(TokenRequestService::class);
         $tokenRequestService->shouldReceive('client');
 

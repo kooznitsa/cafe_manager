@@ -33,8 +33,8 @@ final class PurchaseFactory extends PersistentProxyObjectFactory
     {
         return [
             'product' => ProductFactory::new(),
-            'amount' => self::faker()->randomFloat(),
-            'price' => self::faker()->randomFloat(),
+            'amount' => 200,
+            'price' => self::faker()->randomFloat(min: 100, max: 1000),
         ];
     }
 

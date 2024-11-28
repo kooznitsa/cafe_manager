@@ -32,7 +32,7 @@ final class ProductFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'amount' => self::faker()->randomFloat(),
+            'amount' => 1000,
             'name' => self::faker()->text(255),
             'unit' => self::faker()->text(32),
         ];

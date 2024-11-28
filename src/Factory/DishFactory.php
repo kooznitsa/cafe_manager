@@ -36,7 +36,7 @@ final class DishFactory extends PersistentProxyObjectFactory
             'image' => self::faker()->text(255),
             'isAvailable' => self::faker()->boolean(),
             'name' => self::faker()->text(255),
-            'price' => self::faker()->randomFloat(),
+            'price' => self::faker()->randomFloat(min: 100, max: 500),
         ];
     }
 

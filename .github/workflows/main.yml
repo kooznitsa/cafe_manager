@@ -32,6 +32,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          docker exec cafe_manager_php chmod -R 777 ./
           docker exec cafe_manager_php git config --global --add safe.directory /app
           make install
 

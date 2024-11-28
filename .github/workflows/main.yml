@@ -13,6 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create .env
+        run: cp .env.sample .env
+
+      - name: Create auth.json
+        run: cp auth.json.sample auth.json
+
       - name: Install make
         run: |
           sudo apt-get update
@@ -34,12 +40,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Create .env
-        run: cp .env.sample .env
-
-      - name: Create auth.json
-        run: cp auth.json.sample auth.json
 
       - name: Run containers
         run: make run

@@ -33,6 +33,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Create .env
+        run: cp .env.sample .env
+
       - name: Lint files
         run: make linter
 

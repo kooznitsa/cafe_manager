@@ -6,6 +6,19 @@ DOCKER_EXEC_IT := docker exec -it ${APP_NAME}_php
 PHP_CONSOLE := php bin/console
 
 
+# -------------- COMPOSER --------------
+
+# Installs dependencies
+.PHONY: install
+install:
+	$(DOCKER_EXEC) composer install
+
+# Validates composer
+.PHONY: validate
+validate:
+	$(DOCKER_EXEC) composer validate
+
+
 # -------------- DOCKER --------------
 
 # Runs php and database containers

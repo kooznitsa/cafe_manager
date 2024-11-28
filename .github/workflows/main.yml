@@ -30,6 +30,9 @@ jobs:
       - name: Lint files
         run: make linter
 
+      - name: Install dependencies
+        run: make install
+
       - name: Run containers
         run: make run
 

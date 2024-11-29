@@ -23,13 +23,17 @@ class PurchaseManager
         $this->entityManager->flush();
     }
 
-    public function savePurchase(PurchaseRequestDTO $dto, Product $product): Purchase
+    public function savePurchase(PurchaseRequestDTO $dto, ?Product $product): ?Purchase
     {
-        $purchase = new Purchase();
-        $this->setPurchaseParams($purchase, $product, $dto);
-        $this->save($purchase);
+        if ($product !== null) {
+            $purchase = new Purchase();
+            $this->setPurchaseParams($purchase, $product, $dto);
+            $this->save($purchase);
 
-        return $purchase;
+            return $purchase;
+        }
+
+        return null;
     }
 
     /**

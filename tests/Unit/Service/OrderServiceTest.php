@@ -151,7 +151,7 @@ class OrderServiceTest extends KernelTestCase
         $productManager = new ProductManager(self::$entityManager, $productRepository);
 
         $dishRepository = Mockery::mock(DishRepository::class);
-        $dishRepository->shouldReceive('find')->with(1)->andReturn($americano, $blackTea);
+        $dishRepository->shouldReceive('find')->with(1)->andReturn($americano);
         $dishRepository->shouldReceive('find')->with(2)->andReturn($blackTea);
         $dishManager = new DishManager(self::$entityManager, $dishRepository);
 

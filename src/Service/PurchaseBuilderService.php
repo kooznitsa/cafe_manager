@@ -20,11 +20,15 @@ class PurchaseBuilderService
     ) {
     }
 
-    public function createPurchaseWithProduct(PurchaseRequestDTO $dto): Purchase
+    public function createPurchaseWithProduct(PurchaseRequestDTO $dto): ?Purchase
     {
         $product = $dto->productId ? $this->productManager->getProductById($dto->productId) : null;
 
-        return $this->purchaseManager->savePurchase($dto, $product);
+        if ($product !== null) {
+            return $this->purchaseManager->savePurchase($dto, $product);
+        }
+
+        return null;
     }
 
     public function updatePurchaseWithProduct(Purchase $purchase, PurchaseRequestDTO $dto): ?Purchase

@@ -21,7 +21,7 @@ trait DateTimeTrait
     #[ORM\PrePersist]
     public function setCreatedAt(): void
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = DateTime::createFromFormat('U', (string) time());
     }
 
     public function getUpdatedAt(): DateTime

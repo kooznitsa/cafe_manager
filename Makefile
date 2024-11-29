@@ -1,8 +1,22 @@
 include .env
 
-DOCKER_COMPOSE := docker compose
+DOCKER_COMPOSE := docker compose --profile
 DOCKER_EXEC := docker exec ${APP_NAME}_php
+DOCKER_EXEC_IT := docker exec -it ${APP_NAME}_php
 PHP_CONSOLE := php bin/console
+
+
+# -------------- COMPOSER --------------
+
+# Installs dependencies
+.PHONY: install
+install:
+	$(DOCKER_EXEC) composer install
+
+# Validates composer
+.PHONY: validate
+validate:
+	$(DOCKER_EXEC) composer validate
 
 
 # -------------- DOCKER --------------
@@ -10,37 +24,37 @@ PHP_CONSOLE := php bin/console
 # Runs php and database containers
 .PHONY: run
 run:
-	$(DOCKER_COMPOSE) --profile cm up -d --build
+	$(DOCKER_COMPOSE) cm up -d --build
 
 # Removes php and database containers
 .PHONY: stop
 stop:
-	$(DOCKER_COMPOSE) --profile cm down
+	$(DOCKER_COMPOSE) cm down
 
 # Runs basic containers + RabbitMQ
 .PHONY: grafrun
 grafrun:
-	$(DOCKER_COMPOSE) --profile rabbit up -d --build
+	$(DOCKER_COMPOSE) rabbit up -d --build
 
 # Removes basic containers + RabbitMQ
 .PHONY: grafstop
 grafstop:
-	$(DOCKER_COMPOSE) --profile rabbit down
+	$(DOCKER_COMPOSE) rabbit down
 
 # Runs basic containers + Sentry containers
 .PHONY: sentryrun
 sentryrun:
-	$(DOCKER_COMPOSE) --profile sentry up -d --build
+	$(DOCKER_COMPOSE) sentry up -d --build
 
 # Removes basic containers + Sentry containers
 .PHONY: sentrystop
 sentrystop:
-	$(DOCKER_COMPOSE) --profile sentry down
+	$(DOCKER_COMPOSE) sentry down
 
 # Enters PHP container
 .PHONY: entercontainer
 entercontainer:
-	docker exec -it ${APP_NAME}_php sh
+	$(DOCKER_EXEC_IT) sh
 
 
 # -------------- SYMFONY --------------
@@ -53,12 +67,12 @@ startserver:
 # Creates a model and a repository
 .PHONY: entity
 entity:
-	docker exec -it ${APP_NAME}_php $(PHP_CONSOLE) make:entity
+	$(DOCKER_EXEC_IT) $(PHP_CONSOLE) make:entity
 
 # Lists routes
 .PHONY: routes
 routes:
-	docker exec -it ${APP_NAME}_php $(PHP_CONSOLE) debug:router
+	$(DOCKER_EXEC_IT) $(PHP_CONSOLE) debug:router
 
 # Clears cache
 .PHONY: clearcache
@@ -83,15 +97,33 @@ dbdiff:
 makemigration:
 	$(DOCKER_EXEC) $(PHP_CONSOLE) make:migration --formatted
 
-# Applies migration
+# Applies migrations
 .PHONY: migrate
 migrate:
 	$(DOCKER_EXEC) $(PHP_CONSOLE) doctrine:migrations:migrate
 
+# Applies migrations to test database
+.PHONY: testmigrate
+testmigrate:
+	$(DOCKER_EXEC) $(PHP_CONSOLE) doctrine:migrations:migrate --env=test
+
+
+# -------------- TESTS --------------
+
+# Launches unit tests
+.PHONY: unittest
+unittest:
+	$(DOCKER_EXEC) ./vendor/bin/simple-phpunit
+
 # Creates factory
 .PHONY: factory
 factory:
-	$(DOCKER_EXEC) $(PHP_CONSOLE) php bin/console make:factory
+	$(DOCKER_EXEC_IT) $(PHP_CONSOLE) make:factory --all-fields
+
+# Loads fixtures
+.PHONY: loadfixtures
+loadfixtures:
+	$(DOCKER_EXEC) $(PHP_CONSOLE) doctrine:fixtures:load --env=test --purge-with-truncate --no-interaction
 
 
 # -------------- RABBITMQ --------------

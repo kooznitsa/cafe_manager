@@ -2,13 +2,13 @@
 
 namespace App\Factory;
 
-use App\Entity\User;
+use App\Entity\Dish;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<User>
+ * @extends PersistentProxyObjectFactory<Dish>
  */
-final class UserFactory extends PersistentProxyObjectFactory
+final class DishFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
@@ -21,7 +21,7 @@ final class UserFactory extends PersistentProxyObjectFactory
 
     public static function class(): string
     {
-        return User::class;
+        return Dish::class;
     }
 
     /**
@@ -32,12 +32,11 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'address' => self::faker()->text(255),
-            'email' => self::faker()->email(),
-            'name' => self::faker()->text(32),
-            'password' => self::faker()->password(),
-            'roles' => [],
-            'token' => self::faker()->text(32),
+            'category' => CategoryFactory::new(),
+            'image' => self::faker()->text(255),
+            'isAvailable' => self::faker()->boolean(),
+            'name' => self::faker()->text(255),
+            'price' => self::faker()->randomFloat(min: 100, max: 500),
         ];
     }
 
@@ -47,7 +46,7 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(User $user): void {})
+            // ->afterInstantiate(function(Dish $dish): void {})
         ;
     }
 }

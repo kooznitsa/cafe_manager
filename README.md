@@ -8,6 +8,10 @@
 - Make
 - [Symfony 7.1](https://symfony.com/doc/current/setup.html)
 
+## Диаграмма базы данных
+
+![Диаграмма базы данных](https://raw.githubusercontent.com/kooznitsa/cafe_manager/refs/heads/main/sql_diagram.png)
+
 ## Запуск проекта
 
 ```bash
@@ -17,7 +21,9 @@ cp .env.sample .env
 // Отредактировать .env
 cp auth.json.sample auth.json
 // Отредактировать auth.json
+sudo apt install php-codesniffer
 make run
+make install
 ```
 
 Урлы:
@@ -45,3 +51,4 @@ make run
 - Кэширование ресурсозатратных операций с помощью Memcached и Redis.
 - Логирование (Elasticsearch и Kibana для визуализации логов).
 - Мониторинг с помощью Graphite и Grafana.
+- Юнит-тесты (библиотеки: phpunit/phpunit, symfony/phpunit-bridge, mockery/mockery, zenstruck/foundry).

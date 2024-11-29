@@ -2,13 +2,13 @@
 
 namespace App\Factory;
 
-use App\Entity\User;
+use App\Entity\Product;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<User>
+ * @extends PersistentProxyObjectFactory<Product>
  */
-final class UserFactory extends PersistentProxyObjectFactory
+final class ProductFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
@@ -21,7 +21,7 @@ final class UserFactory extends PersistentProxyObjectFactory
 
     public static function class(): string
     {
-        return User::class;
+        return Product::class;
     }
 
     /**
@@ -32,12 +32,9 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'address' => self::faker()->text(255),
-            'email' => self::faker()->email(),
-            'name' => self::faker()->text(32),
-            'password' => self::faker()->password(),
-            'roles' => [],
-            'token' => self::faker()->text(32),
+            'amount' => 1000.0,
+            'name' => self::faker()->text(255),
+            'unit' => self::faker()->text(32),
         ];
     }
 
@@ -47,7 +44,7 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(User $user): void {})
+            // ->afterInstantiate(function(Product $product): void {})
         ;
     }
 }

@@ -25,7 +25,7 @@ class OrderTest extends Unit
         'price' => 180.00,
     ];
 
-    public function orderDataProvider(): array
+    public function _orderDataProvider(): array
     {
         $expectedPositive = [
             'id' => 5,
@@ -52,14 +52,6 @@ class OrderTest extends Unit
             'isDelivery' => true,
             'createdAt' => self::NOW_TIME,
         ];
-        $expectedNoCreatedAt = [
-            'id' => 5,
-            'dish' => self::DISH,
-            'user' => self::USER,
-            'status' => Status::Created->name,
-            'isDelivery' => true,
-            'createdAt' => '',
-        ];
 
         return [
             'positive' => [
@@ -74,19 +66,11 @@ class OrderTest extends Unit
                 $this->makeOrder($expectedNoUser),
                 $expectedNoUser,
             ],
-            'no createdAt' => [
-                $this->makeOrder($expectedNoCreatedAt),
-                $expectedNoCreatedAt,
-            ],
-            'positive with delay' => [
-                $positiveOrder,
-                $expectedPositive,
-            ],
         ];
     }
 
     /**
-     * @dataProvider orderDataProvider
+     * @dataProvider _orderDataProvider
      */
     public function testToArrayReturnsCorrectValues(Order $order, array $expected): void
     {

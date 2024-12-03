@@ -3,90 +3,69 @@
 namespace Tests\Functional;
 
 use App\DTO\Request\PurchaseRequestDTO;
-use App\Factory\{ProductFactory};
-use App\Manager\{ProductManager, PurchaseManager};
-use App\Repository\{ProductRepository, PurchaseRepository};
+use App\Entity\{Product, Purchase, User};
 use App\Service\PurchaseBuilderService;
-use Codeception\Test\Unit;
-use Doctrine\ORM\EntityManagerInterface;
-use Mockery;
-use Mockery\MockInterface;
-use Zenstruck\Foundry\Test\Factories;
+use App\Tests\Support\FunctionalTester;
+use Codeception\Example;
 
-class PurchaseServiceCest extends Unit
+class PurchaseServiceCest
 {
-    use Factories;
-
-    private static EntityManagerInterface|MockInterface $entityManager;
-
-    private const PRICE = 1000.0;
-    private const PURCHASE_AMOUNT = 200.0;
+    private const USER_EMAIL = 'test@example.com';
+    private const PRODUCT_COFFEE = 'Кофе';
+    private const PRODUCT_TEA = 'Чай';
     private const PRODUCT_AMOUNT = 1000.0;
-    private const PRODUCT_NAME = 'Кофе';
-    private const WRONG_PRODUCT_ID = 3;
+    private const PURCHASE_PRICE = 1000.0;
+    private const PURCHASE_AMOUNT = 200.0;
 
-    public function purchaseDataProvider(): array
+    public function _before(FunctionalTester $I): void
+    {
+        $I->have(User::class, ['email' => self::USER_EMAIL, 'roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        $product = $I->have(Product::class, ['name' => self::PRODUCT_COFFEE]);
+        $I->have(
+            Purchase::class,
+            ['product' => $product, 'price' => self::PURCHASE_PRICE, 'amount' => self::PURCHASE_AMOUNT],
+        );
+    }
+
+    public function _purchaseDataProvider(): array
     {
         return [
             'purchase created successfully' => [
-                new PurchaseRequestDTO(
-                    productId: 1,
-                    price: self::PRICE,
-                    amount: self::PURCHASE_AMOUNT,
-                ),
-                [self::PRODUCT_NAME, self::PRICE, self::PURCHASE_AMOUNT],
+                'product' => self::PRODUCT_COFFEE,
+                'expected' => [self::PRODUCT_COFFEE, self::PURCHASE_PRICE, self::PURCHASE_AMOUNT],
             ],
             'purchase with wrong ID not created' => [
-                new PurchaseRequestDTO(
-                    productId: 3,
-                    price: self::PRICE,
-                    amount: self::PURCHASE_AMOUNT,
-                ),
-                null,
+                'product' => self::PRODUCT_TEA,
+                'expected' => null,
             ],
         ];
     }
 
     /**
-     * @dataProvider purchaseDataProvider
+     * @dataProvider _purchaseDataProvider
      */
-    public function testCreatePurchase(PurchaseRequestDTO $dto, ?array $expected): void
+    public function testCreatePurchase(FunctionalTester $I, Example $example): void
     {
-        [$product, $purchaseService] = $this->preparePurchaseService();
-        $result = $purchaseService->createPurchaseWithProduct($dto);
+        $user = $I->grabEntityFromRepository(User::class, ['email' => self::USER_EMAIL]);
+        $I->amLoggedInAs($user);
+
+        try {
+            $product = $I->grabEntityFromRepository(Product::class, ['name' => $example['product']]);
+        } catch (\Throwable) {
+            $product = null;
+        }
+
+        $dto = new PurchaseRequestDTO(
+            $product ? $product->getId() : null,
+            self::PURCHASE_PRICE,
+            self::PURCHASE_AMOUNT,
+        );
+        $result = $I->grabService(PurchaseBuilderService::class)->createPurchaseWithProduct($dto);
         $actual = $result ? [$result->getProduct()->getName(), $result->getPrice(), $result->getAmount()] : null;
 
-        self::assertEquals($expected, $actual);
-    }
-
-//    public function testProductAmountIncreased(): void
-//    {
-//        [$product, $purchaseService] = $this->preparePurchaseService();
-//
-//        $newPurchase = PurchaseFactory::new()->create([
-//            'product' => $product,
-//            'price' => self::PRICE,
-//            'amount' => self::PURCHASE_AMOUNT,
-//        ])->_real();
-//
-//        $expected = self::PURCHASE_AMOUNT + self::PRODUCT_AMOUNT;
-//
-//        self::assertSame($expected, $newPurchase->getProduct()->getAmount());
-//    }
-
-    private function preparePurchaseService(): array
-    {
-        self::$entityManager = Mockery::mock(EntityManagerInterface::class);
-        self::$entityManager->shouldReceive('persist');
-        self::$entityManager->shouldReceive('flush');
-
-        $product = ProductFactory::new()->create(['name' => self::PRODUCT_NAME])->_real();
-        $productRepository = Mockery::mock(ProductRepository::class);
-        $productRepository->shouldReceive('find')->with(1)->andReturn($product);
-        $productRepository->shouldReceive('find')->with(3)->andReturn(null);
-        $productManager = new ProductManager(self::$entityManager, $productRepository);
-        $purchaseManager = new PurchaseManager(self::$entityManager, Mockery::mock(PurchaseRepository::class));
-
-        return [$product, new PurchaseBuilderService($productManager, $purchaseManager)];
+        $I->assertSame($example['expected'], $actual);
+        if ($product) {
+            $I->assertSame(self::PURCHASE_AMOUNT * 2 + self::PRODUCT_AMOUNT, $product->getAmount());
+        }
     }
 }

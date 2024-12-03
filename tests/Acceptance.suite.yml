@@ -1,15 +1,28 @@
-# Codeception Acceptance Test Suite Configuration
+# Codeception Test Suite Configuration
 #
-# Perform tests in a browser by either emulating one using PhpBrowser, or in a real browser using WebDriver.
-# If you need both WebDriver and PhpBrowser tests, create a separate suite for each.
+# Suite for acceptance tests.
+# Perform tests in browser using the WebDriver or PhpBrowser.
+# If you need both WebDriver and PHPBrowser tests - create a separate suite.
 
 actor: AcceptanceTester
 modules:
-    enabled:
-        - PhpBrowser:
-            url: https://localhost:8000
-# Add Codeception\Step\Retry trait to AcceptanceTester to enable retries
-step_decorators:
-    - Codeception\Step\ConditionalAssertion
-    - Codeception\Step\TryTo
-    - Codeception\Step\Retry
+  enabled:
+    - REST:
+        url: http://nginx:80
+        depends: PhpBrowser
+        part: Json
+    - \App\Tests\Support\Helper\Acceptance
+#    - Db:
+#        dsn: 'pgsql:host=cafe_manager_database_test;dbname=cafe_manager_database_test'
+#        user: '%TEST_POSTGRES_USER%'
+#        password: '%TEST_POSTGRES_PASSWORD%'
+#        populate: true
+#        cleanup: true
+#        dump:
+#          - 'data/users.sql'
+#          - 'data/categories.sql'
+#          - 'data/products.sql'
+#          - 'data/dishes.sql'
+#          - 'data/orders.sql'
+#          - 'data/recipes.sql'
+#          - 'data/purchases.sql'

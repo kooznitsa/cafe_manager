@@ -107,6 +107,7 @@
         "codeception/codeception": "^5.1",
         "codeception/module-asserts": "^3.0",
         "codeception/module-datafactory": "^3.0",
+        "codeception/module-db": "^3.1",
         "codeception/module-doctrine": "^3.1",
         "codeception/module-phpbrowser": "^3.0",
         "codeception/module-rest": "^3.4",

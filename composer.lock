@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c2fc207317a68fe0ea4b8bc4baa36ca",
+    "content-hash": "8e3bf912e19770d69b87a0d362699af8",
     "packages": [
         {
             "name": "beberlei/doctrineextensions",
@@ -10587,6 +10587,64 @@
                 "source": "https://github.com/Codeception/module-datafactory/tree/3.0.0"
             },
             "time": "2022-07-18T16:38:21+00:00"
+        },
+        {
+            "name": "codeception/module-db",
+            "version": "3.1.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Codeception/module-db.git",
+                "reference": "06be16dcf4dda46eaef9454f1361d62bcb971c36"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Codeception/module-db/zipball/06be16dcf4dda46eaef9454f1361d62bcb971c36",
+                "reference": "06be16dcf4dda46eaef9454f1361d62bcb971c36",
+                "shasum": ""
+            },
+            "require": {
+                "codeception/codeception": "*@dev",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "ext-pdo": "*",
+                "php": "^8.0"
+            },
+            "conflict": {
+                "codeception/codeception": "<5.0"
+            },
+            "require-dev": {
+                "squizlabs/php_codesniffer": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Bodnarchuk"
+                },
+                {
+                    "name": "Gintautas Miselis"
+                }
+            ],
+            "description": "DB module for Codeception",
+            "homepage": "https://codeception.com/",
+            "keywords": [
+                "codeception",
+                "database-testing",
+                "db-testing"
+            ],
+            "support": {
+                "issues": "https://github.com/Codeception/module-db/issues",
+                "source": "https://github.com/Codeception/module-db/tree/3.1.4"
+            },
+            "time": "2024-05-16T20:12:18+00:00"
         },
         {
             "name": "codeception/module-doctrine",

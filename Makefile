@@ -18,6 +18,11 @@ install:
 validate:
 	$(DOCKER_EXEC) composer validate
 
+# Dump autoload
+.PHONY: dump
+dump:
+	$(DOCKER_EXEC) composer dump-autoload
+
 
 # -------------- DOCKER --------------
 
@@ -110,10 +115,15 @@ testmigrate:
 
 # -------------- TESTS --------------
 
-# Launches unit tests
+# Launches PHPUnit tests
 .PHONY: unittest
 unittest:
 	$(DOCKER_EXEC) ./vendor/bin/simple-phpunit
+
+# Launches Codeception tests
+.PHONY: test
+test:
+	$(DOCKER_EXEC) vendor/bin/codecept run tests/Functional/OrderServiceCest
 
 # Creates factory
 .PHONY: factory
@@ -124,6 +134,11 @@ factory:
 .PHONY: loadfixtures
 loadfixtures:
 	$(DOCKER_EXEC) $(PHP_CONSOLE) doctrine:fixtures:load --env=test --purge-with-truncate --no-interaction
+
+# Build Codeception configuration (after editing .yml/.yaml files)
+.PHONY: build-codeception
+build-codeception:
+	$(DOCKER_EXEC) ./vendor/bin/codecept build
 
 
 # -------------- RABBITMQ --------------

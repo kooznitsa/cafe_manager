@@ -1,14 +1,14 @@
 <?php
 
-namespace UnitTest\Entity;
+namespace Tests\Unit\Entity;
 
 use App\Entity\{Category, Dish, Order, User};
 use App\Enum\Status;
+use Codeception\Test\Unit;
 use DateTime;
-use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\PhpUnit\ClockMock;
 
-class OrderTest extends TestCase
+class OrderTest extends Unit
 {
     private const NOW_TIME = '@now';
     private const USER_PASS = 'TSshark1957work$';
@@ -65,36 +65,30 @@ class OrderTest extends TestCase
             'positive' => [
                 $positiveOrder,
                 $expectedPositive,
-                0,
             ],
             'no dish' => [
                 $this->makeOrder($expectedNoDish),
                 $expectedNoDish,
-                0,
             ],
             'no user' => [
                 $this->makeOrder($expectedNoUser),
                 $expectedNoUser,
-                0,
             ],
             'no createdAt' => [
                 $this->makeOrder($expectedNoCreatedAt),
                 $expectedNoCreatedAt,
-                null,
             ],
             'positive with delay' => [
                 $positiveOrder,
                 $expectedPositive,
-                2,
             ],
         ];
     }
 
     /**
      * @dataProvider orderDataProvider
-     * @group time-sensitive
      */
-    public function testToArrayReturnsCorrectValues(Order $order, array $expected, ?int $delay = null): void
+    public function testToArrayReturnsCorrectValues(Order $order, array $expected): void
     {
         ClockMock::register(Order::class);
         if ($expected['createdAt'] === self::NOW_TIME) {
@@ -104,7 +98,7 @@ class OrderTest extends TestCase
             )->format('Y-m-d h:i:s');
         }
 
-        $order = $this->setCreatedAtWithDelay($order, $delay);
+        $order->setCreatedAt();
         $actual = $order->toArray();
 
         static::assertSame($expected, $actual, 'Order::toArray should return correct result');
@@ -160,15 +154,5 @@ class OrderTest extends TestCase
         }
 
         return $dish;
-    }
-
-    private function setCreatedAtWithDelay(Order $order, ?int $delay = null): Order
-    {
-        if ($delay !== null) {
-            sleep($delay);
-            $order->setCreatedAt();
-        }
-
-        return $order;
     }
 }

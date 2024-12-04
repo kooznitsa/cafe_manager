@@ -35,5 +35,5 @@ jobs:
           docker exec cafe_manager_php git config --global --add safe.directory /app
           make install
 
-#      - name: Run tests
-#        run: make test
+      - name: Run tests
+        run: make test

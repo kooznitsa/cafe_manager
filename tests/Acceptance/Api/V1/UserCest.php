@@ -28,7 +28,6 @@ class UserCest
         $I->canSeeResponseMatchesJsonType(['userId' => 'integer:>0']);
 
         $responseArray = json_decode($response, true);
-
         $I->sendDelete(self::BASE_URL . "user/{$responseArray['userId']}");
     }
 }

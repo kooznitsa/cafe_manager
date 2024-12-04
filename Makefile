@@ -123,7 +123,7 @@ unittest:
 # Launches Codeception tests
 .PHONY: test
 test:
-	$(DOCKER_EXEC) vendor/bin/codecept run tests/Acceptance/Api/V1/UserCest
+	$(DOCKER_EXEC) vendor/bin/codecept run
 
 # Creates factory
 .PHONY: factory

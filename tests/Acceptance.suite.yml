@@ -14,9 +14,9 @@ modules:
     - \App\Tests\Support\Helper\Acceptance
 #    - Db:
 #        dsn: 'pgsql:host=cafe_manager_database_test;dbname=cafe_manager_database_test'
-#        user: '%TEST_POSTGRES_USER%'
-#        password: '%TEST_POSTGRES_PASSWORD%'
-#        populate: true
+#        user: 'cafe_manager_user_test'
+#        password: 'cafe_manager_password_test'
+#        populate: false
 #        cleanup: true
 #        dump:
 #          - 'data/users.sql'

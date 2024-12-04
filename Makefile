@@ -5,6 +5,10 @@ DOCKER_EXEC := docker exec ${APP_NAME}_php
 DOCKER_EXEC_IT := docker exec -it ${APP_NAME}_php
 PHP_CONSOLE := php bin/console
 
+USER_EMAIL ?= ''
+USER_PASSWORD ?= ''
+TEST_DIR ?= 'tests'
+
 
 # -------------- COMPOSER --------------
 
@@ -17,6 +21,11 @@ install:
 .PHONY: validate
 validate:
 	$(DOCKER_EXEC) composer validate
+
+# Dump autoload
+.PHONY: dump
+dump:
+	$(DOCKER_EXEC) composer dump-autoload
 
 
 # -------------- DOCKER --------------
@@ -110,10 +119,15 @@ testmigrate:
 
 # -------------- TESTS --------------
 
-# Launches unit tests
+# Launches PHPUnit tests
 .PHONY: unittest
 unittest:
 	$(DOCKER_EXEC) ./vendor/bin/simple-phpunit
+
+# Launches Codeception tests
+.PHONY: test
+test:
+	$(DOCKER_EXEC) vendor/bin/codecept run $(TEST_DIR)
 
 # Creates factory
 .PHONY: factory
@@ -124,6 +138,16 @@ factory:
 .PHONY: loadfixtures
 loadfixtures:
 	$(DOCKER_EXEC) $(PHP_CONSOLE) doctrine:fixtures:load --env=test --purge-with-truncate --no-interaction
+
+# Build Codeception configuration (after editing .yml/.yaml files)
+.PHONY: build-codeception
+build-codeception:
+	$(DOCKER_EXEC) ./vendor/bin/codecept build
+
+# Creates user. Example: make create-user USER_EMAIL=test5@email.com USER_PASSWORD=TSshark1957work$
+.PHONY: create-user
+create-user:
+	$(DOCKER_EXEC) php bin/console user:add $(USER_EMAIL) $(USER_PASSWORD)
 
 
 # -------------- RABBITMQ --------------

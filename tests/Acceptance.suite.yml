@@ -1,0 +1,28 @@
+# Codeception Test Suite Configuration
+#
+# Suite for acceptance tests.
+# Perform tests in browser using the WebDriver or PhpBrowser.
+# If you need both WebDriver and PHPBrowser tests - create a separate suite.
+
+actor: AcceptanceTester
+modules:
+  enabled:
+    - REST:
+        url: http://nginx:80
+        depends: PhpBrowser
+        part: Json
+    - \App\Tests\Support\Helper\Acceptance
+#    - Db:
+#        dsn: 'pgsql:host=cafe_manager_database_test;dbname=cafe_manager_database_test'
+#        user: 'cafe_manager_user_test'
+#        password: 'cafe_manager_password_test'
+#        populate: false
+#        cleanup: true
+#        dump:
+#          - 'data/users.sql'
+#          - 'data/categories.sql'
+#          - 'data/products.sql'
+#          - 'data/dishes.sql'
+#          - 'data/orders.sql'
+#          - 'data/recipes.sql'
+#          - 'data/purchases.sql'

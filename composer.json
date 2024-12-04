@@ -66,7 +66,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "UnitTest\\": "tests/Unit/"
+            "Tests\\Acceptance\\": "tests/Acceptance",
+            "Tests\\Functional\\": "tests/Functional",
+            "Tests\\Unit\\": "tests/Unit"
         }
     },
     "replace": {
@@ -102,7 +104,17 @@
         }
     },
     "require-dev": {
+        "codeception/codeception": "^5.1",
+        "codeception/module-asserts": "^3.0",
+        "codeception/module-datafactory": "^3.0",
+        "codeception/module-db": "^3.1",
+        "codeception/module-doctrine": "^3.1",
+        "codeception/module-phpbrowser": "^3.0",
+        "codeception/module-rest": "^3.4",
+        "codeception/module-symfony": "^3.5",
         "doctrine/doctrine-fixtures-bundle": "^3.6",
+        "league/factory-muffin": "^3.3",
+        "league/factory-muffin-faker": "^2.3",
         "mockery/mockery": "^1.6",
         "symfony/maker-bundle": "^1.61",
         "symfony/phpunit-bridge": "^7.1",

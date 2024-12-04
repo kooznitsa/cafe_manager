@@ -47,7 +47,7 @@ services:
     working_dir: /app
     restart: always
     environment:
-      POSTGRES_DB: "${APP_NAME}_database"
+      POSTGRES_DB: "${APP_NAME}_database_test"
       POSTGRES_USER: "${APP_NAME}_user_test"
       POSTGRES_PASSWORD: "${APP_NAME}_password_test"
     volumes:

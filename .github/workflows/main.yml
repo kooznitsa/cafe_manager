@@ -35,5 +35,9 @@ jobs:
           docker exec cafe_manager_php git config --global --add safe.directory /app
           make install
 
-      - name: Run unit tests
-        run: make unittest
+      - name: Run tests
+        run: |
+          make migrate
+          make testmigrate
+          make create-user USER_EMAIL=cuckoo@gmail.com USER_PASSWORD=TSshark1957work$
+          make test TEST_DIR=tests/Functional

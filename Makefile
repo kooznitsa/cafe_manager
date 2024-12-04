@@ -7,6 +7,7 @@ PHP_CONSOLE := php bin/console
 
 USER_EMAIL ?= ''
 USER_PASSWORD ?= ''
+TEST_DIR ?= 'tests'
 
 
 # -------------- COMPOSER --------------
@@ -126,7 +127,7 @@ unittest:
 # Launches Codeception tests
 .PHONY: test
 test:
-	$(DOCKER_EXEC) vendor/bin/codecept run
+	$(DOCKER_EXEC) vendor/bin/codecept run $(TEST_DIR)
 
 # Creates factory
 .PHONY: factory

@@ -35,7 +35,7 @@ class AddUserCommand extends Command
     {
         $email = $input->getArgument('email');
         $password = $input->getArgument('password');
-        if ($email === null || $password === null) {
+        if (!$email || !$password) {
             $output->write("<error>User email or password were not provided</error>\n");
             return self::FAILURE;
         }

@@ -36,4 +36,6 @@ jobs:
           make install
 
       - name: Run tests
-        run: make test
+        run: |
+          make testmigrate
+          make test

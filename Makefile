@@ -5,6 +5,9 @@ DOCKER_EXEC := docker exec ${APP_NAME}_php
 DOCKER_EXEC_IT := docker exec -it ${APP_NAME}_php
 PHP_CONSOLE := php bin/console
 
+USER_EMAIL ?= ''
+USER_PASSWORD ?= ''
+
 
 # -------------- COMPOSER --------------
 
@@ -139,6 +142,11 @@ loadfixtures:
 .PHONY: build-codeception
 build-codeception:
 	$(DOCKER_EXEC) ./vendor/bin/codecept build
+
+# Creates user. Example: make create-user USER_EMAIL=test5@email.com USER_PASSWORD=TSshark1957work$
+.PHONY: create-user
+create-user:
+	$(DOCKER_EXEC) php bin/console user:add $(USER_EMAIL) $(USER_PASSWORD)
 
 
 # -------------- RABBITMQ --------------

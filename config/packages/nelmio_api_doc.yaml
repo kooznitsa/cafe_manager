@@ -12,5 +12,9 @@ nelmio_api_doc:
             description: API routes for managing cafe's inventory, menu and orders.
             version: 1.0.0
     areas: # to filter documented areas
-        path_patterns:
-            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+        orders:
+            path_patterns:
+                - ^/api/v\d/order
+        default:
+            path_patterns:
+                - ^/api(?!/v\d/doc(.json)?$) # Accepts routes under /api except /api/v1/doc and /api/v1/doc.json

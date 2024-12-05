@@ -277,6 +277,9 @@ class OrderController extends AbstractController
         return new JsonResponse(['orders' => $orders], $code);
     }
 
+    /**
+     * Get orders by query.
+     */
     #[Route(path: '/get-orders-by-query', methods: ['GET'])]
     #[OA\Parameter(name: 'query', description: 'Query string', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'page', description: 'Page', in: 'query', schema: new OA\Schema(type: 'integer'))]
@@ -308,6 +311,9 @@ class OrderController extends AbstractController
         );
     }
 
+    /**
+     * Get orders with aggregation.
+     */
     #[Route(path: '/get-orders-with-aggregation', methods: ['GET'])]
     #[OA\Parameter(name: 'field', description: 'Field', in: 'query', schema: new OA\Schema(type: 'string'))]
     #[OA\Response(

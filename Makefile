@@ -166,3 +166,11 @@ q:
 linter:
 	# sudo apt install php-codesniffer
 	phpcs --standard=PSR12 src --ignore=/src/Enum/,/src/DTO/
+
+
+# -------------- DOCS --------------
+
+# Generates API docs in .yaml format
+.PHONY: apidoc
+apidoc:
+	$(DOCKER_EXEC) $(PHP_CONSOLE) nelmio:apidoc:dump --format=yaml >apidoc.yaml

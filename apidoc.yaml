@@ -1,0 +1,1295 @@
+openapi: 3.0.0
+info:
+  title: 'Cafe Manager API'
+  description: "API routes for managing cafe's inventory, menu and orders."
+  version: 1.0.0
+paths:
+  '/api/v1/user/by-email/{user_email}':
+    get:
+      tags:
+        - users
+      summary: 'Retrieves user by email.'
+      operationId: get_app_api_v1_user_getuserbyemail
+      parameters:
+        -
+          name: user_email
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'User is retrieved successfully.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /api/v1/category:
+    get:
+      tags:
+        - categories
+      summary: 'Lists all categories.'
+      operationId: get_app_api_v1_category_getcategories
+      responses:
+        '200':
+          description: 'Array of categories is retrieved successfully.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  categories: { type: array, items: { $ref: '#/components/schemas/CategoryResponseDTO' } }
+                type: object
+    post:
+      tags:
+        - categories
+      summary: 'Creates category.'
+      operationId: post_app_api_v1_category_savecategory
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CategoryRequestDTO'
+      responses:
+        '200':
+          description: 'Category is created successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+    patch:
+      tags:
+        - categories
+      summary: 'Updates category.'
+      operationId: patch_app_api_v1_category_updatecategory
+      parameters:
+        -
+          name: categoryId
+          in: query
+          description: 'Category ID'
+          required: true
+          schema:
+            type: integer
+        -
+          name: name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Category is updated successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  '/api/v1/category/{id}':
+    delete:
+      tags:
+        - categories
+      summary: 'Deletes category by ID.'
+      operationId: delete_app_api_v1_category_deletecategorybyid
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Category is deleted successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  /api/v1/dish:
+    post:
+      tags:
+        - dishes
+      summary: 'Creates dish.'
+      operationId: post_app_api_v1_dish_savedish
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - name
+                - categoryId
+                - price
+              properties:
+                name:
+                  type: string
+                categoryId:
+                  type: integer
+                price:
+                  type: number
+                  format: float
+                image:
+                  type: file
+              type: object
+      responses:
+        '200':
+          description: 'Dish is created successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+    patch:
+      tags:
+        - dishes
+      summary: 'Updates dish.'
+      operationId: patch_app_api_v1_dish_updatedish
+      parameters:
+        -
+          name: dishId
+          in: query
+          description: 'Dish ID'
+          required: true
+          schema:
+            type: integer
+        -
+          name: name
+          in: query
+          description: 'Dish name'
+          schema:
+            type: string
+        -
+          name: categoryId
+          in: query
+          description: 'Category ID'
+          schema:
+            type: integer
+        -
+          name: price
+          in: query
+          description: 'Dish price'
+          schema:
+            type: string
+        -
+          name: image
+          in: query
+          description: 'Dish image'
+          schema:
+            type: file
+        -
+          name: isAvailable
+          in: query
+          description: 'Dish is available'
+          schema:
+            type: integer
+            enum:
+              - 0
+              - 1
+      responses:
+        '200':
+          description: 'Dish is updated successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  '/api/v1/dish/by-category/{category_id}':
+    get:
+      tags:
+        - dishes
+      summary: 'Lists dishes by category.'
+      operationId: get_app_api_v1_dish_getcategorydishes
+      parameters:
+        -
+          name: category_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Array of dishes is retrieved successfully.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  dishes: { type: array, items: { $ref: '#/components/schemas/DishResponseDTO' } }
+                type: object
+  '/api/v1/dish/{id}':
+    delete:
+      tags:
+        - dishes
+      summary: 'Deletes dish by ID.'
+      operationId: delete_app_api_v1_dish_deletedishbyid
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Dish is deleted successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  /api/v1/order:
+    post:
+      tags:
+        - orders
+      summary: 'Creates order.'
+      operationId: post_app_api_v1_order_saveorder
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderRequestDTO'
+      responses:
+        '200':
+          description: 'Order is created successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+    patch:
+      tags:
+        - orders
+      summary: 'Updates order.'
+      operationId: patch_app_api_v1_order_updateorder
+      parameters:
+        -
+          name: orderId
+          in: query
+          description: 'Order ID'
+          required: true
+          schema:
+            type: integer
+        -
+          name: dish_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        -
+          name: user_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        -
+          name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        -
+          name: is_delivery
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: 'Order is updated successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  '/api/v1/order/q/{isAsync}':
+    post:
+      tags:
+        - orders
+      summary: 'Creates order with queue.'
+      operationId: post_app_api_v1_order_saveorderwithqueue
+      parameters:
+        -
+          name: isAsync
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: 0|1
+            enum:
+              - '0'
+              - '1'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderRequestDTO'
+      responses:
+        '200':
+          description: 'Order is created successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  '/api/v1/order/by-user/{user_id}':
+    get:
+      tags:
+        - orders
+      summary: 'Lists orders by user.'
+      operationId: get_app_api_v1_order_getuserorders
+      parameters:
+        -
+          name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Array of user orders is retrieved successfully.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  orders: { type: array, items: { $ref: '#/components/schemas/OrderResponseDTO' } }
+                type: object
+  '/api/v1/order/by-dish/{dish_id}':
+    get:
+      tags:
+        - orders
+      summary: 'Lists orders by dish.'
+      operationId: get_app_api_v1_order_getdishorders
+      parameters:
+        -
+          name: dish_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Array of dish orders is retrieved successfully.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  orders: { type: array, items: { $ref: '#/components/schemas/OrderResponseDTO' } }
+                type: object
+  '/api/v1/order/pay/{id}':
+    post:
+      tags:
+        - orders
+      summary: 'Performs payment.'
+      operationId: post_app_api_v1_order_payorder
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Order is paid successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  '/api/v1/order/deliver/{id}':
+    post:
+      tags:
+        - orders
+      summary: 'Delivers order.'
+      operationId: post_app_api_v1_order_deliverorder
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Order is delivered successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  '/api/v1/order/cancel/{id}':
+    post:
+      tags:
+        - orders
+      summary: 'Cancels order.'
+      operationId: post_app_api_v1_order_cancelorder
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Order is cancelled successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  '/api/v1/order/{id}':
+    delete:
+      tags:
+        - orders
+      summary: 'Deletes order by ID.'
+      operationId: delete_app_api_v1_order_deleteorderbyid
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Order is deleted successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  /api/v1/order/stats:
+    get:
+      tags:
+        - orders
+      summary: 'Returns total sales per day.'
+      operationId: get_app_api_v1_order_getpaidorders
+      parameters:
+        -
+          name: page
+          in: query
+          description: Page
+          schema:
+            type: integer
+        -
+          name: perPage
+          in: query
+          description: 'Per page'
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Order stats are retrieved successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                orders:
+                  - { orderDate: '2024-10-18', total: '330.00' }
+  /api/v1/order/get-orders-by-query:
+    get:
+      tags:
+        - orders
+      summary: 'Get orders by query.'
+      operationId: get_app_api_v1_order_getordersbyquery
+      parameters:
+        -
+          name: query
+          in: query
+          description: 'Query string'
+          schema:
+            type: string
+        -
+          name: page
+          in: query
+          description: Page
+          schema:
+            type: integer
+        -
+          name: perPage
+          in: query
+          description: 'Per page'
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Array of orders is retrieved successfully.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  orders: { type: array, items: { $ref: '#/components/schemas/OrderResponseDTO' } }
+                type: object
+  /api/v1/order/get-orders-with-aggregation:
+    get:
+      tags:
+        - orders
+      summary: 'Get orders with aggregation.'
+      operationId: get_app_api_v1_order_getorderswithaggregation
+      parameters:
+        -
+          name: field
+          in: query
+          description: Field
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Orders grouped by status are retrieved successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                orders:
+                  doc_count_error_upper_bound: 0
+                  sum_other_doc_count: 0
+                  buckets: [{ key: created, doc_count: 24 }, { key: paid, doc_count: 9 }, { key: deleted, doc_count: 3 }, { key: cancelled, doc_count: 1 }]
+  /api/v1/product:
+    get:
+      tags:
+        - products
+      summary: 'Lists all products.'
+      operationId: get_app_api_v1_product_getproducts
+      responses:
+        '200':
+          description: 'Array of products is retrieved successfully.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  orders: { type: array, items: { $ref: '#/components/schemas/ProductResponseDTO' } }
+                type: object
+    post:
+      tags:
+        - products
+      summary: 'Creates product.'
+      operationId: post_app_api_v1_product_saveproduct
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequestDTO'
+      responses:
+        '200':
+          description: 'Product is created successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+    patch:
+      tags:
+        - products
+      summary: 'Updates product.'
+      operationId: patch_app_api_v1_product_updateproduct
+      parameters:
+        -
+          name: productId
+          in: query
+          description: 'Product ID'
+          required: true
+          schema:
+            type: integer
+        -
+          name: name
+          in: query
+          required: false
+          schema:
+            type: string
+        -
+          name: unit
+          in: query
+          required: false
+          schema:
+            type: string
+        -
+          name: amount
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+            minimum: 0
+      responses:
+        '200':
+          description: 'Product is updated successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  '/api/v1/product/{id}':
+    delete:
+      tags:
+        - products
+      summary: 'Deletes product by ID.'
+      operationId: delete_app_api_v1_product_deleteproductbyid
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Product is deleted successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  /api/v1/purchase:
+    post:
+      tags:
+        - purchases
+      summary: 'Creates purchase.'
+      operationId: post_app_api_v1_purchase_savepurchase
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequestDTO'
+      responses:
+        '200':
+          description: 'Purchase is created successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+    patch:
+      tags:
+        - purchases
+      summary: 'Updates purchase.'
+      operationId: patch_app_api_v1_purchase_updatepurchase
+      parameters:
+        -
+          name: purchaseId
+          in: query
+          description: 'Purchase ID'
+          required: true
+          schema:
+            type: integer
+        -
+          name: product_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        -
+          name: price
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+            minimum: 0
+        -
+          name: amount
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+            minimum: 0
+      responses:
+        '200':
+          description: 'Purchase is updated successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  /api/v1/purchase/:
+    get:
+      tags:
+        - purchases
+      summary: 'Lists purchases.'
+      operationId: get_app_api_v1_purchase_getpurchases
+      parameters:
+        -
+          name: page
+          in: query
+          description: Page
+          schema:
+            type: integer
+        -
+          name: perPage
+          in: query
+          description: 'Per page'
+          schema:
+            type: integer
+        -
+          name: dateFrom
+          in: query
+          description: 'Date from'
+          schema:
+            type: string
+        -
+          name: dateTo
+          in: query
+          description: 'Date to'
+          schema:
+            type: string
+        -
+          name: productId
+          in: query
+          description: 'Product ID'
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Array of purchases is retrieved successfully.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  purchases: { type: array, items: { $ref: '#/components/schemas/PurchaseResponseDTO' } }
+                type: object
+  '/api/v1/purchase/{id}':
+    delete:
+      tags:
+        - purchases
+      summary: 'Deletes purchase by ID.'
+      operationId: delete_app_api_v1_purchase_deletepurchasebyid
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Purchase is deleted successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  /api/v1/recipe:
+    post:
+      tags:
+        - recipes
+      summary: 'Creates recipe.'
+      operationId: post_app_api_v1_recipe_savedish
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecipeRequestDTO'
+      responses:
+        '200':
+          description: 'Recipe is created successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+    patch:
+      tags:
+        - recipes
+      summary: 'Updates recipe.'
+      operationId: patch_app_api_v1_recipe_updaterecipe
+      parameters:
+        -
+          name: recipeId
+          in: query
+          description: 'Recipe ID'
+          required: true
+          schema:
+            type: integer
+        -
+          name: dish_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        -
+          name: product_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        -
+          name: amount
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+            minimum: 0
+      responses:
+        '200':
+          description: 'Recipe is updated successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  '/api/v1/recipe/by-dish/{dish_id}':
+    get:
+      tags:
+        - recipes
+      summary: 'Lists recipe items by dish.'
+      operationId: get_app_api_v1_recipe_getdishrecipes
+      parameters:
+        -
+          name: dish_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Array of recipe items is retrieved successfully.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  recipe: { type: array, items: { $ref: '#/components/schemas/RecipeResponseDTO' } }
+                type: object
+  '/api/v1/recipe/{id}':
+    delete:
+      tags:
+        - recipes
+      summary: 'Deletes recipe by ID.'
+      operationId: delete_app_api_v1_recipe_deleterecipebyid
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'Recipe is deleted successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  /api/v1/token:
+    post:
+      tags:
+        - token
+      summary: 'Creates auth token for existing user.'
+      operationId: post_app_api_v1_token_gettoken
+      requestBody:
+        description: 'Generate new JWT token'
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              type: object
+      responses:
+        '200':
+          description: 'Token is generated successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                token: string
+  /api/v1/user:
+    get:
+      tags:
+        - users
+      summary: 'Lists all users.'
+      operationId: get_app_api_v1_user_getusers
+      parameters:
+        -
+          name: page
+          in: query
+          description: Page
+          schema:
+            type: integer
+        -
+          name: perPage
+          in: query
+          description: 'Per page'
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Array of users is retrieved successfully.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  users: { type: array, items: { $ref: '#/components/schemas/UserResponseDTO' } }
+                type: object
+    post:
+      tags:
+        - users
+      summary: 'Creates user.'
+      operationId: post_app_api_v1_user_saveuser
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+      responses:
+        '200':
+          description: 'User is created successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+    patch:
+      tags:
+        - users
+      summary: 'Updates user.'
+      operationId: patch_app_api_v1_user_updateuser
+      parameters:
+        -
+          name: userId
+          in: query
+          description: 'User ID'
+          required: true
+          schema:
+            type: integer
+        -
+          name: name
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 32
+        -
+          name: password
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 120
+        -
+          name: email
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 32
+        -
+          name: address
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 255
+        -
+          name: 'orders[][]'
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: App\Entity\Order
+        -
+          name: 'roles[][]'
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: 'User is updated successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+  '/api/v1/user/{id}':
+    delete:
+      tags:
+        - users
+      summary: 'Deletes user by ID.'
+      operationId: delete_app_api_v1_user_deleteuserbyid
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: \d+
+      responses:
+        '200':
+          description: 'User is deleted successfully.'
+          content:
+            application/json:
+              schema: {  }
+              example:
+                success: true
+components:
+  schemas:
+    CategoryRequestDTO:
+      required:
+        - name
+      properties:
+        name:
+          type: string
+      type: object
+    OrderRequestDTO:
+      properties:
+        dish_id:
+          type: integer
+        user_id:
+          type: integer
+        status:
+          type: string
+        is_delivery:
+          type: boolean
+      type: object
+    ProductRequestDTO:
+      properties:
+        name:
+          type: string
+        unit:
+          type: string
+        amount:
+          type: number
+          format: float
+          minimum: 0
+      type: object
+    PurchaseRequestDTO:
+      properties:
+        product_id:
+          type: integer
+        price:
+          type: number
+          format: float
+          minimum: 0
+        amount:
+          type: number
+          format: float
+          minimum: 0
+      type: object
+    RecipeRequestDTO:
+      properties:
+        dish_id:
+          type: integer
+        product_id:
+          type: integer
+        amount:
+          type: number
+          format: float
+          minimum: 0
+      type: object
+    UserRequestDTO:
+      properties:
+        name:
+          type: string
+          maxLength: 32
+        password:
+          type: string
+          maxLength: 120
+        email:
+          type: string
+          maxLength: 32
+        address:
+          type: string
+          maxLength: 255
+        'orders[]':
+          type: array
+          items:
+            type: App\Entity\Order
+        'roles[]':
+          type: array
+          items:
+            type: string
+      type: object
+    User:
+      type: object
+    CategoryResponseDTO:
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      type: object
+    DishResponseDTO:
+      required:
+        - id
+        - name
+        - category
+        - image
+        - is_available
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+          format: float
+        image:
+          type: string
+        is_available:
+          type: integer
+      type: object
+    OrderResponseDTO:
+      required:
+        - id
+        - dish
+        - user
+        - status
+        - is_delivery
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+        is_delivery:
+          type: boolean
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      type: object
+    ProductResponseDTO:
+      required:
+        - id
+        - name
+        - unit
+        - amount
+        - updated_at
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        unit:
+          type: string
+        amount:
+          type: number
+          format: float
+          minimum: 0
+        updated_at:
+          type: string
+      type: object
+    PurchaseResponseDTO:
+      required:
+        - id
+        - product_id
+        - price
+        - amount
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+        product_id:
+          type: integer
+        price:
+          type: number
+          format: float
+        amount:
+          type: number
+          format: float
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      type: object
+    RecipeResponseDTO:
+      required:
+        - id
+        - dish_id
+        - product_id
+        - amount
+      properties:
+        id:
+          type: integer
+        dish_id:
+          type: integer
+        product_id:
+          type: integer
+        amount:
+          type: number
+          format: float
+      type: object
+    UserResponseDTO:
+      required:
+        - id
+        - name
+        - email
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 32
+        email:
+          type: string
+          maxLength: 32
+        address:
+          type: string
+          maxLength: 255
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      type: object
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+security:
+  -
+    Bearer: []
+tags:
+  -
+    name: users
+  -
+    name: categories
+  -
+    name: dishes
+  -
+    name: orders
+  -
+    name: products
+  -
+    name: purchases
+  -
+    name: recipes
+  -
+    name: token
+

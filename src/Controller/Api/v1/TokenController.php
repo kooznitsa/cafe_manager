@@ -17,6 +17,9 @@ class TokenController extends AbstractController
     ) {
     }
 
+    /**
+     * Creates auth token for existing user.
+     */
     #[Route(path: '', methods: ['POST'])]
     #[OA\RequestBody(
         description: 'Generate new JWT token',

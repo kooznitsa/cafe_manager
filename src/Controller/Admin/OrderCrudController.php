@@ -4,21 +4,36 @@ namespace App\Controller\Admin;
 
 use App\Entity\Order;
 use App\Service\OrderBuilderService;
+use App\Trait\ExportCsvActionTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Provider\AdminContextProvider;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Config\{Crud, Filters};
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\{AssociationField, BooleanField, ChoiceField, DateTimeField, IdField};
+use EasyCorp\Bundle\EasyAdminBundle\Provider\AdminContextProvider;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 
 class OrderCrudController extends AbstractCrudController
 {
+    use ExportCsvActionTrait;
+
     public function __construct(
         public readonly OrderBuilderService $orderBuilderService,
         public readonly AdminContextProvider $adminContextProvider,
         public readonly AdminUrlGenerator $adminUrlGenerator,
     ) {
+    }
+
+    protected function getExportCsvFields(): iterable
+    {
+        return [
+            'id',
+            'user' => ['email', 'name', 'address'],
+            'dish' => ['name', 'price'],
+            'status',
+            'isDelivery',
+            'createdAt',
+            'updatedAt',
+        ];
     }
 
     public static function getEntityFqcn(): string

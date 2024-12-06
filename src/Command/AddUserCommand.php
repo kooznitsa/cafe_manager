@@ -45,7 +45,7 @@ class AddUserCommand extends Command
             $email,
             'Санкт-Петербург',
             [],
-            ['ROLE_USER', 'ROLE_ADMIN'],
+            ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_DEV'],
         );
         $this->userManager->saveUser($dto);
         $output->write("<info>User with email $email was created</info>\n");

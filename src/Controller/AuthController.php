@@ -22,7 +22,7 @@ class AuthController extends AbstractController
         [$form, $user, $userId] = $this->userBuilderService->createOrUpdateUser($request, $_route, $id);
 
         if ($userId) {
-            return $this->redirectToRoute('update-user', array('id' => $userId));
+            return $this->redirectToRoute('update-user', ['id' => $userId]);
         }
 
         return $this->render('manageUser.html.twig', [

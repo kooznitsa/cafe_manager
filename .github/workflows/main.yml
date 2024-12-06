@@ -38,6 +38,5 @@ jobs:
       - name: Run tests
         run: |
           make migrate
-          make testmigrate
-          make create-user USER_EMAIL=cuckoo@gmail.com USER_PASSWORD=TSshark1957work$
+          make migrate ENV=test
           make test TEST_DIR=tests/Functional

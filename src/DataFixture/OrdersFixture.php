@@ -27,7 +27,7 @@ class OrdersFixture extends Fixture implements DependentFixtureInterface
         /** @var Dish $donut */
         $donut = $this->getReference(DishesFixture::DONUT);
         /** @var Dish $cake */
-        $cake = $this->getReference(DishesFixture::CAKE);
+        $cake = $this->getReference(DishesFixture::CHEESECAKE);
 
         $this->makeOrder($manager, $cappuccino, $tiger);
         $this->makeOrder($manager, $blackTea, $tiger);
@@ -42,9 +42,8 @@ class OrdersFixture extends Fixture implements DependentFixtureInterface
     private function makeOrder(ObjectManager $manager, Dish $dish, User $user): void
     {
         $order = new Order();
-        $order->setDish($dish)->setUser($user)->setStatus(Status::Created)->setIsDelivery(true);
+        $order->setDish($dish)->setUser($user)->setStatus(Status::Paid)->setIsDelivery(true);
         $manager->persist($dish);
-        sleep(1);
     }
 
     public function getDependencies(): array

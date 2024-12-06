@@ -1,12 +1,15 @@
 include .env
 
+ENV ?= 'dev'
+
 DOCKER_COMPOSE := docker compose --profile
 DOCKER_EXEC := docker exec ${APP_NAME}_php
 DOCKER_EXEC_IT := docker exec -it ${APP_NAME}_php
+DOCKER_PROFILE ?= cm
 PHP_CONSOLE := php bin/console
 
-USER_EMAIL ?= ''
-USER_PASSWORD ?= ''
+USER_EMAIL ?= ${APP_EMAIL}
+USER_PASSWORD ?= ${APP_PASSWORD}
 TEST_DIR ?= 'tests'
 
 
@@ -31,34 +34,16 @@ dump:
 # -------------- DOCKER --------------
 
 # Runs php and database containers
+# DOCKER_PROFILE options: cm, rabbit, sentry. Example: make run DOCKER_PROFILE=rabbit
 .PHONY: run
 run:
-	$(DOCKER_COMPOSE) cm up -d --build
+	$(DOCKER_COMPOSE) $(DOCKER_PROFILE) up -d --build
 
 # Removes php and database containers
+# DOCKER_PROFILE options: cm, rabbit, sentry. Example: make stop DOCKER_PROFILE=rabbit
 .PHONY: stop
 stop:
-	$(DOCKER_COMPOSE) cm down
-
-# Runs basic containers + RabbitMQ
-.PHONY: grafrun
-grafrun:
-	$(DOCKER_COMPOSE) rabbit up -d --build
-
-# Removes basic containers + RabbitMQ
-.PHONY: grafstop
-grafstop:
-	$(DOCKER_COMPOSE) rabbit down
-
-# Runs basic containers + Sentry containers
-.PHONY: sentryrun
-sentryrun:
-	$(DOCKER_COMPOSE) sentry up -d --build
-
-# Removes basic containers + Sentry containers
-.PHONY: sentrystop
-sentrystop:
-	$(DOCKER_COMPOSE) sentry down
+	$(DOCKER_COMPOSE) $(DOCKER_PROFILE) down
 
 # Enters PHP container
 .PHONY: entercontainer
@@ -107,14 +92,10 @@ makemigration:
 	$(DOCKER_EXEC) $(PHP_CONSOLE) make:migration --formatted
 
 # Applies migrations
+# ENV options: dev, test. Example: make migrate ENV=test
 .PHONY: migrate
 migrate:
-	$(DOCKER_EXEC) $(PHP_CONSOLE) doctrine:migrations:migrate
-
-# Applies migrations to test database
-.PHONY: testmigrate
-testmigrate:
-	$(DOCKER_EXEC) $(PHP_CONSOLE) doctrine:migrations:migrate --env=test
+	$(DOCKER_EXEC) $(PHP_CONSOLE) doctrine:migrations:migrate --env=$(ENV)
 
 
 # -------------- TESTS --------------
@@ -125,6 +106,7 @@ unittest:
 	$(DOCKER_EXEC) ./vendor/bin/simple-phpunit
 
 # Launches Codeception tests
+# TEST_DIR options: tests, tests/Acceptance, tests/Functional, tests/Unit. Example: make test TEST_DIR=tests/Acceptance
 .PHONY: test
 test:
 	$(DOCKER_EXEC) vendor/bin/codecept run $(TEST_DIR)
@@ -135,18 +117,20 @@ factory:
 	$(DOCKER_EXEC_IT) $(PHP_CONSOLE) make:factory --all-fields
 
 # Loads fixtures
+# ENV options: dev, test. Example: make loadfixtures ENV=test
 .PHONY: loadfixtures
 loadfixtures:
-	$(DOCKER_EXEC) $(PHP_CONSOLE) doctrine:fixtures:load --env=test --purge-with-truncate --no-interaction
+	$(DOCKER_EXEC) $(PHP_CONSOLE) doctrine:fixtures:load --env=$(ENV) --purge-with-truncate --no-interaction
 
 # Build Codeception configuration (after editing .yml/.yaml files)
 .PHONY: build-codeception
 build-codeception:
 	$(DOCKER_EXEC) ./vendor/bin/codecept build
 
-# Creates user. Example: make create-user USER_EMAIL=test5@email.com USER_PASSWORD=TSshark1957work$
-.PHONY: create-user
-create-user:
+# Creates user
+# Example: make create-user USER_EMAIL=test5@email.com USER_PASSWORD=TSshark1957work$
+.PHONY: createuser
+createuser:
 	$(DOCKER_EXEC) php bin/console user:add $(USER_EMAIL) $(USER_PASSWORD)
 
 
@@ -164,7 +148,6 @@ q:
 # Ignores Enum as it is not supported
 .PHONY: linter
 linter:
-	# sudo apt install php-codesniffer
 	phpcs --standard=PSR12 src --ignore=/src/Enum/,/src/DTO/
 
 
@@ -174,3 +157,12 @@ linter:
 .PHONY: apidoc
 apidoc:
 	$(DOCKER_EXEC) $(PHP_CONSOLE) nelmio:apidoc:dump --format=yaml >apidoc.yaml
+
+
+# -------------- SETUP --------------
+
+# Launches cloned project
+.PHONY: setup
+setup:
+	sudo apt install php-codesniffer
+	make run install migrate loadfixtures createuser

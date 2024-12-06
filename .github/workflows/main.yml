@@ -38,5 +38,5 @@ jobs:
       - name: Run tests
         run: |
           make migrate
-          make testmigrate
+          make migrate ENV=test
           make test TEST_DIR=tests/Functional

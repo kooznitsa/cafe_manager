@@ -32,7 +32,7 @@ class UsersFixture extends Fixture
             ->setEmail($email)
             ->setPassword($password)
             ->setAddress('Сортавала')
-            ->setRoles([]);
+            ->setRoles(['ROLE_USER']);
 
         $manager->persist($user);
 

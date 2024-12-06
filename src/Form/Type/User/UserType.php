@@ -2,7 +2,7 @@
 
 namespace App\Form\Type\User;
 
-use App\DTO\Request\UserRequestDTO;
+use App\DTO\ManageUserDTO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\{EmailType, SubmitType, TextType};
 use Symfony\Component\Form\FormBuilderInterface;
@@ -42,8 +42,8 @@ class UserType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => UserRequestDTO::class,
-            'empty_data' => '',
+            'data_class' => ManageUserDTO::class,
+            'empty_data' => new ManageUserDTO(),
             'isNew' => false,
         ]);
     }

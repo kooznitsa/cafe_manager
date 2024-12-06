@@ -1,35 +1,35 @@
 <?php
 
-namespace App\DTO\Request;
+namespace App\DTO;
 
 use App\Entity\{Order, User};
 use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class UserRequestDTO
+class ManageUserDTO
 {
     public function __construct(
         #[Assert\Length(max: 32)]
-        public ?string $name,
+        public string $name = '',
 
         #[Assert\Length(max: 120)]
         #[Assert\PasswordStrength]
-        public ?string $password,
+        public string $password = '',
 
         #[Assert\Length(max: 32)]
         #[Assert\Email(mode: 'strict')]
-        public ?string $email,
+        public string $email = '',
 
         #[Assert\Length(max: 255)]
-        public ?string $address,
+        public string $address = '',
 
         #[Assert\Type('array')]
         #[OA\Property(property: 'orders[]', type: 'array', items: new OA\Items(type: Order::class))]
-        public ?array $orders,
+        public array $orders = [],
 
         #[Assert\Type('array')]
         #[OA\Property(property: 'roles[]', type: 'array', items: new OA\Items(type: 'string'))]
-        public ?array $roles,
+        public array $roles = [],
     ) {
     }
 

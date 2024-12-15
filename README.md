@@ -1,6 +1,6 @@
 # Менеджер кофейни
 
-![Static Badge](https://img.shields.io/badge/development-ongoing-blue)
+![Static Badge](https://img.shields.io/badge/development-finished-green)
 
 ## Требования
 
